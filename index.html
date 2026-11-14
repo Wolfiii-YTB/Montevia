@@ -3,1046 +3,382 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Montévia RP — Le Roleplay Alsacien Ultime sur Roblox</title>
+  <title>Montévia RP — Roleplay Français sur Roblox</title>
   
-  <!-- SEO & Meta Tags -->
-  <meta name="description" content="Bienvenue sur Montévia RP, le jeu de rôle Roblox inspiré de l'Alsace. Tramways modernes, services publics réalistes, véhicules français, métiers et économie immersive.">
-  <meta name="keywords" content="Montévia, Montevia RP, Roblox, Roleplay, RP Français, Alsace, Tramway, Gendarmerie, Police, CommunityLine Studio">
+  <meta name="description" content="Montévia RP est un projet de Roleplay sérieux sur Roblox inspiré de l'Alsace. Un univers immersif développé par une équipe à l'écoute de sa communauté.">
+  <meta name="keywords" content="Montévia, Montevia RP, Roblox, Roleplay Français, Serious RP, Alsace, CommunityLine Studio">
   <meta name="author" content="CommunityLine Studio">
-  
-  <!-- Open Graph / Discord Embeds -->
+
+  <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Montévia RP — Roleplay Réaliste & Tramways sur Roblox">
+  <meta property="og:title" content="Montévia RP — Roleplay Français sur Roblox">
   <meta property="og:description" content="Une ville inspirée de l'Alsace, où réalisme, immersion et originalité se rencontrent.">
-  <meta property="og:image" content="assets/images/hero_banner.jpg">
+  <meta property="og:image" content="https://tr.rbxcdn.com/180DAY-f9679baa452374ac82cdb869096239dd/768/432/Image/Webp/noFilter">
   <meta property="og:url" content="https://discord.gg/6wHfn69Jt">
-  <meta name="theme-color" content="#00a8ff">
-  
-  <!-- Favicon -->
+
+  <!-- Favicon officiel -->
   <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
   
-  <!-- Stylesheets -->
+  <!-- Styles -->
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
-  <!-- Éléments d'ambiance visuelle floutée -->
-  <div class="ambient-glow glow-top-left"></div>
-  <div class="ambient-glow glow-middle-right"></div>
-  <div class="ambient-glow glow-bottom-left"></div>
-
   <!-- ==========================================================================
-       EN-TÊTE / BARRE DE NAVIGATION
+       NAVIGATION ÉPURÉE
        ========================================================================== -->
-  <header class="site-header">
-    <div class="container">
-      <div class="nav-wrapper">
-        
-        <!-- Logo & Identité -->
-        <a href="#accueil" class="brand-logo">
-          <div class="brand-emblem-wrap">
-            <img src="assets/images/logo.jpg" alt="Blason Montévia RP">
-          </div>
-          <div class="brand-text">
-            <div class="brand-title">
-              <span class="fleur">⚜</span> MONTEVIA <span class="gradient-text">RP</span>
-            </div>
-            <span class="brand-subtitle">CommunityLine Studio</span>
-          </div>
+  <header class="site-nav">
+    <div class="container nav-inner">
+      
+      <a href="#accueil" class="nav-brand">
+        <img src="assets/images/logo_white.png" alt="Logo Montévia" class="brand-logo-img">
+        <span class="brand-name">MONTEVIA</span>
+        <span class="brand-tag">RP FR</span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#accueil" class="nav-link">Accueil</a>
+        <a href="#experience" class="nav-link">L'Expérience RP</a>
+        <a href="#equipe" class="nav-link">Une Équipe à l'Écoute</a>
+        <a href="#reglement" class="nav-link">Règles</a>
+        <a href="#faq" class="nav-link">FAQ</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer" class="btn btn-discord">
+          Discord
         </a>
-
-        <!-- Liens de navigation -->
-        <nav class="nav-menu">
-          <a href="#accueil" class="nav-link active">Accueil</a>
-          <a href="#piliers" class="nav-link">Piliers RP</a>
-          <a href="#tramway" class="nav-link">Réseau Tram</a>
-          <a href="#services" class="nav-link">Factions & Métiers</a>
-          <a href="#reglement" class="nav-link">Règlement</a>
-          <a href="#devlogs" class="nav-link">DevLogs</a>
-          <a href="#faq" class="nav-link">FAQ</a>
-        </nav>
-
-        <!-- Actions rapides & Audio -->
-        <div class="header-actions">
-          <button id="tramChimeBtn" class="audio-toggle-btn" title="Écouter le carillon du tramway de Montévia">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-            </svg>
-            <span>Carillon Tram</span>
-          </button>
-
-          <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer" class="btn btn-discord btn-sm">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.893.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
-            </svg>
-            <span>Discord</span>
-          </a>
-
-          <a href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M5.333 1.333l13.334 3.556-3.556 13.778-13.334-3.556 3.556-13.778zm6.444 8.222l-1.777-.444-.445 1.777 1.778.445.444-1.778z"/>
-            </svg>
-            <span>Jouer</span>
-          </a>
-
-          <button class="menu-toggle" aria-label="Ouvrir le menu">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="3" y1="12" x2="21" y2="12"></line>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-          </button>
-        </div>
-
+        <a href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+          Jouer
+        </a>
+        <button class="mobile-toggle" aria-label="Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
       </div>
+
     </div>
   </header>
 
   <!-- ==========================================================================
        HERO SECTION
        ========================================================================== -->
-  <section id="accueil" class="hero-section">
-    <!-- Image de fond héroïque avec tramway et ville alsacienne -->
-    <div class="hero-bg-wrapper">
-      <img src="assets/images/hero_banner.jpg" alt="Tramway de Montévia et architecture alsacienne" class="hero-bg-image">
-      <div class="hero-overlay"></div>
-    </div>
-
-    <div class="container">
-      <div class="hero-content">
+  <main>
+    <section id="accueil" class="hero-section">
+      <div class="container">
         
-        <!-- Badge de statut en direct -->
-        <div class="status-pill">
+        <div class="hero-pill">
           <span class="pulse-dot"></span>
-          <span class="status-pill-text">SERVEUR EN PHASE DE TEST ACTIF</span>
-          <span class="status-pill-badge">SERIOUS RP 16+</span>
+          <span>Phase de Test Active • Serious RP 16+</span>
         </div>
 
         <h1 class="hero-title">
-          Vivez l'Immersion Urbaine à <span class="gradient-text">Montévia</span>
+          Le Roleplay français inspiré de l'Alsace.
         </h1>
 
         <p class="hero-subtitle">
-          Une ville française inspirée de la magnifique région <strong>Alsace</strong>. 
-          Un univers où réalisme, immersion et originalité se rencontrent autour d'un réseau moderne de tramways, 
-          de services publics structurés et d'une économie vivante.
+          Une expérience de jeu immersive développée par <strong>CommunityLine Studio</strong>. 
+          Un univers urbain réaliste, des interactions soignées et une équipe accessible qui construit le projet directement avec vous.
         </p>
 
-        <!-- Boutons d'appel à l'action -->
-        <div class="hero-cta-group">
+        <div class="hero-cta">
           <a href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M5.333 1.333l13.334 3.556-3.556 13.778-13.334-3.556 3.556-13.778zm6.444 8.222l-1.777-.444-.445 1.777 1.778.445.444-1.778z"/>
-            </svg>
-            <span>Jouer sur Roblox</span>
+            Jouer sur Roblox
           </a>
-
-          <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer" class="btn btn-discord btn-lg">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.893.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
-            </svg>
-            <span>Rejoindre le Discord</span>
-          </a>
-
-          <a href="#" class="btn btn-secondary btn-lg" data-open-modal="howToJoinModal">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polygon points="10 8 16 12 10 16 10 8"></polygon>
-            </svg>
-            <span>Comment Rejoindre ?</span>
+          <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-lg">
+            Rejoindre la Communauté Discord
           </a>
         </div>
 
-        <!-- Barre de statistiques dynamiques -->
-        <div class="hero-stats-bar">
-          <div class="stat-item">
-            <span class="stat-number" data-count="50" data-suffix=" Joueurs">50 Joueurs</span>
-            <span class="stat-label">Capacité / Serveur</span>
+        <!-- 4 Points Clés du Projet -->
+        <div class="hero-features-bar">
+          <div class="hero-feat-item">
+            <span class="hero-feat-title">Serious RP</span>
+            <span class="hero-feat-desc">Des scènes crédibles et du dialogue avant toute action</span>
           </div>
-          <div class="stat-item">
-            <span class="stat-number" data-count="100" data-suffix="%">100%</span>
-            <span class="stat-label">Réalisme & Ambiance FR</span>
+          <div class="hero-feat-item">
+            <span class="hero-feat-title">Équipe à l'Écoute</span>
+            <span class="hero-feat-desc">Vos suggestions et retours façonnent les mises à jour</span>
           </div>
-          <div class="stat-item">
-            <span class="stat-number" data-count="1050" data-suffix="+">1 050+</span>
-            <span class="stat-label">Visites en Test</span>
+          <div class="hero-feat-item">
+            <span class="hero-feat-title">Ambiance Alsacienne</span>
+            <span class="hero-feat-desc">Architecture traditionnelle, commerces et tramway</span>
           </div>
-          <div class="stat-item">
-            <span class="stat-number" data-count="6" data-suffix=" Stations">6 Stations</span>
-            <span class="stat-label">Ligne T1 Tramway</span>
+          <div class="hero-feat-item">
+            <span class="hero-feat-title">Développement Humain</span>
+            <span class="hero-feat-desc">Créé sans pression, avec pour seul but le plaisir de jeu</span>
           </div>
         </div>
 
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ==========================================================================
-       SECTION 1 : LES 5 PILIERS DE MONTEVIA
-       ========================================================================== -->
-  <section id="piliers" class="pillars-section">
-    <div class="container">
-      
-      <div class="section-header">
-        <span class="section-tag">⚜ Fondations du Projet</span>
-        <h2 class="section-title">Les Piliers Fondateurs de Montévia</h2>
-        <p class="section-desc">
-          Conçu par <strong>CommunityLine Studio (CLS)</strong> sans pression commerciale, 
-          avec une seule priorité absolue : délivrer la meilleure expérience de Roleplay francophone.
-        </p>
+    <!-- ==========================================================================
+         SHOWCASE IN-GAME (VÉRITABLE CAPTURE DU JEU ROBLOX)
+         ========================================================================== -->
+    <section class="showcase-section">
+      <div class="container">
+        <div class="showcase-wrapper">
+          <div class="showcase-header">
+            <div class="showcase-dots">
+              <span class="showcase-dot"></span>
+              <span class="showcase-dot"></span>
+              <span class="showcase-dot"></span>
+            </div>
+            <span class="showcase-title">Aperçu in-game officiel • Place de la Mairie et centre-ville</span>
+            <span></span>
+          </div>
+          <div class="showcase-img-container">
+            <img src="https://tr.rbxcdn.com/180DAY-f9679baa452374ac82cdb869096239dd/768/432/Image/Webp/noFilter" alt="Aperçu in-game de Montévia RP sur Roblox" loading="lazy">
+          </div>
+        </div>
       </div>
+    </section>
 
-      <div class="pillars-grid">
+    <!-- ==========================================================================
+         L'EXPÉRIENCE ROLEPLAY
+         ========================================================================== -->
+    <section id="experience" class="section section-alt">
+      <div class="container">
         
-        <!-- Pilier 1 (Featured) : Tramways & Mobilité -->
-        <div class="pillar-card featured">
-          <div class="pillar-featured-info">
-            <div class="pillar-icon-box">🚊</div>
-            <h3 class="pillar-title">Réseau de Tramways & Mobilité Urbaine</h3>
-            <p class="pillar-text">
-              La colonne vertébrale des transports de Montévia. Montez à bord de rames modernes bleu électrique, 
-              profitez des signaux ferroviaires fonctionnels, des caténaires suspendues et des arrêts annoncés avec carillon sonore officiel.
+        <div class="section-header">
+          <div class="section-label">Immersion & Liberté</div>
+          <h2 class="section-title">Une Vraie Expérience de Roleplay</h2>
+          <p class="section-desc">
+            À Montévia, chaque citoyen a un rôle à jouer. Loin des serveurs de fusillades permanentes, nous privilégions la profondeur des interactions et le plaisir de construire une histoire.
+          </p>
+        </div>
+
+        <div class="grid-2">
+          
+          <div class="card">
+            <span class="card-icon">🏛</span>
+            <h3 class="card-title">Services Publics & Urgences</h3>
+            <p class="card-text">
+              Gendarmerie, Police municipale, Sapeurs-Pompiers et personnel soignant : des factions structurées avec des procédures réalistes, privilégiant toujours la négociation et l'échange.
             </p>
-            <div class="pillar-badge-list">
-              <span class="pillar-badge">Ligne T1 Active</span>
-              <span class="pillar-badge">Annonces Sonores</span>
-              <span class="pillar-badge">Régulation CTS</span>
-            </div>
           </div>
-          <div class="featured-visual">
-            <img src="assets/images/hero_banner.jpg" alt="Rame de tramway en circulation">
-          </div>
-        </div>
 
-        <!-- Pilier 2 : Services Publics -->
-        <div class="pillar-card">
-          <div class="pillar-icon-box">🏛</div>
-          <h3 class="pillar-title">Services Publics & Urgences</h3>
-          <p class="pillar-text">
-            De la Mairie à l'Hôtel de Police, en passant par la caserne des sapeurs-pompiers et le SAMU. 
-            Des procédures réalistes et une hiérarchie structurée.
-          </p>
-          <div class="pillar-badge-list">
-            <span class="pillar-badge">Gendarmerie</span>
-            <span class="pillar-badge">Pompiers</span>
-            <span class="pillar-badge">Mairie</span>
+          <div class="card">
+            <span class="card-icon">💼</span>
+            <h3 class="card-title">Vie Civile & Commerces Locaux</h3>
+            <p class="card-text">
+              Pharmacie, agence bancaire, artisanat ou restauration : démarrez votre activité ou vivez simplement votre quotidien de citoyen au fil des rues montéviennes.
+            </p>
           </div>
-        </div>
 
-        <!-- Pilier 3 : Véhicules Réalistes -->
-        <div class="pillar-card">
-          <div class="pillar-icon-box">🚗</div>
-          <h3 class="pillar-title">Flotte de Véhicules Réalistes</h3>
-          <p class="pillar-text">
-            Modèles de véhicules français fidèlement reproduits : citadines, utilitaires de livraison, berlines et véhicules d'intervention 
-            avec sirènes et gyrophares deux-tons synchronisés.
-          </p>
-          <div class="pillar-badge-list">
-            <span class="pillar-badge">Gyros LED</span>
-            <span class="pillar-badge">Sons Deux-Tons FR</span>
-            <span class="pillar-badge">Concessionnaire</span>
+          <div class="card">
+            <span class="card-icon">🚗</span>
+            <h3 class="card-title">Flotte Réaliste Française</h3>
+            <p class="card-text">
+              Des véhicules français fidèlement modélisés, des sirènes authentiques et une conduite pensée pour respecter le code de la route et les piétons.
+            </p>
           </div>
-        </div>
 
-        <!-- Pilier 4 : Métiers & Commerces -->
-        <div class="pillar-card">
-          <div class="pillar-icon-box">💼</div>
-          <h3 class="pillar-title">Métiers Civils & Entreprises</h3>
-          <p class="pillar-text">
-            Gérez votre pharmacie à la croix verte lumineuse, ouvrez un commerce de bouche alsacien, travaillez à la banque 
-            ou offrez vos services de dépannage aux automobilistes de la cité.
-          </p>
-          <div class="pillar-badge-list">
-            <span class="pillar-badge">Pharmacie</span>
-            <span class="pillar-badge">Banque</span>
-            <span class="pillar-badge">Artisanat</span>
+          <div class="card">
+            <span class="card-icon">🚊</span>
+            <h3 class="card-title">Transports & Aménagement</h3>
+            <p class="card-text">
+              Un réseau de tramway moderne qui dessert les différents quartiers de la ville, reliant la mairie aux zones résidentielles et commerciales.
+            </p>
           </div>
-        </div>
 
-        <!-- Pilier 5 : Économie Immersive -->
-        <div class="pillar-card">
-          <div class="pillar-icon-box">💰</div>
-          <h3 class="pillar-title">Économie Vivante & RP Sérieux</h3>
-          <p class="pillar-text">
-            Un système monétaire cohérent où chaque euro a une valeur. Pas d'argent magique : salaires calculés, amendes, 
-            loyers de magasins et transactions sécurisées au guichet bancaire.
-          </p>
-          <div class="pillar-badge-list">
-            <span class="pillar-badge">Monnaie Propre</span>
-            <span class="pillar-badge">Serious RP</span>
-            <span class="pillar-badge">Gestion de Compte</span>
-          </div>
         </div>
 
       </div>
+    </section>
 
-    </div>
-  </section>
-
-  <!-- ==========================================================================
-       SECTION 2 : CARTE DU RÉSEAU DE TRAMWAY CTS
-       ========================================================================== -->
-  <section id="tramway" class="tram-section">
-    <div class="container">
-      
-      <div class="section-header">
-        <span class="section-tag">🚊 Mobilité Montévienne</span>
-        <h2 class="section-title">Le Réseau de Tramway (Ligne T1)</h2>
-        <p class="section-desc">
-          Cliquez sur chaque station pour découvrir ses correspondances, son ambiance de quartier et déclencher l'annonce sonore en cabine.
-        </p>
-      </div>
-
-      <div class="tram-map-container">
+    <!-- ==========================================================================
+         SECTION CLÉ : UNE ÉQUIPE À VOTRE ÉCOUTE
+         ========================================================================== -->
+    <section id="equipe" class="section">
+      <div class="container">
         
-        <!-- Barre de contrôle de ligne -->
-        <div class="tram-controls-bar">
-          <div class="line-info">
-            <span class="line-badge">T1</span>
-            <div class="line-details">
-              <h4>Ligne Bleue : Gare Centrale ↔ Les Colombages</h4>
-              <p>Longueur : 4.8 km • Fréquence : Toutes les 3 minutes • 6 stations modernes</p>
-            </div>
-          </div>
-          <div class="tram-status-live">
-            <span class="pulse-dot"></span>
-            <span>Trafic Fluide sur toute la ligne</span>
-          </div>
+        <div class="section-header">
+          <div class="section-label">Communauté & Studio</div>
+          <h2 class="section-title">Une Équipe Proche & Disponible</h2>
+          <p class="section-desc">
+            Montévia est développé par <strong>CommunityLine Studio (CLS)</strong>. Nous croyons en un projet à taille humaine, où les créateurs sont directement accessibles et où les avis des joueurs comptent vraiment.
+          </p>
         </div>
 
-        <!-- Schéma interactif de la ligne de métro/tramway -->
-        <div class="metro-map-wrapper">
-          <div class="metro-line-track">
-            <div class="metro-track-rail"></div>
-
-            <!-- Station 1 -->
-            <div class="station-node" data-station="gare">
-              <span class="station-label">Gare Centrale</span>
-              <div class="station-dot"></div>
-              <span class="station-eta">Départ</span>
+        <div class="team-callout-grid">
+          
+          <div class="team-feature-box">
+            <div class="team-feature-header">
+              <div class="team-feature-icon">💬</div>
+              <h4>Vos Idées au Cœur des Mises à Jour</h4>
             </div>
-
-            <!-- Station 2 -->
-            <div class="station-node" data-station="kleber">
-              <span class="station-label">Place d'Alsace</span>
-              <div class="station-dot"></div>
-              <span class="station-eta">+2 min</span>
-            </div>
-
-            <!-- Station 3 (Active par défaut) -->
-            <div class="station-node active" data-station="mairie">
-              <span class="station-label">Mairie de Montévia</span>
-              <div class="station-dot"></div>
-              <span class="station-eta">+4 min</span>
-            </div>
-
-            <!-- Station 4 -->
-            <div class="station-node" data-station="hopital">
-              <span class="station-label">Hôpital & Secours</span>
-              <div class="station-dot"></div>
-              <span class="station-eta">+7 min</span>
-            </div>
-
-            <!-- Station 5 -->
-            <div class="station-node" data-station="affaires">
-              <span class="station-label">Quartier d'Affaires</span>
-              <div class="station-dot"></div>
-              <span class="station-eta">+10 min</span>
-            </div>
-
-            <!-- Station 6 -->
-            <div class="station-node" data-station="terminus">
-              <span class="station-label">Les Colombages</span>
-              <div class="station-dot"></div>
-              <span class="station-eta">+13 min</span>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Fiche d'information dynamique de la station sélectionnée -->
-        <div class="station-detail-card">
-          <div class="detail-main">
-            <h3 id="stationDetailTitle" class="detail-title">Mairie de Montévia</h3>
-            <p id="stationDetailDesc" class="detail-desc">
-              Station centrale emblématique. Accès direct à l'Hôtel de Ville, aux services de police municipale 
-              et aux grands édifices administratifs de la métropole.
+            <p>
+              Chaque suggestion postée sur notre Discord est lue et débattue par l'équipe de développement. Que ce soit pour ajouter un nouveau type de commerce, ajuster une règle ou équilibrer un métier, la communauté participe activement à la construction du jeu.
             </p>
           </div>
 
-          <div class="detail-connections">
-            <h5>Correspondances & Services Proches :</h5>
-            <div id="stationDetailTags" class="connection-tags">
-              <span class="con-tag">Hôtel de Ville</span>
-              <span class="con-tag">Services d'État Civil</span>
-              <span class="con-tag">Commissariat Municipal</span>
-              <span class="con-tag">Poste</span>
+          <div class="team-feature-box">
+            <div class="team-feature-header">
+              <div class="team-feature-icon">🤝</div>
+              <h4>Une Modération Bienveillante</h4>
             </div>
-          </div>
-
-          <div class="detail-action">
-            <button class="btn btn-secondary btn-sm" onclick="Montevia.playTramChime(document.getElementById('stationDetailTitle').textContent)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-              </svg>
-              <span>Écouter Annonce</span>
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ==========================================================================
-       SECTION 3 : SERVICES & FACTIONS
-       ========================================================================== -->
-  <section id="services" class="factions-section">
-    <div class="container">
-      
-      <div class="section-header">
-        <span class="section-tag gold">⚜ Carrières & Métiers</span>
-        <h2 class="section-title">Rejoignez une Faction ou Créez Votre Histoire</h2>
-        <p class="section-desc">
-          Que vous choisissiez de servir l'ordre républicain, de secourir vos concitoyens, de conduire les rames de tramway ou de bâtir un empire commercial.
-        </p>
-      </div>
-
-      <!-- Sélecteur d'onglets de factions -->
-      <div class="factions-tabs-header">
-        <button class="tab-btn active" data-tab="police">Forces de l'Ordre</button>
-        <button class="tab-btn" data-tab="secours">Secours & Médical</button>
-        <button class="tab-btn" data-tab="cts">Transports (CTS)</button>
-        <button class="tab-btn" data-tab="mairie">Mairie & Justice</button>
-        <button class="tab-btn" data-tab="civil">Secteur Privé & Artisans</button>
-      </div>
-
-      <!-- Contenu Onglet 1 : Forces de l'Ordre -->
-      <div id="tab-police" class="tab-content active">
-        <div class="faction-detail-grid">
-          
-          <div class="faction-info-panel">
-            <div class="faction-role-header">
-              <div class="faction-role-icon">👮‍♂️</div>
-              <div class="faction-role-title">
-                <h3>Gendarmerie Nationale & Police</h3>
-                <span>Maintien de l'Ordre et Sécurité Civile</span>
-              </div>
-            </div>
-
-            <p class="faction-desc">
-              Garantissez la paix publique dans les rues de Montévia. Assurez la régulation de la circulation routière, 
-              effectuez des contrôles d'identité dans le tramway, menez des enquêtes d'investigation et intervenez sur les délits urbains.
+            <p>
+              Pas de staff inaccessible ou autoritaire. Notre équipe privilégie la pédagogie, l'explication et l'accompagnement des joueurs pour maintenir une ambiance conviviale, saine et respectueuse.
             </p>
-
-            <div class="faction-missions-box">
-              <h5>Missions Quotidiennes :</h5>
-              <ul>
-                <li><span class="bullet">▸</span> Patrouilles pédestres et motorisées dans les quartiers et stations.</li>
-                <li><span class="bullet">▸</span> Contrôles d'alcoolémie, vitesse et respect du code de la route.</li>
-                <li><span class="bullet">▸</span> Gestion des flagrants délits et déferrements au tribunal.</li>
-                <li><span class="bullet">▸</span> Sécurisation des convois de la Banque Centrale de Montévia.</li>
-              </ul>
-            </div>
-
-            <div class="faction-requirements">
-              <div class="req-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                <span>Âge : 16 ans minimum</span>
-              </div>
-              <div class="req-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path></svg>
-                <span>Microphone & Vocal actif</span>
-              </div>
-              <div class="req-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
-                <span>Candidature Discord</span>
-              </div>
-            </div>
-
-            <div class="faction-actions">
-              <a href="#" class="btn btn-primary" data-open-modal="candidatureModal">Postuler dans la Faction</a>
-              <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">Salon Recrutement</a>
-            </div>
           </div>
 
-          <div class="faction-showcase-panel">
-            <h4 class="font-display" style="color: #fff; margin-bottom: 16px; font-size: 1.15rem;">Grades & Évolution Hiérarchique</h4>
-            <div class="faction-ranks-list">
-              <div class="rank-item">
-                <span class="rank-name">Élève-Gendarme / Cadron</span>
-                <span class="rank-level">Niveau 1 • Formation</span>
-              </div>
-              <div class="rank-item">
-                <span class="rank-name">Brigadier de Police</span>
-                <span class="rank-level">Niveau 2 • Patrouilleur</span>
-              </div>
-              <div class="rank-item">
-                <span class="rank-name">Adjudant-Chef / Enquêteur</span>
-                <span class="rank-level">Niveau 3 • Officier de Quart</span>
-              </div>
-              <div class="rank-item">
-                <span class="rank-name">Capitaine de Compagnie</span>
-                <span class="rank-level">Niveau 4 • État-Major</span>
-              </div>
+          <div class="team-feature-box">
+            <div class="team-feature-header">
+              <div class="team-feature-icon">📊</div>
+              <h4>Transparence Totale</h4>
             </div>
-
-            <div class="recruitment-callout">
-              <h4>Session de Recrutement Ouverte</h4>
-              <p>Les services de sécurité recrutent actuellement de nouveaux profils sérieux pour l'ouverture des prochains serveurs de test.</p>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Contenu Onglet 2 : Secours & SAMU -->
-      <div id="tab-secours" class="tab-content">
-        <div class="faction-detail-grid">
-          
-          <div class="faction-info-panel">
-            <div class="faction-role-header">
-              <div class="faction-role-icon">🚒</div>
-              <div class="faction-role-title">
-                <h3>Sapeurs-Pompiers & SAMU 67</h3>
-                <span>Secours d'Urgence et Santé Publique</span>
-              </div>
-            </div>
-
-            <p class="faction-desc">
-              Portez secours aux victimes d'accidents de la route, intervenez sur des départs d'incendies dans les vieux bâtiments 
-              alsaciens ou assurez les soins d'urgence au Centre Hospitalier de Montévia.
+            <p>
+              Nous partageons régulièrement l'avancement des développements, les correctifs et les réflexions en cours. Des sondages sont organisés pour décider ensemble des priorités de sortie.
             </p>
-
-            <div class="faction-missions-box">
-              <h5>Missions Quotidiennes :</h5>
-              <ul>
-                <li><span class="bullet">▸</span> Interventions VSAV sur les accidents de la circulation et malaises.</li>
-                <li><span class="bullet">▸</span> Lutte contre les feux urbains avec fourgon pompe-tonne (FPT).</li>
-                <li><span class="bullet">▸</span> Prise en charge médicale et réanimation aux Urgences.</li>
-              </ul>
-            </div>
-
-            <div class="faction-actions">
-              <a href="#" class="btn btn-primary" data-open-modal="candidatureModal">Candidater aux Secours</a>
-              <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">Discord Officiel</a>
-            </div>
           </div>
 
-          <div class="faction-showcase-panel">
-            <h4 class="font-display" style="color: #fff; margin-bottom: 16px; font-size: 1.15rem;">Équipements & Véhicules Réalistes</h4>
-            <div class="faction-ranks-list">
-              <div class="rank-item">
-                <span class="rank-name">VSAV (Véhicule de Secours et d'Assistance)</span>
-                <span class="rank-level">Équipage 3 Pompiers</span>
-              </div>
-              <div class="rank-item">
-                <span class="rank-name">FPT (Fourgon Pompe-Tonne Incendie)</span>
-                <span class="rank-level">Équipage Incendie</span>
-              </div>
-              <div class="rank-item">
-                <span class="rank-name">SMUR / Véhicule d'Urgence Médicale</span>
-                <span class="rank-level">Médecin & Infirmier</span>
-              </div>
+          <div class="team-feature-box">
+            <div class="team-feature-header">
+              <div class="team-feature-icon">☕</div>
+              <h4>Un Projet Fait avec Passion</h4>
             </div>
-
-            <div class="recruitment-callout">
-              <h4>Formation Gratuite en Jeu</h4>
-              <p>Des protocoles de secourisme réalistes et des formations guidées sont proposés à chaque nouvelle recrue.</p>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Contenu Onglet 3 : CTS Transports -->
-      <div id="tab-cts" class="tab-content">
-        <div class="faction-detail-grid">
-          
-          <div class="faction-info-panel">
-            <div class="faction-role-header">
-              <div class="faction-role-icon">🚊</div>
-              <div class="faction-role-title">
-                <h3>Compagnie des Transports de Montévia (CTS)</h3>
-                <span>Régulation Ferroviaire & Conducteurs</span>
-              </div>
-            </div>
-
-            <p class="faction-desc">
-              Prenez les commandes de la fierté de la ville. Respectez les horaires de passage, gérez la signalisation aux feux 
-              des carrefours mixtes tram-voiture et veillez au confort des passagers qui parcourent la métropole.
+            <p>
+              Développé sans pression commerciale, notre seul objectif est d'offrir une expérience de Roleplay francophone agréable et immersive dont nous pouvons tous être fiers.
             </p>
-
-            <div class="faction-missions-box">
-              <h5>Missions Quotidiennes :</h5>
-              <ul>
-                <li><span class="bullet">▸</span> Conduite sécurisée et ponctualité sur les 6 stations de la Ligne T1.</li>
-                <li><span class="bullet">▸</span> Diffusion des annonces sonores et consignes de sécurité voyageur.</li>
-                <li><span class="bullet">▸</span> Maintenance des voies ferrées et gestion des pannes de caténaires.</li>
-              </ul>
-            </div>
-
-            <div class="faction-actions">
-              <a href="#" class="btn btn-primary" data-open-modal="candidatureModal">Devenir Conducteur CTS</a>
-              <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">En savoir plus</a>
-            </div>
-          </div>
-
-          <div class="faction-showcase-panel">
-            <h4 class="font-display" style="color: #fff; margin-bottom: 16px; font-size: 1.15rem;">Postes à Pourvoir</h4>
-            <div class="faction-ranks-list">
-              <div class="rank-item">
-                <span class="rank-name">Conducteur de Rame T1</span>
-                <span class="rank-level">Permis Transport Commun</span>
-              </div>
-              <div class="rank-item">
-                <span class="rank-name">Agent de Contrôle & Médiation</span>
-                <span class="rank-level">Vérification Titres</span>
-              </div>
-              <div class="rank-item">
-                <span class="rank-name">Régulateur au Poste Central (PCC)</span>
-                <span class="rank-level">Gestion Signalisation</span>
-              </div>
-            </div>
-
-            <div class="recruitment-callout">
-              <h4>Exclusivité Montévia</h4>
-              <p>Un système de pilotage de tramway haute précision conçu sur mesure par CommunityLine Studio.</p>
-            </div>
           </div>
 
         </div>
+
       </div>
+    </section>
 
-      <!-- Contenu Onglet 4 : Mairie & Justice -->
-      <div id="tab-mairie" class="tab-content">
-        <div class="faction-detail-grid">
-          
-          <div class="faction-info-panel">
-            <div class="faction-role-header">
-              <div class="faction-role-icon">⚖️</div>
-              <div class="faction-role-title">
-                <h3>Hôtel de Ville & Palais de Justice</h3>
-                <span>Administration Civile, Magistrature & Cadastre</span>
-              </div>
-            </div>
-
-            <p class="faction-desc">
-              Organisez les grands événements municipaux, délivrez les permis de construire, validez les statuts d'entreprises 
-              ou plaidez au tribunal de Montévia lors des procès correctionnels.
-            </p>
-
-            <div class="faction-missions-box">
-              <h5>Missions Quotidiennes :</h5>
-              <ul>
-                <li><span class="bullet">▸</span> Enregistrement des commerces et licences professionnelles.</li>
-                <li><span class="bullet">▸</span> Tenue des audiences judiciaires et réquisitions du Procureur.</li>
-                <li><span class="bullet">▸</span> Gestion du budget municipal et aménagement urbain.</li>
-              </ul>
-            </div>
-
-            <div class="faction-actions">
-              <a href="#" class="btn btn-primary" data-open-modal="candidatureModal">Postuler à la Mairie</a>
-              <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">Discord Officiel</a>
-            </div>
-          </div>
-
-          <div class="faction-showcase-panel">
-            <h4 class="font-display" style="color: #fff; margin-bottom: 16px; font-size: 1.15rem;">Fonctions Administratives</h4>
-            <div class="faction-ranks-list">
-              <div class="rank-item">
-                <span class="rank-name">Agent d'Accueil & État Civil</span>
-                <span class="rank-level">Formalités Citoyens</span>
-              </div>
-              <div class="rank-item">
-                <span class="rank-name">Avocat au Barreau de Montévia</span>
-                <span class="rank-level">Défense des Droits</span>
-              </div>
-              <div class="rank-item">
-                <span class="rank-name">Magistrat du Siège</span>
-                <span class="rank-level">Rendu de Justice</span>
-              </div>
-            </div>
-
-            <div class="recruitment-callout">
-              <h4>Démocratie Participative</h4>
-              <p>Élections municipales et débats citoyens réguliers pour orienter les lois de la ville.</p>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Contenu Onglet 5 : Secteur Privé & Artisans -->
-      <div id="tab-civil" class="tab-content">
-        <div class="faction-detail-grid">
-          
-          <div class="faction-info-panel">
-            <div class="faction-role-header">
-              <div class="faction-role-icon">🏬</div>
-              <div class="faction-role-title">
-                <h3>Commerces, Banques & Artisans</h3>
-                <span>Entrepreneuriat et Vie Locale</span>
-              </div>
-            </div>
-
-            <p class="faction-desc">
-              Vous êtes le poumon économique de la ville ! Tenez la pharmacie centrale avec sa célèbre enseigne lumineuse, 
-              tenez la caisse de l'agence bancaire, réparez les bolides en panne ou ouvrez votre restaurant alsacien.
-            </p>
-
-            <div class="faction-missions-box">
-              <h5>Idées d'Activités :</h5>
-              <ul>
-                <li><span class="bullet">▸</span> Pharmacien : vente de trousses de premiers soins et médicaments.</li>
-                <li><span class="bullet">▸</span> Banquier : ouverture de comptes d'épargne et crédits d'entreprises.</li>
-                <li><span class="bullet">▸</span> Garagiste : remorquage, réparations mécaniques et peinture carrosserie.</li>
-                <li><span class="bullet">▸</span> Livreur et transporteur logistique dans toute l'agglomération.</li>
-              </ul>
-            </div>
-
-            <div class="faction-actions">
-              <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Déposer un Projet d'Entreprise</a>
-            </div>
-          </div>
-
-          <div class="faction-showcase-panel">
-            <h4 class="font-display" style="color: #fff; margin-bottom: 16px; font-size: 1.15rem;">Boutiques Disponibles en Ville</h4>
-            <div class="faction-ranks-list">
-              <div class="rank-item">
-                <span class="rank-name">Pharmacie de la Mairie</span>
-                <span class="rank-level">Bail Commercial Actif</span>
-              </div>
-              <div class="rank-item">
-                <span class="rank-name">Banque Nationale de Montévia</span>
-                <span class="rank-level">Guichet & Coffres</span>
-              </div>
-              <div class="rank-item">
-                <span class="rank-name">Concessionnaire Automobile Récent</span>
-                <span class="rank-level">Vente Véhicules Civils</span>
-              </div>
-            </div>
-
-            <div class="recruitment-callout">
-              <h4>Liberté Économique Totale</h4>
-              <p>Toute idée d'entreprise innovante peut être validée par les administrateurs et intégrée sur la carte.</p>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ==========================================================================
-       SECTION 4 : RÈGLEMENT ET GUIDE DU SERIOUS RP
-       ========================================================================== -->
-  <section id="reglement" class="rules-section">
-    <div class="container">
-      
-      <div class="section-header">
-        <span class="section-tag">📜 Charte d'Excellence</span>
-        <h2 class="section-title">Règlement Officiel & Fairplay (Serious RP)</h2>
-        <p class="section-desc">
-          Sur Montévia RP, le respect et la qualité d'interprétation priment sur tout le reste. 
-          Prenez connaissance de nos règles d'or pour assurer une expérience agréable à toute la communauté.
-        </p>
-      </div>
-
-      <div class="rules-container">
-        <div class="rule-accordion">
-          
-          <!-- Règle 1 -->
-          <div class="rule-item open">
-            <div class="rule-header">
-              <div class="rule-title-group">
-                <span class="rule-number">01</span>
-                <h4 class="rule-title">Serious RP & Maturité (16+)</h4>
-              </div>
-              <svg class="rule-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </div>
-            <div class="rule-body" style="max-height: 200px;">
-              <div class="rule-inner">
-                Vous incarnez un personnage avec une identité, une psychologie et une histoire cohérentes. Tout comportement trollesque, 
-                non-RP ou perturbateur entraîne une sanction immédiate par l'équipe de modération CommunityLine Studio.
-                <div class="rule-example">
-                  <strong>💡 Bon réflexe :</strong> Restez dans votre rôle en toute circonstance, y compris lors des contrôles de gendarmerie ou accidents.
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Règle 2 -->
-          <div class="rule-item">
-            <div class="rule-header">
-              <div class="rule-title-group">
-                <span class="rule-number">02</span>
-                <h4 class="rule-title">Interdiction Absolue de Freekill (RDM / VMD / FRP)</h4>
-              </div>
-              <svg class="rule-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </div>
-            <div class="rule-body">
-              <div class="rule-inner">
-                Il est strictement prohibé d'attaquer, blesser ou percuter des joueurs avec un véhicule sans aucune raison scénaristique valable (Random Deathmatch & Vehicle Deathmatch). 
-                Toute arme sortie doit être justifiée par un conflit RP documenté et progressif.
-                <div class="rule-example">
-                  <strong>⛔ Interdit :</strong> Écraser volontairement des piétons sur les trottoirs ou tirer sur des passagers du tramway sans sommations.
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Règle 3 -->
-          <div class="rule-item">
-            <div class="rule-header">
-              <div class="rule-title-group">
-                <span class="rule-number">03</span>
-                <h4 class="rule-title">Respect de la Peur et de la Douleur (Fear RP & Pain RP)</h4>
-              </div>
-              <svg class="rule-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </div>
-            <div class="rule-body">
-              <div class="rule-inner">
-                Si vous êtes tenu en joue par une arme ou acculé par plusieurs forces de l'ordre, votre personnage doit ressentir la peur naturelle pour sa vie et coopérer. 
-                De même, en cas d'accident de voiture à 80 km/h, vous devez jouer vos blessures et attendre l'arrivée des secours SAMU.
-                <div class="rule-example">
-                  <strong>💡 Bon réflexe :</strong> Ne sautez pas d'un pont ou d'un tramway en marche pour fuir un contrôle sans simuler de fractures.
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Règle 4 -->
-          <div class="rule-item">
-            <div class="rule-header">
-              <div class="rule-title-group">
-                <span class="rule-number">04</span>
-                <h4 class="rule-title">Code de la Route & Conduite Réaliste</h4>
-              </div>
-              <svg class="rule-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </div>
-            <div class="rule-body">
-              <div class="rule-inner">
-                Les feux tricolores, les voies réservées aux tramways et les priorités à droite doivent être respectés. 
-                Le "No-Physics" ou la conduite sur les voies ferrées avec des citadines non adaptées constitue du Mass RP / Fail RP sanctionnable.
-                <div class="rule-example">
-                  <strong>🚊 Priorité absolue :</strong> Le tramway a toujours la priorité aux croisements. Ne stationnez jamais votre voiture sur les rails.
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Règle 5 -->
-          <div class="rule-item">
-            <div class="rule-header">
-              <div class="rule-title-group">
-                <span class="rule-number">05</span>
-                <h4 class="rule-title">Utilisation du Chat Vocal & Micro de Qualité</h4>
-              </div>
-              <svg class="rule-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </div>
-            <div class="rule-body">
-              <div class="rule-inner">
-                Le chat vocal spatialisé Roblox et les canaux Discord radio officiels sont le cœur des échanges à Montévia. 
-                Les bruits parasites excessifs, les soundboards non autorisées et le HRP (Hors-Roleplay) vocal sont formellement proscrits.
-                <div class="rule-example">
-                  <strong>🎙 Conseil :</strong> Utilisez le push-to-talk si vous avez du bruit de fond chez vous.
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ==========================================================================
-       SECTION 5 : DEVLOGS & ROADMAP (COMMUNITYLINE STUDIO)
-       ========================================================================== -->
-  <section id="devlogs" class="devlogs-section">
-    <div class="container">
-      
-      <div class="section-header">
-        <span class="section-tag">🛠 Suivi du Développement</span>
-        <h2 class="section-title">Dernières Mises à Jour & Annonces</h2>
-        <p class="section-desc">
-          Restez au courant des nouveautés régulières publiées par l'équipe de <strong>CommunityLine Studio</strong>.
-        </p>
-      </div>
-
-      <div class="devlogs-grid">
+    <!-- ==========================================================================
+         RÈGLES ESSENTIELLES (SERIOUS RP)
+         ========================================================================== -->
+    <section id="reglement" class="section section-alt">
+      <div class="container">
         
-        <!-- DevLog 1 -->
-        <div class="devlog-card">
-          <div class="devlog-meta">
-            <span class="devlog-tag release">Mise à Jour Test</span>
-            <span class="devlog-date">09 Novembre 2026</span>
-          </div>
-          <h3 class="devlog-title">Optimisation du Tramway & Fix Signalétique</h3>
-          <p class="devlog-summary">
-            Calibrage de la physique des rames de tramway, synchronisation des sons d'arrivée en station 
-            et ajustement des temps d'ouverture des portes automatiques pour une fluidité optimale.
+        <div class="section-header center">
+          <div class="section-label">Charte de Qualité</div>
+          <h2 class="section-title">Les Règles Essentielles</h2>
+          <p class="section-desc">
+            Pour garantir un jeu agréable à tout le monde, chaque joueur s'engage à respecter ces principes fondamentaux.
           </p>
-          <div class="devlog-author">
-            <div class="author-avatar">HF</div>
-            <div class="author-info">
-              <h6>Hego2Fou</h6>
-              <span>Fondateur & Développeur Principal</span>
-            </div>
-          </div>
         </div>
 
-        <!-- DevLog 2 -->
-        <div class="devlog-card">
-          <div class="devlog-meta">
-            <span class="devlog-tag release">Ambiance Urbaine</span>
-            <span class="devlog-date">01 Novembre 2026</span>
-          </div>
-          <h3 class="devlog-title">Nouveaux Bâtiments Alsaciens & Pharmacie</h3>
-          <p class="devlog-summary">
-            Ajout de façades en pierre de taille, de balcons en fer forgé haussmanniens et de la pharmacie centrale 
-            avec croix verte clignotante à côté de la Place de la Mairie.
-          </p>
-          <div class="devlog-author">
-            <div class="author-avatar">CLS</div>
-            <div class="author-info">
-              <h6>CommunityLine Studio</h6>
-              <span>Équipe Mapping & Textures</span>
+        <div class="rules-list">
+          
+          <div class="rule-row">
+            <div class="rule-top">
+              <span class="rule-badge">01</span>
+              <h4 class="rule-heading">Le Fairplay en Toute Circonstance</h4>
             </div>
+            <p class="rule-desc">
+              Le but d'une scène RP n'est pas de « gagner », mais de créer une histoire captivante pour tous les participants. Acceptez de perdre une négociation, d'être arrêté ou de faire face aux imprévus avec fairplay.
+            </p>
           </div>
-        </div>
 
-        <!-- DevLog 3 -->
-        <div class="devlog-card">
-          <div class="devlog-meta">
-            <span class="devlog-tag wip">À Venir (WIP)</span>
-            <span class="devlog-date">Phase Finale 2026</span>
-          </div>
-          <h3 class="devlog-title">Ouverture Publique & Deuxième Ligne de Tramway</h3>
-          <p class="devlog-summary">
-            Déploiement des nouveaux gyros LED synchronisés pour les véhicules de secours, 
-            extension de la Ligne T2 vers les zones résidentielles et ouverture des sessions de recrutement public.
-          </p>
-          <div class="devlog-author">
-            <div class="author-avatar">WF</div>
-            <div class="author-info">
-              <h6>Wolfiii 〆✧</h6>
-              <span>Gestion Communautaire Discord</span>
+          <div class="rule-row">
+            <div class="rule-top">
+              <span class="rule-badge">02</span>
+              <h4 class="rule-heading">Interdiction du Freekill (RDM & VMD)</h4>
             </div>
+            <p class="rule-desc">
+              Toute agression physique ou utilisation de véhicule comme arme sans raison RP préalable et construite est formellement interdite. Privilégiez toujours la parole et le dialogue.
+            </p>
           </div>
+
+          <div class="rule-row">
+            <div class="rule-top">
+              <span class="rule-badge">03</span>
+              <h4 class="rule-heading">Cohérence & Respect de la Vie (Fear & Pain RP)</h4>
+            </div>
+            <p class="rule-desc">
+              Votre personnage doit réagir avec cohérence face au danger (peur d'une arme pointée, respect de l'autorité) et simuler ses blessures physiques lors d'un accident ou d'une intervention médicale.
+            </p>
+          </div>
+
+          <div class="rule-row">
+            <div class="rule-top">
+              <span class="rule-badge">04</span>
+              <h4 class="rule-heading">Conduite Réaliste & Respect d'Autrui</h4>
+            </div>
+            <p class="rule-desc">
+              Respectez le code de la route, la priorité du tramway et évitez les conduites irréalistes en ville. Le respect mutuel entre joueurs sur le vocal et par écrit est indispensable.
+            </p>
+          </div>
+
         </div>
 
       </div>
+    </section>
 
-    </div>
-  </section>
-
-  <!-- ==========================================================================
-       SECTION 6 : FAQ
-       ========================================================================== -->
-  <section id="faq" class="faq-section">
-    <div class="container">
-      
-      <div class="section-header">
-        <span class="section-tag">❓ Questions Fréquentes</span>
-        <h2 class="section-title">Tout Ce Que Vous Devez Savoir</h2>
-        <p class="section-desc">
-          Une interrogation avant de faire vos premiers pas dans les rues de Montévia ? Les réponses sont ici.
-        </p>
-      </div>
-
-      <div class="faq-grid">
+    <!-- ==========================================================================
+         FAQ
+         ========================================================================== -->
+    <section id="faq" class="section">
+      <div class="container">
         
-        <div class="faq-card">
-          <div class="faq-q">
-            <span class="q-mark">Q.</span>
-            <h4>Le jeu est-il gratuit pour tous ?</h4>
-          </div>
-          <p class="faq-a">
-            Oui ! L'accès à Montévia RP est 100% gratuit sur la plateforme Roblox. Aucune obligation d'achat n'est nécessaire pour profiter pleinement de la vie citoyenne et des transports.
-          </p>
+        <div class="section-header center">
+          <div class="section-label">Aide & Informations</div>
+          <h2 class="section-title">Foire Aux Questions</h2>
         </div>
 
-        <div class="faq-card">
-          <div class="faq-q">
-            <span class="q-mark">Q.</span>
-            <h4>Faut-il obligatoirement avoir 16 ans pour jouer ?</h4>
+        <div class="faq-grid">
+          
+          <div class="faq-item">
+            <h4 class="faq-q">Le jeu est-il gratuit ?</h4>
+            <p class="faq-a">
+              Oui, Montévia RP est totalement gratuit d'accès sur la plateforme Roblox.
+            </p>
           </div>
-          <p class="faq-a">
-            Le jeu est classifié pour les joueurs de 16 ans et plus en raison de son exigence de sérieux et de maturité dans les scènes de rôleplay (interactions policières, scénarios réalistes).
-          </p>
-        </div>
 
-        <div class="faq-card">
-          <div class="faq-q">
-            <span class="q-mark">Q.</span>
-            <h4>Comment postuler dans la Gendarmerie ou chez les Pompiers ?</h4>
+          <div class="faq-item">
+            <h4 class="faq-q">Quel est l'âge recommandé ?</h4>
+            <p class="faq-a">
+              Le jeu est recommandé aux joueurs de 16 ans et plus afin de maintenir un niveau de sérieux et de maturité suffisant lors des interactions.
+            </p>
           </div>
-          <p class="faq-a">
-            Les recrutements s'effectuent directement via notre serveur Discord officiel. Rejoignez le salon <code>#candidatures</code>, lisez les prérequis et déposez votre formulaire.
-          </p>
-        </div>
 
-        <div class="faq-card">
-          <div class="faq-q">
-            <span class="q-mark">Q.</span>
-            <h4>Sur quels appareils peut-on jouer à Montévia ?</h4>
+          <div class="faq-item">
+            <h4 class="faq-q">Comment rejoindre un métier ou une faction ?</h4>
+            <p class="faq-a">
+              Rejoignez notre serveur Discord officiel. Des salons de candidatures vous permettent de postuler dans les forces de l'ordre, les secours ou de déclarer votre commerce.
+            </p>
           </div>
-          <p class="faq-a">
-            Le jeu est principalement optimisé pour PC (Windows / Mac) afin d'assurer les contrôles du tramway et la conduite précise des véhicules. L'accès mobile dépendra des futures optimisations.
-          </p>
+
+          <div class="faq-item">
+            <h4 class="faq-q">Comment soumettre une idée à l'équipe ?</h4>
+            <p class="faq-a">
+              Un salon dédié aux suggestions est ouvert sur Discord. L'équipe lit régulièrement les propositions et échange en direct avec les membres.
+            </p>
+          </div>
+
         </div>
 
       </div>
+    </section>
 
-    </div>
-  </section>
-
-  <!-- ==========================================================================
-       SECTION 7 : CTA BANNER FINALE
-       ========================================================================== -->
-  <section class="cta-banner-section">
-    <div class="container">
-      <div class="cta-banner-card">
-        <h2 class="cta-title">Prêt à Bâtir Votre Avenir à <span class="gradient-text">Montévia</span> ?</h2>
-        <p class="cta-subtitle">
-          Rejoignez dès maintenant plus de 1 050 joueurs qui suivent le projet. 
-          Montez à bord du prochain tramway et écrivez votre histoire.
+    <!-- ==========================================================================
+         BANNER FINALE
+         ========================================================================== -->
+    <section class="container">
+      <div class="cta-banner">
+        <h2>Prêt à Rejoindre l'Aventure ?</h2>
+        <p>
+          Rejoignez la communauté Montévia RP dès aujourd'hui et participez à nos sessions de test.
         </p>
-        <div class="cta-actions">
+        <div class="cta-banner-buttons">
           <a href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M5.333 1.333l13.334 3.556-3.556 13.778-13.334-3.556 3.556-13.778zm6.444 8.222l-1.777-.444-.445 1.777 1.778.445.444-1.778z"/>
-            </svg>
-            <span>Lancer sur Roblox</span>
+            Lancer sur Roblox
           </a>
-
           <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer" class="btn btn-discord btn-lg">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.893.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
-            </svg>
-            <span>Rejoindre la Communauté Discord</span>
+            Rejoindre sur Discord
           </a>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </main>
 
   <!-- ==========================================================================
        PIED DE PAGE (FOOTER)
@@ -1050,170 +386,56 @@
   <footer class="site-footer">
     <div class="container">
       
-      <div class="footer-top">
-        
-        <div class="footer-brand">
-          <div class="brand-logo">
-            <div class="brand-emblem-wrap">
-              <img src="assets/images/logo.jpg" alt="Logo Montévia">
-            </div>
-            <div class="brand-text">
-              <div class="brand-title"><span class="fleur">⚜</span> MONTEVIA RP</div>
-              <span class="brand-subtitle">CommunityLine Studio</span>
-            </div>
+      <div class="footer-inner">
+        <div class="footer-left">
+          <div class="nav-brand">
+            <img src="assets/images/logo_white.png" alt="Logo Montévia" class="brand-logo-img">
+            <span class="brand-name">MONTEVIA RP</span>
           </div>
           <p>
-            Une ville inspirée de l'Alsace, où réalisme, immersion et originalité se rencontrent. 
-            Développé avec passion pour la communauté Roleplay francophone.
+            Une expérience Roleplay française inspirée de l'Alsace, développée avec passion par CommunityLine Studio.
           </p>
         </div>
 
-        <div class="footer-col">
-          <h5>Navigation</h5>
-          <div class="footer-links">
-            <a href="#accueil">Accueil</a>
-            <a href="#piliers">Les 5 Piliers</a>
-            <a href="#tramway">Réseau Tramway CTS</a>
-            <a href="#services">Factions & Métiers</a>
-            <a href="#reglement">Règlement du Jeu</a>
+        <div class="footer-right">
+          <div class="footer-col">
+            <h5>Navigation</h5>
+            <ul>
+              <li><a href="#accueil">Accueil</a></li>
+              <li><a href="#experience">L'Expérience RP</a></li>
+              <li><a href="#equipe">Une Équipe à l'Écoute</a></li>
+              <li><a href="#reglement">Règles</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h5>Liens Officiels</h5>
+            <ul>
+              <li><a href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener noreferrer">Jeu Roblox</a></li>
+              <li><a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer">Discord Officiel</a></li>
+              <li><a href="https://www.roblox.com/fr/users/8551422159/profile" target="_blank" rel="noopener noreferrer">Profil @Hego2Fou</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-col">
+            <h5>Studio</h5>
+            <ul>
+              <li style="color: var(--text-secondary); font-size: 0.88rem;">CommunityLine Studio</li>
+              <li style="color: var(--text-muted); font-size: 0.82rem;">Fondateur : Hego2Fou</li>
+              <li style="color: var(--text-muted); font-size: 0.82rem;">Phase de Test Ouverte</li>
+            </ul>
           </div>
         </div>
-
-        <div class="footer-col">
-          <h5>Communauté</h5>
-          <div class="footer-links">
-            <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer">Serveur Discord</a>
-            <a href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener noreferrer">Jeu sur Roblox</a>
-            <a href="https://www.roblox.com/fr/groups/13698469" target="_blank" rel="noopener noreferrer">Groupe Roblox CLS</a>
-            <a href="#" data-open-modal="candidatureModal">Candidatures</a>
-          </div>
-        </div>
-
-        <div class="footer-col">
-          <h5>Studio & Crédits</h5>
-          <div class="footer-links">
-            <span style="color: var(--text-muted); font-size: 0.88rem;">CommunityLine Studio (CLS)</span>
-            <span style="color: var(--text-dim); font-size: 0.82rem;">Fondateur : @Hego2Fou</span>
-            <span style="color: var(--text-dim); font-size: 0.82rem;">Communauté : Wolfiii 〆✧</span>
-            <span style="color: var(--primary-light); font-size: 0.82rem;">Phase : Test Ouvert</span>
-          </div>
-        </div>
-
       </div>
 
       <div class="footer-bottom">
-        <div class="footer-disclaimer">
-          © 2026 Montévia RP — Développé par CommunityLine Studio. 
-          Montévia est un jeu indépendant conçu sur la plateforme Roblox. Roblox et le logo Roblox sont des marques déposées de Roblox Corporation.
-        </div>
-        <div class="footer-repo">
-          <span>Prêt pour GitHub Desktop & Pages</span>
-        </div>
+        <span>© 2026 Montévia RP — CommunityLine Studio. Tous droits réservés.</span>
+        <span>Jeu indépendant développé sur la plateforme Roblox.</span>
       </div>
 
     </div>
   </footer>
 
-  <!-- ==========================================================================
-       MODALE 1 : COMMENT REJOINDRE
-       ========================================================================== -->
-  <div id="howToJoinModal" class="modal-backdrop">
-    <div class="modal-card">
-      <button class="modal-close-btn" aria-label="Fermer la boîte de dialogue">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-
-      <div class="modal-header">
-        <h3>Comment Rejoindre Montévia RP ?</h3>
-        <p>Suivez ces 3 étapes simples pour débuter votre aventure dans les meilleures conditions.</p>
-      </div>
-
-      <div class="modal-steps">
-        <div class="modal-step-item">
-          <div class="step-num">1</div>
-          <div class="step-content">
-            <h5>Rejoindre le Discord Officiel</h5>
-            <p>Le Discord <strong>⚜✨ 𝐌𝐨𝐧𝐭𝐞𝐯𝐢𝐚 ✨⚜</strong> est indispensable pour être tenu au courant des sessions de test, des recrutements et des annonces de sortie.</p>
-          </div>
-        </div>
-
-        <div class="modal-step-item">
-          <div class="step-num">2</div>
-          <div class="step-content">
-            <h5>Prendre Connaissance du Règlement</h5>
-            <p>Montévia est une expérience Serious RP (+16). Respectez le Fairplay, l'interdiction du Freekill et privilégiez la cohérence de vos scènes.</p>
-          </div>
-        </div>
-
-        <div class="modal-step-item">
-          <div class="step-num">3</div>
-          <div class="step-content">
-            <h5>Lancer le Jeu sur Roblox</h5>
-            <p>Cliquez sur "Jouer" pour charger la map, choisissez votre tenue de citoyen et commencez votre vie montévienne !</p>
-          </div>
-        </div>
-      </div>
-
-      <div style="display: flex; gap: 12px; justify-content: flex-end;">
-        <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer" class="btn btn-discord">Rejoindre Discord</a>
-        <a href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Jouer sur Roblox</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==========================================================================
-       MODALE 2 : GUIDE DES CANDIDATURES
-       ========================================================================== -->
-  <div id="candidatureModal" class="modal-backdrop">
-    <div class="modal-card">
-      <button class="modal-close-btn" aria-label="Fermer la boîte de dialogue">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-
-      <div class="modal-header">
-        <h3>Candidatures Métiers & Factions</h3>
-        <p>Toutes les démarches officielles pour intégrer un corps public ou fonder votre société.</p>
-      </div>
-
-      <div class="modal-steps">
-        <div class="modal-step-item">
-          <div class="step-num">1</div>
-          <div class="step-content">
-            <h5>Accédez au salon #candidatures</h5>
-            <p>Rendez-vous sur le serveur Discord dans la section dédiée à la faction souhaitée (Gendarmerie, SAMU, CTS Tramway ou Mairie).</p>
-          </div>
-        </div>
-
-        <div class="modal-step-item">
-          <div class="step-num">2</div>
-          <div class="step-content">
-            <h5>Remplir le Dossier de Recrutement</h5>
-            <p>Renseignez votre expérience RP, votre disponibilité, votre motivation et votre compréhension du rôle.</p>
-          </div>
-        </div>
-
-        <div class="modal-step-item">
-          <div class="step-num">3</div>
-          <div class="step-content">
-            <h5>Entretien Vocal & Formation en Jeu</h5>
-            <p>Une fois votre dossier validé, un instructeur vous conviera à une brève session pratique avant votre prise de service.</p>
-          </div>
-        </div>
-      </div>
-
-      <div style="display: flex; gap: 12px; justify-content: flex-end;">
-        <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer" class="btn btn-discord">Accéder aux Candidatures sur Discord</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Scripts -->
   <script src="assets/js/main.js"></script>
 </body>
 </html>
