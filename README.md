@@ -8,19 +8,16 @@
 ## 🌐 Liens Officiels
 - 🎮 **Jouer sur Roblox :** [Montevia | Jouez sur Roblox](https://www.roblox.com/fr/games/136984692229053/Montevia)
 - 💬 **Rejoindre le Discord :** [discord.gg/6wHfn69Jt](https://discord.gg/6wHfn69Jt)
-- 👤 **Fondateur :** [Profil Roblox @Hego2Fou](https://www.roblox.com/fr/users/8551422159/profile)
+- 📊 **DevReports Hub :** [DevReports](https://wolfiii-ytb.github.io/DevReports/#team)
 
 ---
 
 ## 🎨 Conception du Site
 
-- **Design épuré & moderne :** Typographie sobre (*Inter*), palette neutre (noir, ardoise et blanc), lignes fines et sans fioritures superflues.
-- **Logo officiel :** Utilisation directe du logo fourni par le studio (`logo.png` / `logo_white.png`).
-- **Médias authentiques :** Intégration de la véritable capture in-game depuis la page Roblox du jeu (zéro image générée par IA).
-- **Contenu ciblé :**
-  - **L'esprit Roleplay avant tout :** Serious RP, interactions soignées, services publics et vie civile.
-  - **Une équipe à l'écoute :** Mise en avant de CommunityLine Studio, de l'accessibilité du staff, des boîtes à idées et de la transparence de développement.
-  - **Règles et FAQ :** Principes de Fairplay, Fear RP / Pain RP et questions fréquentes.
+- **Hero immersif avec arrière-plan in-game :** Capture authentique du jeu intégrée en arrière-plan avec voile sombre moderne pour une lisibilité parfaite.
+- **Règlement officiel complet :** Intégration stricte des 10 règles officielles du serveur (Respect, Comportement, Spam, Contenu, Salons, Développement, Staff, Confidentialité, Contournement, Sanctions).
+- **100% Icônes SVG :** Zéro emoji pour un rendu propre, net et professionnel.
+- **Espace Staff & Panel Admin :** Connexion sécurisée des membres du staff via le projet **Supabase** de DevReports (`admin.html`).
 
 ---
 
@@ -29,23 +26,18 @@
 ```text
 Montevia/
 ├── index.html               # Page d'accueil moderne, épurée et responsive
+├── admin.html               # Espace Staff connecté à Supabase DevReports
 ├── README.md                # Documentation du projet
 └── assets/
     ├── css/
     │   └── style.css        # Styles CSS minimalistes, modernes et légers
     ├── js/
-    │   └── main.js          # Navigation mobile et défilement fluide
+    │   ├── main.js          # Navigation mobile et défilement fluide
+    │   └── admin.js         # Logique d'authentification Supabase DevReports
     └── images/
         ├── favicon.svg      # Favicon officiel
+        ├── hero_bg.jpg      # Capture in-game en arrière-plan
         ├── logo.png         # Logo officiel (monogramme noir sur transparent)
-        └── logo_white.png   # Logo officiel (monogramme blanc pour thème sombre)
+        ├── logo_white.png   # Logo officiel (monogramme blanc pour thème sombre)
+        └── roblox_ingame.webp # Capture in-game brute
 ```
-
----
-
-## 📤 Déploiement avec GitHub Desktop
-
-1. Ouvrez **GitHub Desktop** (le dossier y est déjà connecté).
-2. Validez le commit : `Refonte moderne épurée, logo officiel et mise en avant de l'équipe`.
-3. Cliquez sur **Push origin**.
-4. Activez GitHub Pages dans les paramètres de votre dépôt pour le mettre en ligne gratuitement en quelques secondes.
