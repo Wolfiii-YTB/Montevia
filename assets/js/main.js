@@ -1,15 +1,13 @@
 /**
  * MONTEVIA RP — SCRIPT PRINCIPAL
- * Annonces en temps réel via Supabase (visible par tous les visiteurs)
+ * Annonces en temps réel via announcements.json (GitHub Pages)
+ * Visible par tous les visiteurs dès publication par le staff
  * CommunityLine Studio
  */
 
-const SUPABASE_URL = "https://bylwvlxxvgumvqgpwgod.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_T3XYbDWXV5VaC8WQj3CZOQ_LmB7CTwv";
-
 document.addEventListener('DOMContentLoaded', async () => {
 
-  // 1. Chargement de l'annonce active depuis Supabase (visible par tous)
+  // 1. Chargement de l'annonce depuis announcements.json (mise à jour par le staff)
   await loadLiveAnnouncement();
 
   // 2. Application des configurations dynamiques locales (textes, liens)
@@ -92,71 +90,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // ─── Annonce publique depuis Supabase ───────────────────────────────────────
+  // ─── Annonce publique depuis announcements.json ─────────────────────────
   async function loadLiveAnnouncement() {
     try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/site_config?select=*&key=eq.site_announcement&limit=1`,
-        {
-          headers: {
-            'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
+      // Cache-bust pour toujours récupérer la dernière version
+      const res = await fetch(`/Montevia/announcements.json?t=${Date.now()}`, {
+        cache: 'no-store'
+      });
       if (!res.ok) return;
-      const rows = await res.json();
-      const row = rows && rows[0];
-
-      if (!row || !row.value) return;
-
-      let cfg;
-      try { cfg = typeof row.value === 'string' ? JSON.parse(row.value) : row.value; }
-      catch (e) { return; }
+      const cfg = await res.json();
 
       if (cfg && cfg.active && cfg.text) {
         injectBanner(cfg);
       }
     } catch (e) {
-      // Silencieux : fallback localStorage
-      applyLocalAnnouncement();
+      // Silencieux si le fichier est inaccessible
     }
   }
 
   function injectBanner(cfg) {
-    let banner = document.querySelector('.site-announcement-banner');
-    if (!banner) {
-      banner = document.createElement('div');
-      document.body.prepend(banner);
-    }
+    // Supprimer une éventuelle bannière existante
+    const existing = document.querySelector('.site-announcement-banner');
+    if (existing) existing.remove();
+
+    const banner = document.createElement('div');
     banner.className = `site-announcement-banner banner-${cfg.type || 'info'}`;
 
     const linkHtml = cfg.link
       ? `<a href="${escapeAttr(cfg.link)}" target="_blank" rel="noopener noreferrer" class="banner-link">En savoir plus →</a>`
       : '';
 
-    const closeBtn = `<button class="banner-close" aria-label="Fermer" onclick="this.parentElement.remove()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:inherit;font-size:1.1rem;line-height:1;padding:0 4px;">✕</button>`;
+    banner.innerHTML = `
+      <span>${escapeHtml(cfg.text)}</span>
+      ${linkHtml}
+      <button class="banner-close" aria-label="Fermer" onclick="this.parentElement.remove()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:inherit;font-size:1.1rem;line-height:1;padding:0 4px;opacity:0.7;">✕</button>
+    `;
 
-    banner.innerHTML = `<span>${escapeHtml(cfg.text)}</span>${linkHtml}${closeBtn}`;
-  }
-
-  // Fallback : si Supabase inaccessible, lire le localStorage local
-  function applyLocalAnnouncement() {
-    try {
-      const raw = localStorage.getItem('montevia_site_config');
-      if (!raw) return;
-      const config = JSON.parse(raw);
-      if (config.announcementActive && config.announcementText) {
-        injectBanner({
-          active: true,
-          text: config.announcementText,
-          type: config.announcementType || 'info',
-          link: config.announcementLink || ''
-        });
-      }
-    } catch (e) {}
+    document.body.prepend(banner);
   }
 
   // ─── Config dynamique locale (textes, liens) ─────────────────────────────
@@ -199,7 +169,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function escapeHtml(str) {
-    return String(str).replace(/[&<>'\"]/g, tag => ({
+    return String(str).replace(/[&<>'"]/g, tag => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
     }[tag] || tag));
   }
