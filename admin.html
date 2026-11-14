@@ -6,8 +6,16 @@
   <title>Panel Staff & Éditeur — Montévia RP</title>
   <meta name="robots" content="noindex, nofollow">
   
-  <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  
+  <!-- PDP / Favicon officiel du jeu -->
+  <link rel="icon" type="image/png" href="assets/images/game_icon.png">
+  <link rel="shortcut icon" type="image/png" href="assets/images/game_icon.png">
+  <link rel="apple-touch-icon" href="assets/images/game_icon.png">
+  
+  <link rel="stylesheet" href="assets/css/style.css?v=20261114-12">
   
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -18,9 +26,9 @@
   <header class="site-header">
     <div class="container nav-wrapper">
       <a href="index.html" class="brand">
-        <img src="assets/images/logo_white.png" alt="Logo Montévia" class="brand-logo">
+        <img src="assets/images/game_icon.png" alt="Photo de profil Montévia" class="brand-logo" style="border-radius: 8px; width: 34px; height: 34px; object-fit: cover;">
         <span class="brand-title">MONTEVIA</span>
-        <span class="brand-badge">PANEL STAFF & GESTION</span>
+        <span class="brand-badge">PANEL STAFF & ÉDITEUR</span>
       </a>
 
       <div class="nav-actions">
@@ -42,15 +50,12 @@
       <!-- 1. Formulaire de Connexion Staff (si non connecté) -->
       <section id="adminLoginSection" class="card" style="max-width: 500px; margin: 40px auto; padding: 36px 32px;">
         <div style="text-align: center; margin-bottom: 28px;">
-          <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: var(--bg-surface-elevated); border: 1px solid var(--border); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px; color: var(--accent);">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
+          <div style="width: 54px; height: 54px; border-radius: 12px; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.4);">
+            <img src="assets/images/game_icon.png" alt="PDP Montévia" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
           <h1 style="font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 6px;">Connexion Staff</h1>
           <p style="font-size: 0.9rem; color: var(--text-secondary);">
-            Connectez-vous avec vos identifiants <strong>DevReports</strong> pour gérer le site et accéder aux outils.
+            Connectez-vous avec vos identifiants <strong>DevReports</strong> pour modifier le site et accéder aux outils.
           </p>
         </div>
 
@@ -344,6 +349,6 @@
     </div>
   </footer>
 
-  <script src="assets/js/admin.js"></script>
+  <script src="assets/js/admin.js?v=20261114-12"></script>
 </body>
 </html>

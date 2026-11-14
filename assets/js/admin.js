@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   try {
     const { data: { session } } = await db.auth.getSession();
-    if (session) {
+    if (session && session.user) {
       showDashboard(session.user);
     } else {
       showLogin();
@@ -128,6 +128,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function showDashboard(user) {
     if (loginSection) loginSection.style.display = 'none';
     if (dashboardSection) dashboardSection.style.display = 'block';
+
+    // Forcer l'affichage de l'onglet Éditeur du site par défaut
+    const sitePane = document.getElementById('tabPane-site');
+    const toolsPane = document.getElementById('tabPane-tools');
+    if (sitePane) sitePane.style.display = 'block';
+    if (toolsPane) toolsPane.style.display = 'none';
+
+    document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+      if (btn.getAttribute('data-tab') === 'site') {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    loadSiteConfigIntoForm();
 
     const emailEl = document.getElementById('staffUserEmail');
     const roleEl = document.getElementById('staffUserRole');
