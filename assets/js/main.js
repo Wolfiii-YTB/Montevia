@@ -1,14 +1,21 @@
 /**
  * MONTEVIA RP — SCRIPT PRINCIPAL
- * Prise en charge des configurations dynamiques du Panel Staff
+ * Annonces en temps réel via Supabase (visible par tous les visiteurs)
  * CommunityLine Studio
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-  // 1. Application des configurations dynamiques du site (sauvegardées via Panel Admin)
+const SUPABASE_URL = "https://bylwvlxxvgumvqgpwgod.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_T3XYbDWXV5VaC8WQj3CZOQ_LmB7CTwv";
+
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // 1. Chargement de l'annonce active depuis Supabase (visible par tous)
+  await loadLiveAnnouncement();
+
+  // 2. Application des configurations dynamiques locales (textes, liens)
   applyDynamicSiteConfig();
 
-  // 2. Navigation Mobile
+  // 3. Navigation Mobile
   const mobileToggle = document.querySelector('.mobile-toggle-btn');
   const navMenu = document.querySelector('.nav-menu');
 
@@ -43,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 3. Défilement fluide pour les ancres
+  // 4. Défilement fluide pour les ancres
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
       const targetId = this.getAttribute('href');
@@ -51,15 +58,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const target = document.querySelector(targetId);
       if (target) {
         e.preventDefault();
-        target.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     });
   });
 
-  // 4. Accordéon FAQ
+  // 5. Accordéon FAQ
   const faqItems = document.querySelectorAll('.faq-item');
   faqItems.forEach(item => {
     const questionBtn = item.querySelector('.faq-question');
@@ -69,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
       questionBtn.addEventListener('click', () => {
         const isActive = item.classList.contains('active');
 
-        // Fermer les autres questions
         faqItems.forEach(other => {
           if (other !== item) {
             other.classList.remove('active');
@@ -89,37 +92,80 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Fonction pour appliquer la configuration en direct
+  // ─── Annonce publique depuis Supabase ───────────────────────────────────────
+  async function loadLiveAnnouncement() {
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/site_config?select=*&key=eq.site_announcement&limit=1`,
+        {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (!res.ok) return;
+      const rows = await res.json();
+      const row = rows && rows[0];
+
+      if (!row || !row.value) return;
+
+      let cfg;
+      try { cfg = typeof row.value === 'string' ? JSON.parse(row.value) : row.value; }
+      catch (e) { return; }
+
+      if (cfg && cfg.active && cfg.text) {
+        injectBanner(cfg);
+      }
+    } catch (e) {
+      // Silencieux : fallback localStorage
+      applyLocalAnnouncement();
+    }
+  }
+
+  function injectBanner(cfg) {
+    let banner = document.querySelector('.site-announcement-banner');
+    if (!banner) {
+      banner = document.createElement('div');
+      document.body.prepend(banner);
+    }
+    banner.className = `site-announcement-banner banner-${cfg.type || 'info'}`;
+
+    const linkHtml = cfg.link
+      ? `<a href="${escapeAttr(cfg.link)}" target="_blank" rel="noopener noreferrer" class="banner-link">En savoir plus →</a>`
+      : '';
+
+    const closeBtn = `<button class="banner-close" aria-label="Fermer" onclick="this.parentElement.remove()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:inherit;font-size:1.1rem;line-height:1;padding:0 4px;">✕</button>`;
+
+    banner.innerHTML = `<span>${escapeHtml(cfg.text)}</span>${linkHtml}${closeBtn}`;
+  }
+
+  // Fallback : si Supabase inaccessible, lire le localStorage local
+  function applyLocalAnnouncement() {
+    try {
+      const raw = localStorage.getItem('montevia_site_config');
+      if (!raw) return;
+      const config = JSON.parse(raw);
+      if (config.announcementActive && config.announcementText) {
+        injectBanner({
+          active: true,
+          text: config.announcementText,
+          type: config.announcementType || 'info',
+          link: config.announcementLink || ''
+        });
+      }
+    } catch (e) {}
+  }
+
+  // ─── Config dynamique locale (textes, liens) ─────────────────────────────
   function applyDynamicSiteConfig() {
     try {
       const raw = localStorage.getItem('montevia_site_config');
       if (!raw) return;
       const config = JSON.parse(raw);
 
-      // A. Bannière d'alerte / annonce
-      if (config.announcementActive && config.announcementText) {
-        let banner = document.querySelector('.site-announcement-banner');
-        if (!banner) {
-          banner = document.createElement('div');
-          document.body.prepend(banner);
-        }
-        banner.className = `site-announcement-banner banner-${config.announcementType || 'info'}`;
-        
-        let linkHtml = '';
-        if (config.announcementLink) {
-          linkHtml = `<a href="${config.announcementLink}" target="_blank" rel="noopener noreferrer" class="banner-link">En savoir plus →</a>`;
-        }
-
-        banner.innerHTML = `
-          <span>${config.announcementText}</span>
-          ${linkHtml}
-        `;
-      } else {
-        const banner = document.querySelector('.site-announcement-banner');
-        if (banner) banner.remove();
-      }
-
-      // B. Statut du serveur & Badge
       if (config.statusText) {
         const statusSpan = document.querySelector('.status-badge span:last-child');
         if (statusSpan) statusSpan.textContent = config.statusText;
@@ -132,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      // C. Titre & Pitch Hero
       if (config.heroTitle) {
         const heroTitleEl = document.querySelector('.hero-title');
         if (heroTitleEl) heroTitleEl.textContent = config.heroTitle;
@@ -142,19 +187,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (heroDescEl) heroDescEl.textContent = config.heroDesc;
       }
 
-      // D. Liens Discord & Roblox
       if (config.discordUrl) {
-        document.querySelectorAll('a[href*="discord.gg"]').forEach(a => {
-          a.href = config.discordUrl;
-        });
+        document.querySelectorAll('a[href*="discord.gg"]').forEach(a => { a.href = config.discordUrl; });
       }
       if (config.robloxUrl) {
-        document.querySelectorAll('a[href*="roblox.com"]').forEach(a => {
-          a.href = config.robloxUrl;
-        });
+        document.querySelectorAll('a[href*="roblox.com"]').forEach(a => { a.href = config.robloxUrl; });
       }
     } catch (e) {
-      console.warn("Erreur lors de l'application de la configuration :", e);
+      console.warn("Config locale invalide :", e);
     }
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>'\"]/g, tag => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+    }[tag] || tag));
+  }
+
+  function escapeAttr(str) {
+    return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 });

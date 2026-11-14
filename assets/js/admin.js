@@ -170,6 +170,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.warn("Profil non récupéré :", e);
     }
 
+    // Charger l'annonce active depuis Supabase dans le formulaire
+    await loadAnnouncementFromSupabase();
     loadRecentAnnouncements();
   }
 
@@ -198,36 +200,75 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Remplir les champs avec la configuration actuelle
+  // ─── Annonce publique : lecture depuis Supabase ───────────────────────────
+  async function loadAnnouncementFromSupabase() {
+    try {
+      const { data, error } = await db
+        .from('site_config')
+        .select('*')
+        .eq('key', 'site_announcement')
+        .single();
+
+      if (error || !data) return;
+
+      let cfg = data.value;
+      if (typeof cfg === 'string') {
+        try { cfg = JSON.parse(cfg); } catch (e) { return; }
+      }
+
+      const bannerActive = document.getElementById('cfgBannerActive');
+      const bannerText = document.getElementById('cfgBannerText');
+      const bannerType = document.getElementById('cfgBannerType');
+      const bannerLink = document.getElementById('cfgBannerLink');
+
+      if (bannerActive) bannerActive.checked = !!cfg.active;
+      if (bannerText) bannerText.value = cfg.text || '';
+      if (bannerType) bannerType.value = cfg.type || 'info';
+      if (bannerLink) bannerLink.value = cfg.link || '';
+
+      // Afficher un indicateur d'état
+      updateBannerStatus(cfg.active, data.updated_at);
+    } catch (e) {
+      console.warn("Annonce Supabase non chargée :", e);
+    }
+  }
+
+  function updateBannerStatus(isActive, updatedAt) {
+    const statusEl = document.getElementById('bannerLiveStatus');
+    if (!statusEl) return;
+    const date = updatedAt ? new Date(updatedAt).toLocaleString('fr-FR') : '';
+    statusEl.innerHTML = isActive
+      ? `<span style="color:#10b981">● Annonce active sur le site public</span>${date ? ` — Dernière mise à jour : ${date}` : ''}`
+      : `<span style="color:#6b7280">○ Aucune annonce active</span>`;
+  }
+
+  // ─── Annonce publique : sauvegarde dans Supabase ─────────────────────────
+  async function saveAnnouncementToSupabase(cfg) {
+    const { error } = await db
+      .from('site_config')
+      .upsert(
+        { key: 'site_announcement', value: cfg },
+        { onConflict: 'key' }
+      );
+    if (error) throw error;
+  }
+
+  // Remplir les champs avec la configuration locale
   function loadSiteConfigIntoForm() {
     const raw = localStorage.getItem('montevia_site_config');
     const config = raw ? { ...DEFAULT_CONFIG, ...JSON.parse(raw) } : DEFAULT_CONFIG;
 
-    const bannerActive = document.getElementById('cfgBannerActive');
-    const bannerText = document.getElementById('cfgBannerText');
-    const bannerType = document.getElementById('cfgBannerType');
-    const bannerLink = document.getElementById('cfgBannerLink');
-
     const statusText = document.getElementById('cfgStatusText');
     const statusColor = document.getElementById('cfgStatusColor');
-
     const heroTitle = document.getElementById('cfgHeroTitle');
     const heroDesc = document.getElementById('cfgHeroDesc');
-
     const discordUrl = document.getElementById('cfgDiscordUrl');
     const robloxUrl = document.getElementById('cfgRobloxUrl');
 
-    if (bannerActive) bannerActive.checked = config.announcementActive;
-    if (bannerText) bannerText.value = config.announcementText || '';
-    if (bannerType) bannerType.value = config.announcementType || 'info';
-    if (bannerLink) bannerLink.value = config.announcementLink || '';
-
     if (statusText) statusText.value = config.statusText || '';
     if (statusColor) statusColor.value = config.statusColor || '#10b981';
-
     if (heroTitle) heroTitle.value = config.heroTitle || '';
     if (heroDesc) heroDesc.value = config.heroDesc || '';
-
     if (discordUrl) discordUrl.value = config.discordUrl || '';
     if (robloxUrl) robloxUrl.value = config.robloxUrl || '';
   }
@@ -238,27 +279,48 @@ document.addEventListener('DOMContentLoaded', async () => {
     const resetBtn = document.getElementById('resetSiteConfigBtn');
 
     if (saveBtn) {
-      saveBtn.addEventListener('click', (e) => {
+      saveBtn.addEventListener('click', async (e) => {
         e.preventDefault();
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Enregistrement...";
 
-        const config = {
-          announcementActive: document.getElementById('cfgBannerActive')?.checked || false,
-          announcementText: document.getElementById('cfgBannerText')?.value.trim() || '',
-          announcementType: document.getElementById('cfgBannerType')?.value || 'info',
-          announcementLink: document.getElementById('cfgBannerLink')?.value.trim() || '',
-          
+        // — Annonce publique → Supabase
+        const announcementCfg = {
+          active: document.getElementById('cfgBannerActive')?.checked || false,
+          text: document.getElementById('cfgBannerText')?.value.trim() || '',
+          type: document.getElementById('cfgBannerType')?.value || 'info',
+          link: document.getElementById('cfgBannerLink')?.value.trim() || ''
+        };
+
+        // — Configuration locale (textes, liens) → localStorage
+        const localConfig = {
           statusText: document.getElementById('cfgStatusText')?.value.trim() || DEFAULT_CONFIG.statusText,
           statusColor: document.getElementById('cfgStatusColor')?.value || DEFAULT_CONFIG.statusColor,
-          
           heroTitle: document.getElementById('cfgHeroTitle')?.value.trim() || DEFAULT_CONFIG.heroTitle,
           heroDesc: document.getElementById('cfgHeroDesc')?.value.trim() || DEFAULT_CONFIG.heroDesc,
-          
           discordUrl: document.getElementById('cfgDiscordUrl')?.value.trim() || DEFAULT_CONFIG.discordUrl,
           robloxUrl: document.getElementById('cfgRobloxUrl')?.value.trim() || DEFAULT_CONFIG.robloxUrl
         };
 
-        localStorage.setItem('montevia_site_config', JSON.stringify(config));
-        showToast("Modifications enregistrées ! Le site est mis à jour.");
+        try {
+          // 1. Publier l'annonce dans Supabase (visible par tous)
+          await saveAnnouncementToSupabase(announcementCfg);
+
+          // 2. Sauvegarder le reste en localStorage
+          localStorage.setItem('montevia_site_config', JSON.stringify(localConfig));
+
+          updateBannerStatus(announcementCfg.active, new Date().toISOString());
+          showToast(announcementCfg.active
+            ? "✓ Annonce publiée — visible sur le site public pour tous les visiteurs !"
+            : "✓ Annonce désactivée — le site ne l'affiche plus."
+          );
+        } catch (err) {
+          console.error("Erreur sauvegarde annonce :", err);
+          showToast("⚠ Erreur Supabase : " + (err.message || "Vérifiez votre connexion."), true);
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.textContent = "Enregistrer & Appliquer";
+        }
       });
     }
 
@@ -274,7 +336,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // Notification Toast
-  function showToast(msg) {
+  function showToast(msg, isError = false) {
     let toast = document.getElementById('adminToast');
     if (!toast) {
       toast = document.createElement('div');
@@ -283,13 +345,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.body.appendChild(toast);
     }
     toast.textContent = msg;
+    toast.style.background = isError ? '#7f1d1d' : '';
     toast.style.display = 'block';
-    setTimeout(() => {
-      toast.style.display = 'none';
-    }, 3500);
+    setTimeout(() => { toast.style.display = 'none'; }, 4000);
   }
 
-  // Publication d'annonce interne
+  // Publication d'annonce interne (DevReports)
   function initAnnouncementPublisher() {
     const form = document.getElementById('staffAnnouncementForm');
     if (!form) return;
@@ -322,7 +383,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Charger les dernières annonces
+  // Charger les dernières annonces internes DevReports
   async function loadRecentAnnouncements() {
     const listEl = document.getElementById('recentAnnouncementsList');
     if (!listEl || !db) return;
@@ -354,12 +415,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function escapeHtml(str) {
-    return str.replace(/[&<>'"]/g, tag => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      "'": '&#39;',
-      '"': '&quot;'
+    return String(str).replace(/[&<>'"]/g, tag => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
     }[tag] || tag));
   }
 });

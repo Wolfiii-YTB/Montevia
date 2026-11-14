@@ -15,7 +15,7 @@
   <link rel="shortcut icon" type="image/png" href="assets/images/game_icon.png">
   <link rel="apple-touch-icon" href="assets/images/game_icon.png">
   
-  <link rel="stylesheet" href="assets/css/style.css?v=20261114-12">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261114-13">
   
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -156,6 +156,11 @@
               <input type="text" id="cfgBannerText" placeholder="Ex: Prochaine session de test ouverte ce samedi à 20h00 !">
             </div>
 
+            <!-- Indicateur d'état de la bannière en direct -->
+            <div id="bannerLiveStatus" style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px; padding: 10px 14px; background: var(--bg-surface-elevated); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+              <span style="color:#6b7280">○ Chargement de l'état de l'annonce...</span>
+            </div>
+
             <div class="admin-form-row">
               <div class="admin-form-group">
                 <label for="cfgBannerType">Style & Couleur de la bannière</label>
@@ -242,8 +247,8 @@
           <!-- Barre d'actions pour sauvegarder -->
           <div class="card" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; padding: 20px 28px;">
             <div>
-              <strong style="color: #fff; font-size: 0.95rem; display: block;">Mise à jour immédiate</strong>
-              <small style="color: var(--text-muted); font-size: 0.8rem;">Les modifications sont appliquées instantanément aux visiteurs du site.</small>
+              <strong style="color: #fff; font-size: 0.95rem; display: block;">Mise à jour immédiate pour tous</strong>
+              <small style="color: var(--text-muted); font-size: 0.8rem;">L'annonce est publiée via Supabase — visible instantanément par tous les visiteurs du site, peu importe leur navigateur.</small>
             </div>
 
             <div style="display: flex; gap: 10px;">
@@ -349,6 +354,6 @@
     </div>
   </footer>
 
-  <script src="assets/js/admin.js?v=20261114-12"></script>
+  <script src="assets/js/admin.js?v=20261114-13"></script>
 </body>
 </html>
