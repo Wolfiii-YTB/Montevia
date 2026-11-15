@@ -94,21 +94,36 @@
     var article = node('article', 'member');
     article.style.animationDelay = Math.min(index, 8) * 45 + 'ms';
 
+    var container = node('div', 'member__container');
+    container.style.display = 'flex';
+    container.style.alignItems = 'center';
+    container.style.gap = '16px';
+
     var head = node('div', 'member__head');
     head.append(avatar(member));
-
-    var identity = node('div', 'member__identity');
-    identity.append(node('h3', '', member.display_name || 'Membre'));
-    if (member.username) {
-      identity.append(node('p', '', '@' + String(member.username).replace(/^@/, '')));
-    }
-    head.append(identity);
     article.append(head);
 
-    var tags = node('div', 'member__tags');
-    if (member.role_label) tags.append(node('span', 'member__role', member.role_label));
-    if (POLES[member.pole]) tags.append(node('span', 'member__pole', POLES[member.pole]));
-    if (tags.childElementCount) article.append(tags);
+    var identity = node('div', 'member__identity');
+  identity.append(node('h3', '', member.display_name || 'Membre'));
+  if (member.username) {
+    identity.append(node('p', '', '@' + String(member.username).replace(/^@/, '')));
+  }
+  if (member.role_label) {
+    identity.append(node('p', '', 'Rôle : ' + member.role_label));
+  }
+  if (POLES[member.pole]) {
+    identity.append(node('p', '', 'Affiliation : ' + POLES[member.pole]));
+  }
+  if (member.status) {
+    identity.append(node('p', '', 'Statut : ' + member.status));
+  }
+  if (member.is_moderator) {
+    identity.append(node('p', '', 'Modérateur'));
+  }
+  if (member.is_admin) {
+    identity.append(node('p', '', 'Administrateur'));
+  }
+  article.append(identity);
 
     if (member.bio) article.append(node('p', 'member__bio', member.bio));
 
