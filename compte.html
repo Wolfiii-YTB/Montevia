@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mon compte — Montevia RP</title>
+  <meta name="description" content="Gère ton compte Montevia. Connecte Discord, Gmail et Roblox.">
+  <meta name="theme-color" content="#07080a">
+  <link rel="icon" type="image/png" href="img/mark.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=4">
+</head>
+<body id="top">
+
+  <a class="skip" href="#contenu">Aller au contenu</a>
+
+  <header class="header" id="header">
+    <div class="wrap header__inner">
+      <a class="brand" href="index.html" aria-label="Montevia, retour à l'accueil">
+        <img class="brand__logo" src="img/mark.png" alt="" width="30" height="30">
+        <span class="brand__name">Montevia</span>
+        <span class="brand__tag">RP FR</span>
+      </a>
+      <nav class="nav" id="nav" aria-label="Navigation principale">
+        <a href="index.html#univers">L'univers</a>
+        <a href="index.html#metiers">Métiers</a>
+        <a href="equipe.html">L'équipe</a>
+        <a href="support.html">Support</a>
+        <a href="compte.html" class="is-active" aria-current="page">Mon compte</a>
+        <a href="index.html#reglement">Règlement</a>
+        <a href="index.html#faq">FAQ</a>
+      </nav>
+      <button class="burger" id="burger" aria-expanded="false" aria-controls="nav" aria-label="Ouvrir le menu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="contenu" style="padding-top: 100px;">
+    <div class="wrap" style="max-width: 640px;">
+      <div class="section-head section-head--center reveal">
+        <span class="tag">Compte</span>
+        <h1>Mon compte</h1>
+        <p>Connecte tes comptes pour une expérience personnalisée.</p>
+      </div>
+
+      <div class="account-card" id="accountCard">
+        <div id="accountLoading" style="text-align:center;padding:40px;color:var(--text-3);">Chargement…</div>
+        <div id="accountGuest" hidden>
+          <h2>Connexion</h2>
+          <p style="color:var(--text-3);margin-bottom:24px;">Choisis un moyen de connexion.</p>
+          <div class="account-providers">
+            <button class="btn btn--primary btn--lg" id="loginDiscord" type="button">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M20.3 4.4a19.8 19.8 0 0 0-4.9-1.5l-.1 0c-.2.4-.4.9-.6 1.3a18.3 18.3 0 0 0-5.5 0c-.2-.4-.4-.9-.6-1.3l-.1 0a19.7 19.7 0 0 0-4.9 1.5l0 0C.5 9-.3 13.6.1 18.1l0 .1a19.9 19.9 0 0 0 6 3l.1 0c.5-.6.9-1.3 1.2-2v-.1l-1.9-.9v-.1l.4-.3h.1a14.2 14.2 0 0 0 12.1 0h.1l.4.3v.1l-1.9.9v.1c.4.7.7 1.4 1.2 2l.1 0a19.8 19.8 0 0 0 6-3l0-.1c.5-5.2-.8-9.7-3.5-13.7zM8 15.3c-1.2 0-2.2-1.1-2.2-2.4S6.8 10.5 8 10.5s2.2 1.1 2.2 2.4-1 2.4-2.2 2.4zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4z"/></svg>
+              Discord
+            </button>
+            <button class="btn btn--secondary btn--lg" id="loginGoogle" type="button">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.19 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+              Gmail
+            </button>
+          </div>
+        </div>
+        <div id="accountUser" hidden>
+          <div class="account-profile">
+            <div class="account-avatar" id="accountAvatar">M</div>
+            <div>
+              <strong id="accountName">Utilisateur</strong>
+              <p id="accountEmail" style="color:var(--text-3);font-size:13px;"></p>
+            </div>
+          </div>
+
+          <h3 style="margin-top:24px;margin-bottom:12px;">Comptes liés</h3>
+          <div class="account-linked" id="linkedAccounts"></div>
+
+          <div class="account-actions">
+            <button class="btn btn--secondary" id="logoutBtn" type="button">Déconnexion</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer__bottom">
+        <span>© <span id="year">2026</span> Montevia — CommunityLine Studio.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="js/supabase-config.js" defer></script>
+  <script src="js/compte.js" defer></script>
+</body>
+</html>
