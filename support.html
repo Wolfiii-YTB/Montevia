@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=3">
+  <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body id="top">
 
@@ -50,7 +50,7 @@
 
   <main id="contenu">
 
-    <section class="page-hero">
+    <section class="page-hero page-hero--support">
       <div class="page-hero__glow" aria-hidden="true"></div>
       <div class="wrap">
         <nav class="crumbs" aria-label="Fil d'Ariane">
@@ -58,13 +58,31 @@
           <span aria-hidden="true">/</span>
           <span aria-current="page">Support</span>
         </nav>
-        <div class="page-hero__grid">
-          <div>
+        <div class="support-hero">
+          <div class="support-hero__text">
             <span class="tag reveal">Support</span>
-            <h1 class="reveal">Une question ? Ouvre un ticket.</h1>
+            <h1 class="reveal">Besoin d'aide ? On est là.</h1>
             <p class="page-hero__lead reveal">
-              Connecte-toi avec Discord pour créer une demande. L'équipe te répondra rapidement.
+              Ouvre un ticket et l'équipe te répondra rapidement. Que ce soit pour un problème en jeu,
+              une question sur le serveur ou une suggestion, on est à ton écoute.
             </p>
+            <div class="support-hero__stats">
+              <div class="support-stat">
+                <span class="support-stat__value">24h</span>
+                <span class="support-stat__label">Temps de réponse moyen</span>
+              </div>
+              <div class="support-stat">
+                <span class="support-stat__value">100%</span>
+                <span class="support-stat__label">Demandes traitées</span>
+              </div>
+            </div>
+          </div>
+          <div class="support-hero__visual">
+            <div class="support-hero__card">
+              <div class="support-hero__card-icon">🎫</div>
+              <h3>Ticket système</h3>
+              <p>Crée une demande, suis son évolution, et reçois une réponse personnalisée.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -72,31 +90,49 @@
 
     <section class="section">
       <div class="wrap">
-        <div class="ticket-card" id="ticketBox">
-          <div id="ticketAuth" class="ticket-auth">
-            <div class="ticket-auth__icon">🎫</div>
-            <h3>Connexion requise</h3>
-            <p>Connecte-toi avec ton compte Discord pour ouvrir un ticket.</p>
-            <button class="btn btn--primary btn--lg" id="discordLoginBtn" type="button">Se connecter avec Discord</button>
+        <div class="support-layout">
+          <!-- Colonne gauche : création -->
+          <div class="support-panel">
+            <div class="support-panel__head">
+              <h2>Nouveau ticket</h2>
+              <p>Connecte-toi avec Discord pour commencer.</p>
+            </div>
+
+            <div id="ticketAuth" class="support-auth">
+              <div class="support-auth__icon">🎮</div>
+              <h3>Connexion Discord</h3>
+              <p>Utilise ton compte Discord pour ouvrir un ticket. C'est rapide et sécurisé.</p>
+              <button class="btn btn--primary btn--lg" id="discordLoginBtn" type="button">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M20.3 4.4a19.8 19.8 0 0 0-4.9-1.5l-.1 0c-.2.4-.4.9-.6 1.3a18.3 18.3 0 0 0-5.5 0c-.2-.4-.4-.9-.6-1.3l-.1 0a19.7 19.7 0 0 0-4.9 1.5l0 0C.5 9-.3 13.6.1 18.1l0 .1a19.9 19.9 0 0 0 6 3l.1 0c.5-.6.9-1.3 1.2-2v-.1l-1.9-.9v-.1l.4-.3h.1a14.2 14.2 0 0 0 12.1 0h.1l.4.3v.1l-1.9.9v.1c.4.7.7 1.4 1.2 2l.1 0a19.8 19.8 0 0 0 6-3l0-.1c.5-5.2-.8-9.7-3.5-13.7zM8 15.3c-1.2 0-2.2-1.1-2.2-2.4S6.8 10.5 8 10.5s2.2 1.1 2.2 2.4-1 2.4-2.2 2.4zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4z"/></svg>
+                Se connecter avec Discord
+              </button>
+            </div>
+
+            <div id="ticketForm" hidden>
+              <form id="ticketFormEl" class="ticket-form">
+                <div class="ticket-form__group">
+                  <label for="ticketSubject">Sujet</label>
+                  <input id="ticketSubject" type="text" maxlength="120" placeholder="Ex. Problème en jeu" required>
+                </div>
+                <div class="ticket-form__group">
+                  <label for="ticketMessage">Message</label>
+                  <textarea id="ticketMessage" rows="5" maxlength="2000" placeholder="Décris ton problème en détail…" required></textarea>
+                </div>
+                <button class="btn btn--primary" type="submit">Envoyer le ticket</button>
+              </form>
+            </div>
+
+            <div id="ticketUser" class="ticket-user"></div>
           </div>
 
-          <div id="ticketForm" hidden>
-            <form id="ticketFormEl" class="ticket-form">
-              <div class="ticket-form__group">
-                <label for="ticketSubject">Sujet</label>
-                <input id="ticketSubject" type="text" maxlength="120" placeholder="Ex. Problème en jeu" required>
-              </div>
-              <div class="ticket-form__group">
-                <label for="ticketMessage">Message</label>
-                <textarea id="ticketMessage" rows="5" maxlength="2000" placeholder="Décris ton problème en détail…" required></textarea>
-              </div>
-              <button class="btn btn--primary" type="submit">Envoyer le ticket</button>
-            </form>
+          <!-- Colonne droite : liste des tickets -->
+          <div class="support-panel support-panel--list">
+            <div class="support-panel__head">
+              <h2>Mes tickets</h2>
+              <p>Suis l'évolution de tes demandes.</p>
+            </div>
+            <div id="ticketList" class="ticket-list"></div>
           </div>
-
-          <div id="ticketUser" class="ticket-user"></div>
-
-          <div id="ticketList" class="ticket-list"></div>
         </div>
       </div>
     </section>
