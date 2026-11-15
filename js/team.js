@@ -83,11 +83,17 @@ async function fetchMembers() {
   var table = (window.MONTEVIA_SUPABASE && window.MONTEVIA_SUPABASE.teamTable) || 'montevia_team_members';
 
   try {
-    var result = await supabase
+    var queryPromise = supabase
       .from(table)
       .select('*')
       .order('sort_order', { ascending: true })
       .order('display_name', { ascending: true });
+
+    var timeoutPromise = new Promise(function (resolve) {
+      setTimeout(function () { resolve({ data: null, error: new Error('timeout') }); }, 5000);
+    });
+
+    var result = await Promise.race([queryPromise, timeoutPromise]);
 
     if (result.error) {
       console.error('Erreur récupération membres:', result.error);
