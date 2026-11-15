@@ -2,8 +2,9 @@
    Utilisation de Supabase pour la synchronisation avec DevReports
    https://bylwvlxxvgumvqgpwgod.supabase.co */
 
-var SUPABASE_URL = 'https://bylwvlxxvgumvqgpwgod.supabase.co';
-var SUPABASE_KEY = 'sb_publishable_T3XYbDWXV5VaC8WQj3CZOQ_LmB7CTwv';
+// Configuration chargée depuis supabase-config.js
+var SUPABASE_URL = window.MONTEVIA_SUPABASE.url;
+var SUPABASE_KEY = window.MONTEVIA_SUPABASE.anonKey;
 
 var POLES = {
   1: 'France',
