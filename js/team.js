@@ -1,109 +1,251 @@
-/* Montevia — chargement public des membres de l'équipe. */
+/* Montevia Team Manager - Gestion des membres de l'équipe
+   Utilisation de Supabase pour la synchronisation avec DevReports
+   https://bylwvlxxvgumvqgpwgod.supabase.co */
 
-(function () {
-  'use strict';
+var SUPABASE_URL = 'https://bylwvlxxvgumvqgpwgod.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_T3XYbDWXV5VaC8WQj3CZOQ_LmB7CTwv';
 
-  var config = window.MONTEVIA_SUPABASE;
-  var section = document.getElementById('membres');
-  var roster = document.getElementById('roster');
-  var orgCard = document.getElementById('orgCard');
-  var orgList = document.getElementById('orgList');
-  var orgBadge = document.getElementById('orgBadge');
-  var orgSubtitle = document.getElementById('orgSubtitle');
+var POLES = {
+  1: 'France',
+  2: 'Belgique',
+  3: 'Canada',
+  4: 'Québec',
+  5: 'Afrique du Sud',
+  6: 'Inde',
+  7: 'Arabie saoudite',
+  8: 'Égypte',
+  9: 'Brésil',
+  10: 'Argentine',
+  11: 'Mexique',
+  12: 'Pologne',
+  13: 'Espagne',
+  14: 'Portugal',
+  15: 'Chine',
+  16: 'Japon',
+  17: 'Corée du Sud',
+  18: 'Turquie',
+  19: 'Russie',
+  20: 'États-Unis',
+  21: 'Australie',
+  22: 'Nouvelle-Zélande',
+  23: 'Philippines',
+  24: 'Malaisie',
+  25: 'Singapour',
+  26: 'Indonésie',
+  27: 'Thaïlande',
+  28: 'Vietnam'
+};
 
-  if (!config || !section || !roster) return;
-  if (!config.url || !config.anonKey) return;
+/* ---------- Initialisation Supabase ---------- */
 
-  var table = config.teamTable || 'montevia_team_members';
-  var POLES = {
-    direction: 'Direction',
-    developpement: 'Développement',
-    moderation: 'Modération',
-    support: 'Support & animation',
-    studio: 'Studio',
-    autre: 'Autre'
-  };
+function initSupabase() {
+  try {
+    var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    return supabase;
+  } catch (e) {
+    console.error('Erreur Supabase:', e);
+    return null;
+  }
+}
 
-  var SHOWCASE_SIZE = 4;
-  var SHOWCASE_DELAY = 6000;
-  var showcase = {
-    members: [],
-    deck: [],
-    index: 0,
-    ticks: 0,
-    timer: 0,
-    paused: false,
-    started: false
-  };
+/* ---------- Récupération des membres ---------- */
 
-  function safeHttps(value) {
-    if (typeof value !== 'string' || !value.trim()) return '';
-    try {
-      var url = new URL(value.trim());
-      return url.protocol === 'https:' ? url.href : '';
-    } catch (error) {
-      return '';
-    }
+async function fetchMembers() {
+  const supabase = initSupabase();
+  if (!supabase) {
+    return [];
   }
 
-  function initials(name) {
-    var words = String(name || '').trim().split(/\s+/).filter(Boolean);
-    if (!words.length) return 'M';
-    return words.slice(0, 2).map(function (word) {
-      return Array.from(word)[0] || '';
-    }).join('').toUpperCase();
-  }
+  try {
+    const { data, error } = await supabase
+      .from('montevia_team_members')
+      .select('*')
+      .order('display_name');
 
-  function node(tag, className, text) {
-    var el = document.createElement(tag);
-    if (className) el.className = className;
-    if (text !== undefined) el.textContent = text;
-    return el;
-  }
-
-  function avatarNode(member, className) {
-    var wrap = node('span', className);
-    var url = safeHttps(member.avatar_url);
-
-    if (url) {
-      var img = document.createElement('img');
-      img.src = url;
-      img.alt = '';
-      img.loading = 'lazy';
-      img.decoding = 'async';
-      img.referrerPolicy = 'no-referrer';
-      img.addEventListener('error', function () {
-        img.remove();
-        wrap.textContent = initials(member.display_name);
-        wrap.classList.add('is-fallback');
-      });
-      wrap.append(img);
-    } else {
-      wrap.textContent = initials(member.display_name);
-      wrap.classList.add('is-fallback');
+    if (error) {
+      console.error('Erreur récupération membres:', error);
+      return [];
     }
 
-    return wrap;
+    if (!data) data = [];
+    return data;
+  } catch (e) {
+    console.error('Erreur récupération membres:', e);
+    return [];
+  }
+}
+
+/* ---------- Synchronisation ---------- */
+
+async function syncMembers() {
+  const supabase = initSupabase();
+  if (!supabase) {
+    return false;
   }
 
-  function avatar(member) {
-    return avatarNode(member, 'member__avatar');
+  try {
+    const { data, error } = await supabase
+      .from('montevia_team_members')
+      .select('*')
+      .order('display_name');
+
+    if (error) {
+      console.error('Erreur synchronisation:', error);
+      return false;
+    }
+
+    if (!data || data.length === 0) {
+      console.log('Aucun membre synchronisé');
+      return false;
+    }
+
+    console.log('Membres synchronisés:', data.length);
+    return true;
+  } catch (e) {
+    console.error('Erreur synchronisation:', e);
+    return false;
   }
+}
 
-  function card(member, index) {
-    var article = node('article', 'member');
-    article.style.animationDelay = Math.min(index, 8) * 45 + 'ms';
+/* ---------- Affichage des membres ---------- */
 
-    var container = node('div', 'member__container');
-    container.style.display = 'flex';
-    container.style.alignItems = 'center';
-    container.style.gap = '16px';
+var members = [];
 
-    var head = node('div', 'member__head');
-    head.append(avatar(member));
-    article.append(head);
+async function displayMembers() {
+  members = await fetchMembers();
+  renderRoster();
+}
+
+/* ---------- Raster de membres ---------- */
+
+function renderRoster() {
+  var container = document.getElementById('roster');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  members.forEach((member, index) => {
+    var row = node('tr', 'member__row');
+    row.dataset.memberId = member.id;
+
+    var cell = node('td', 'member__cell');
+
+    var avatar = node('div', 'member__avatar');
+    avatar.style.width = '64px';
+    avatar.style.height = '64px';
+    avatar.style.borderRadius = '50%';
+    avatar.style.overflow = 'hidden';
+    avatar.style.border = '2px solid #35d39a';
+
+    var img = node('img', 'member__avatar__img');
+    img.src = member.avatar_url || 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#35d39a" d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path fill="#35d39a" d="M12 12a4 4 0 0 1 4 4v4h-8v-4a4 4 0 0 1 4-4Z"/><path fill="#35d39a" d="M5 8v8l6 4 6-4V8H5Z"/></svg>');
+    img.alt = member.display_name || 'Membre';
+    avatar.append(img);
+
+    cell.append(avatar);
 
     var identity = node('div', 'member__identity');
+    var displayName = member.display_name || 'Membre';
+    identity.append(node('h3', '', displayName));
+
+    if (member.username) {
+      var username = String(member.username).replace(/^@/, '');
+      identity.append(node('p', '', '@' + username));
+    }
+
+    if (member.role_label) {
+      identity.append(node('p', '', 'Rôle : ' + member.role_label));
+    }
+
+    if (POLES[member.pole]) {
+      identity.append(node('p', '', 'Affiliation : ' + POLES[member.pole]));
+    }
+
+    if (member.status) {
+      identity.append(node('p', '', 'Statut : ' + member.status));
+    }
+
+    if (member.is_moderator) {
+      identity.append(node('p', '', 'Modérateur'));
+    }
+
+    if (member.is_admin) {
+      identity.append(node('p', '', 'Administrateur'));
+    }
+
+    cell.append(identity);
+
+    var links = node('div', 'member__links');
+
+    var roblox = safeHttps(member.roblox_url);
+    if (roblox) {
+      var link = document.createElement('a');
+      link.href = roblox;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.textContent = 'Profil Roblox';
+      links.append(link);
+    }
+
+    if (member.discord_username) {
+      var discordUsername = String(member.discord_username).replace(/^@/, '');
+      links.append(node('span', 'member__discord', 'Discord · ' + discordUsername));
+    }
+
+    if (links.childElementCount) {
+      cell.append(links);
+    }
+
+    container.append(row);
+  });
+}
+
+/* ---------- Fonction utilitaire ---------- */
+
+function safeHttps(url) {
+  if (!url) return null;
+  var protocol = url.split('://')[0];
+  return (protocol === 'http' || protocol === '') ? 'https://' + url : url;
+}
+
+/* ---------- Carte d'organisation : profils en rotation ---------- */
+
+function shuffle(list) {
+  var array = list.slice();
+  for (var i = array.length - 1; i > 0; i -= 1) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var value = array[i];
+    array[i] = array[j];
+    array[j] = value;
+  }
+  return array;
+}
+
+function renderShowcase() {
+  var container = document.getElementById('showcase');
+  if (!container) return;
+
+  var membersToShow = members.length > 0 ? shuffle(members) : [];
+  var member = membersToShow.length > 0 ? membersToShow[0] : null;
+
+  if (!member) {
+    container.innerHTML = '<p>Aucun membre disponible</p>';
+    return;
+  }
+
+  var article = node('article', 'member');
+  article.style.animationDelay = Math.min(8) * 45 + 'ms';
+
+  var container = node('div', 'member__container');
+  container.style.display = 'flex';
+  container.style.alignItems = 'center';
+  container.style.gap = '16px';
+
+  var head = node('div', 'member__head');
+  head.append(avatar(member));
+  article.append(head);
+
+  var identity = node('div', 'member__identity');
   identity.append(node('h3', '', member.display_name || 'Membre'));
   if (member.username) {
     identity.append(node('p', '', '@' + String(member.username).replace(/^@/, '')));
@@ -125,192 +267,95 @@
   }
   article.append(identity);
 
-    if (member.bio) article.append(node('p', 'member__bio', member.bio));
-
-    var links = node('div', 'member__links');
-    var roblox = safeHttps(member.roblox_url);
-    if (roblox) {
-      var link = document.createElement('a');
-      link.href = roblox;
-      link.target = '_blank';
-      link.rel = 'noopener';
-      link.textContent = 'Profil Roblox';
-      links.append(link);
-    }
-    if (member.discord_username) {
-      links.append(node('span', 'member__discord', 'Discord · ' + String(member.discord_username).replace(/^@/, '')));
-    }
-    if (links.childElementCount) article.append(links);
-
-    return article;
+  if (member.bio) {
+    article.append(node('p', 'member__bio', member.bio));
   }
 
-  /* ---------- carte d'organisation : profils en rotation ---------- */
-
-  function shuffle(list) {
-    var array = list.slice();
-    for (var i = array.length - 1; i > 0; i -= 1) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var value = array[i];
-      array[i] = array[j];
-      array[j] = value;
-    }
-    return array;
-  }
-
-  function showcaseRows() {
-    var count = Math.min(SHOWCASE_SIZE, showcase.deck.length);
-    var rows = [];
-
-    for (var i = 0; i < count; i += 1) {
-      rows.push(showcase.deck[(showcase.index + i) % showcase.deck.length]);
-    }
-
-    return rows;
-  }
-
-  function orgRow(member) {
-    var item = node('li', 'org-card__member-item');
+  var links = node('div', 'member__links');
+  var roblox = safeHttps(member.roblox_url);
+  if (roblox) {
     var link = document.createElement('a');
-    link.className = 'org-card__member';
-    link.href = '#membres';
-    link.setAttribute('aria-label', 'Voir ' + (member.display_name || 'ce membre') + ' dans l’équipe');
-
-    link.append(avatarNode(member, 'org-card__avatar'));
-
-    var label = node('span', 'org-card__label');
-    label.append(node('strong', '', member.display_name || 'Membre'));
-    label.append(node('small', '', member.role_label || POLES[member.pole] || 'Membre'));
-    link.append(label);
-
-    var arrow = node('span', 'org-card__arrow', '→');
-    arrow.setAttribute('aria-hidden', 'true');
-    link.append(arrow);
-
-    item.append(link);
-    return item;
+    link.href = roblox;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.textContent = 'Profil Roblox';
+    links.append(link);
+  }
+  if (member.discord_username) {
+    links.append(node('span', 'member__discord', 'Discord · ' + String(member.discord_username).replace(/^@/, '')));
+  }
+  if (links.childElementCount) {
+    article.append(links);
   }
 
-  function paintShowcase() {
-    if (!orgList || !orgCard) return;
+  container.append(article);
+  container.style.maxWidth = '350px';
+  container.style.margin = '0 auto';
+  container.style.padding = '20px';
+  container.style.backgroundColor = '#1a1a1a';
+  container.style.borderRadius = '12px';
+  container.style.boxShadow = '0 4px 20px rgba(53, 211, 154, 0.2)';
 
-    var member = showcase.deck[showcase.index];
-    var fragment = document.createDocumentFragment();
-    fragment.append(card(member, showcase.index));
+  container.querySelector('.member__container').style.borderRadius = '16px';
 
-    orgList.replaceChildren(fragment);
-    orgList.classList.remove('is-swapping');
-  }
+  container.querySelector('.member__container').style.border = 'none';
+  container.querySelector('.member__identity h3').style.fontWeight = '600';
+  container.querySelector('.member__identity p').style.marginBottom = '4px';
+  container.querySelector('.member__identity p:last-child').style.marginBottom = '0';
 
-  function renderShowcase(animate) {
-    if (!orgList) return;
+  container.querySelector('.member__bio').style.fontSize = '14px';
+  container.querySelector('.member__bio').style.lineHeight = '1.6';
+  container.querySelector('.member__bio').style.marginTop = '12px';
+  container.querySelector('.member__links').style.display = 'flex';
+  container.querySelector('.member__links').style.gap = '12px';
+  container.querySelector('.member__links a').style.color = '#35d39a';
+  container.querySelector('.member__links span').style.color = '#888';
 
-    if (animate) {
-      orgList.classList.add('is-swapping');
-      window.setTimeout(paintShowcase, 170);
-    } else {
-      paintShowcase();
-    }
-  }
+  container.querySelector('.member__avatar').style.borderRadius = '50%';
+  container.querySelector('.member__avatar img').style.borderRadius = '50%';
+  container.querySelector('.member__avatar img').style.objectFit = 'cover';
+  container.querySelector('.member__avatar img').style.width = '100%';
+  container.querySelector('.member__avatar img').style.height = '100%';
 
-  function updateShowcaseMeta() {
-    var total = showcase.members.length;
+  container.querySelector('.member__identity').style.flex = '1';
+  container.querySelector('.member__links').style.flex = '0 0 auto';
+}
 
-    if (orgBadge) {
-      orgBadge.textContent = total + (total > 1 ? ' membres' : ' membre');
-    }
-    if (orgSubtitle) {
-      orgSubtitle.textContent = 'Les visages de l’équipe';
-    }
-  }
+/* ---------- Rotation automatique ---------- */
 
-  function tickShowcase() {
-    if (showcase.paused || document.hidden || showcase.deck.length < 2) return;
+var showMemberTimeout;
 
-    showcase.index = (showcase.index + 1) % showcase.deck.length;
-    showcase.ticks += 1;
+function rotateShowcase() {
+  renderShowcase();
+  showMemberTimeout = setTimeout(rotateShowcase, 6000);
+}
 
-    if (showcase.ticks >= showcase.deck.length) {
-      showcase.deck = shuffle(showcase.members);
-      showcase.index = 0;
-      showcase.ticks = 0;
-    }
+/* ---------- Initialisation ---------- */
 
-    renderShowcase(true);
-  }
+window.addEventListener('DOMContentLoaded', function() {
+  renderRoster();
+  rotateShowcase();
 
-  function startShowcase(members) {
-    if (!orgCard || !orgList || !members.length) return;
-
-    showcase.members = members.slice();
-    showcase.deck = shuffle(members);
-    showcase.index = 0;
-    showcase.ticks = 0;
-
-    updateShowcaseMeta();
-    renderShowcase(false);
-
-    if (showcase.started || members.length < 2) return;
-    showcase.started = true;
-
-    var reduceMotion = window.matchMedia &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduceMotion) return;
-
-    showcase.timer = window.setInterval(tickShowcase, SHOWCASE_DELAY);
-
-    orgCard.addEventListener('mouseenter', function () {
-      showcase.paused = true;
-    });
-    orgCard.addEventListener('mouseleave', function () {
-      showcase.paused = false;
-    });
-    orgCard.addEventListener('focusin', function () {
-      showcase.paused = true;
-    });
-    orgCard.addEventListener('focusout', function (event) {
-      if (!orgCard.contains(event.relatedTarget)) showcase.paused = false;
-    });
-  }
-
-  /* ---------- chargement ---------- */
-
-  async function load() {
-    var params = new URLSearchParams({
-      select: 'id,display_name,username,role_label,pole,bio,avatar_url,roblox_url,discord_username,sort_order',
-      published: 'eq.true',
-      order: 'sort_order.asc,display_name.asc'
-    });
-
-    var response = await fetch(
-      config.url.replace(/\/$/, '') + '/rest/v1/' + encodeURIComponent(table) + '?' + params.toString(),
-      {
-        headers: {
-          apikey: config.anonKey,
-          Authorization: 'Bearer ' + config.anonKey
-        },
-        cache: 'no-store'
-      }
-    );
-
-    if (!response.ok) throw new Error('HTTP ' + response.status);
-
-    var members = await response.json();
-    if (!Array.isArray(members) || !members.length) return;
-
-    var fragment = document.createDocumentFragment();
-    members.forEach(function (member, index) {
-      fragment.append(card(member, index));
-    });
-
-    roster.replaceChildren(fragment);
-    section.hidden = false;
-    startShowcase(members);
-  }
-
-  load().catch(function (error) {
-    // La carte garde ses pôles et la section reste masquée tant que la
-    // table n'est pas installée ou qu'aucun membre n'est publié.
-    console.warn('[Montevia] Équipe indisponible :', error.message);
+  window.addEventListener('resize', function() {
+    renderShowcase();
   });
-})();
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      clearTimeout(showMemberTimeout);
+      renderShowcase();
+    }
+  });
+});
+
+/* ---------- Exportation ---------- */
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    fetchMembers,
+    syncMembers,
+    displayMembers,
+    renderRoster,
+    renderShowcase
+  };
+}
