@@ -17,7 +17,26 @@
   function getClient() {
     if (client) return client;
     if (!window.supabase || typeof window.supabase.createClient !== 'function') return null;
-    client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Vérifier s'il y a une session admin dans le sessionStorage
+    var adminSession = null;
+    try {
+      var raw = sessionStorage.getItem('montevia-admin-auth');
+      if (raw) adminSession = JSON.parse(raw);
+    } catch (e) {}
+
+    var options = {};
+    if (adminSession && adminSession.access_token) {
+      options = {
+        global: {
+          headers: {
+            Authorization: 'Bearer ' + adminSession.access_token
+          }
+        }
+      };
+    }
+
+    client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, options);
     return client;
   }
 
