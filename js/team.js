@@ -25,7 +25,7 @@
   };
 
   var SHOWCASE_SIZE = 4;
-  var SHOWCASE_DELAY = 5200;
+  var SHOWCASE_DELAY = 6000;
   var showcase = {
     members: [],
     deck: [],
