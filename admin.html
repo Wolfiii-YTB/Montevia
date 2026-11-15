@@ -504,6 +504,28 @@
     </form>
   </dialog>
 
+  <dialog class="admin-dialog" id="ticketDialog" aria-labelledby="ticketDialogTitle">
+    <div class="admin-dialog__head">
+      <div>
+        <span class="tag">Ticket</span>
+        <h2 id="ticketDialogTitle">Conversation</h2>
+      </div>
+      <button class="admin-icon-btn" type="button" data-close-dialog aria-label="Fermer la fenêtre">×</button>
+    </div>
+    <div class="admin-dialog__body" id="ticketConvBody" style="max-height:400px;overflow-y:auto;"></div>
+    <form id="ticketReplyForm" class="admin-form" style="padding:0 24px 24px;">
+      <div class="admin-form__grid" style="grid-template-columns:1fr;">
+        <label>Répondre
+          <textarea id="ticketReplyMsg" rows="3" maxlength="2000" placeholder="Votre réponse…" required></textarea>
+        </label>
+      </div>
+      <div class="admin-dialog__actions" style="padding:12px 0 0;">
+        <button class="btn btn--secondary" type="button" data-close-dialog>Annuler</button>
+        <button class="btn btn--primary" type="submit">Envoyer</button>
+      </div>
+    </form>
+  </dialog>
+
   <div class="admin-toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>

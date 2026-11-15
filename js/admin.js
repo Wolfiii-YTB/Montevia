@@ -67,6 +67,13 @@
   var ticketsTable = document.getElementById('ticketsTable');
   var ticketsRows = document.getElementById('ticketsRows');
   var ticketsEmpty = document.getElementById('ticketsEmpty');
+  var ticketDialog = document.getElementById('ticketDialog');
+  var ticketDialogTitle = document.getElementById('ticketDialogTitle');
+  var ticketConvBody = document.getElementById('ticketConvBody');
+  var ticketReplyForm = document.getElementById('ticketReplyForm');
+  var ticketReplyMsg = document.getElementById('ticketReplyMsg');
+
+  var currentTicketId = null;
 
   var memberDialog = document.getElementById('memberDialog');
   var memberForm = document.getElementById('memberForm');
@@ -998,6 +1005,14 @@
 
       var actions = node('div', 'admin-row__actions');
 
+      var viewBtn = node('button', 'admin-icon-btn');
+      viewBtn.type = 'button';
+      viewBtn.dataset.action = 'view-ticket';
+      viewBtn.dataset.id = t.id;
+      viewBtn.setAttribute('aria-label', 'Voir la conversation');
+      viewBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+      actions.append(viewBtn);
+
       if (t.status !== 'closed') {
         var closeBtn = node('button', 'admin-icon-btn');
         closeBtn.type = 'button';
@@ -1049,6 +1064,68 @@
       await loadTickets();
     } catch (error) {
       showToast(errorMessage(error) || 'Suppression impossible.', 'error');
+    }
+  }
+
+  async function openTicketConversation(id) {
+    currentTicketId = id;
+    var ticket = ticketsList.filter(function (t) { return t.id === id; })[0];
+    if (!ticket) return;
+
+    ticketDialogTitle.textContent = ticket.subject;
+    ticketConvBody.innerHTML = '<p style="color:var(--text-3);">Chargement…</p>';
+    openDialog(ticketDialog);
+
+    try {
+      var result = await db.from('montevia_ticket_messages').select('*').eq('ticket_id', id).order('created_at', { ascending: true });
+      var messages = result.error ? [] : (result.data || []);
+
+      ticketConvBody.innerHTML = '';
+
+      // Message initial
+      var initMsg = document.createElement('div');
+      initMsg.style.cssText = 'margin-bottom:12px;padding:12px 16px;background:var(--surface-3);border:1px solid var(--line);border-radius:12px;';
+      initMsg.innerHTML = '<div style="font-size:12px;color:var(--text-3);margin-bottom:4px;">' + (ticket.discord_username || 'Utilisateur') + ' · ' + new Date(ticket.created_at).toLocaleString('fr-FR') + '</div>' +
+        '<div style="color:var(--text);">' + escapeHtml(ticket.message) + '</div>';
+      ticketConvBody.append(initMsg);
+
+      messages.forEach(function (m) {
+        var msg = document.createElement('div');
+        msg.style.cssText = 'margin-bottom:12px;padding:12px 16px;border-radius:12px;' + (m.sender_type === 'admin' ? 'background:var(--accent-soft);border:1px solid var(--accent-line);margin-left:24px;' : 'background:var(--surface-3);border:1px solid var(--line);margin-right:24px;');
+        msg.innerHTML = '<div style="font-size:12px;color:var(--text-3);margin-bottom:4px;">' + (m.sender_type === 'admin' ? 'Admin' : (ticket.discord_username || 'Utilisateur')) + ' · ' + new Date(m.created_at).toLocaleString('fr-FR') + '</div>' +
+          '<div style="color:var(--text);">' + escapeHtml(m.message) + '</div>';
+        ticketConvBody.append(msg);
+      });
+
+      if (ticket.status === 'closed') {
+        ticketReplyForm.hidden = true;
+      } else {
+        ticketReplyForm.hidden = false;
+      }
+    } catch (e) {
+      ticketConvBody.innerHTML = '<p style="color:var(--text-3);">Erreur de chargement.</p>';
+    }
+  }
+
+  async function handleTicketReply(event) {
+    event.preventDefault();
+    if (!currentTicketId) return;
+    var msg = ticketReplyMsg.value.trim();
+    if (!msg) return;
+
+    try {
+      var result = await db.from('montevia_ticket_messages').insert({
+        ticket_id: currentTicketId,
+        sender_id: currentProfile.id,
+        sender_type: 'admin',
+        message: msg
+      });
+      if (result.error) throw result.error;
+      ticketReplyMsg.value = '';
+      showToast('Réponse envoyée.');
+      openTicketConversation(currentTicketId);
+    } catch (error) {
+      showToast(errorMessage(error) || 'Envoi impossible.', 'error');
     }
   }
 
@@ -1313,10 +1390,15 @@
       imageForm.addEventListener('submit', handleImageSubmit);
     }
 
+    if (ticketReplyForm) {
+      ticketReplyForm.addEventListener('submit', handleTicketReply);
+    }
+
     if (ticketsRows) {
       ticketsRows.addEventListener('click', function (event) {
         var button = event.target.closest('button[data-action]');
         if (!button) return;
+        if (button.dataset.action === 'view-ticket') openTicketConversation(button.dataset.id);
         if (button.dataset.action === 'close-ticket') handleCloseTicket(button.dataset.id);
         if (button.dataset.action === 'delete-ticket') handleDeleteTicket(button.dataset.id);
       });
@@ -1350,7 +1432,7 @@
       });
     });
 
-    [memberDialog, deleteDialog, imageDialog].forEach(function (dialog) {
+    [memberDialog, deleteDialog, imageDialog, ticketDialog].forEach(function (dialog) {
       dialog.addEventListener('click', function (event) {
         if (event.target !== dialog) return;
         var rect = dialog.getBoundingClientRect();

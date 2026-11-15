@@ -46,6 +46,8 @@
     }
   }
 
+  var selectedTicket = null;
+
   async function loadMyTickets() {
     var sb = getClient();
     if (!sb || !currentUser) return;
@@ -55,15 +57,17 @@
     var { data, error } = await sb.from('montevia_tickets').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
     if (error) { console.warn('tickets load failed', error); return; }
 
-    list.innerHTML = '';
     if (!data || !data.length) {
       list.innerHTML = '<p style="text-align:center;color:var(--text-3);">Aucun ticket pour le moment.</p>';
       return;
     }
 
+    list.innerHTML = '';
     data.forEach(function (t) {
       var card = document.createElement('div');
       card.className = 'ticket-item';
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', function () { openConversation(t); });
 
       var statusClass = 'ticket-item__status--' + (t.status === 'in_progress' ? 'in_progress' : t.status);
 
@@ -77,6 +81,83 @@
 
       list.append(card);
     });
+  }
+
+  async function openConversation(ticket) {
+    selectedTicket = ticket;
+    var list = document.getElementById('ticketList');
+    var box = document.getElementById('ticketBox');
+    if (!list || !box) return;
+
+    // Hide form, show conversation
+    var form = document.getElementById('ticketForm');
+    if (form) form.hidden = true;
+
+    var { data: messages, error } = await getClient().from('montevia_ticket_messages').select('*').eq('ticket_id', ticket.id).order('created_at', { ascending: true });
+    if (error) { console.warn('messages load failed', error); messages = []; }
+
+    list.innerHTML = '';
+    var conv = document.createElement('div');
+    conv.className = 'ticket-conversation';
+
+    var backBtn = document.createElement('button');
+    backBtn.className = 'btn btn--ghost btn--sm';
+    backBtn.textContent = '← Retour';
+    backBtn.style.marginBottom = '16px';
+    backBtn.addEventListener('click', function () {
+      selectedTicket = null;
+      if (form) form.hidden = false;
+      loadMyTickets();
+    });
+    conv.append(backBtn);
+
+    var header = document.createElement('div');
+    header.className = 'ticket-conv__header';
+    header.innerHTML = '<h3>' + escapeHtml(ticket.subject) + '</h3><span class="ticket-item__status ticket-item__status--' + (ticket.status === 'in_progress' ? 'in_progress' : ticket.status) + '">' + (ticket.status === 'open' ? 'Ouvert' : (ticket.status === 'in_progress' ? 'En cours' : 'Fermé')) + '</span>';
+    conv.append(header);
+
+    var msgs = document.createElement('div');
+    msgs.className = 'ticket-conv__messages';
+
+    // Initial message from user
+    var initMsg = document.createElement('div');
+    initMsg.className = 'ticket-msg ticket-msg--user';
+    initMsg.innerHTML = '<div class="ticket-msg__bubble">' + escapeHtml(ticket.message) + '</div><div class="ticket-msg__time">' + new Date(ticket.created_at).toLocaleString('fr-FR') + '</div>';
+    msgs.append(initMsg);
+
+    (messages || []).forEach(function (m) {
+      var msg = document.createElement('div');
+      msg.className = 'ticket-msg ticket-msg--' + m.sender_type;
+      msg.innerHTML = '<div class="ticket-msg__bubble">' + escapeHtml(m.message) + '</div><div class="ticket-msg__time">' + new Date(m.created_at).toLocaleString('fr-FR') + '</div>';
+      msgs.append(msg);
+    });
+
+    conv.append(msgs);
+
+    if (ticket.status !== 'closed') {
+      var replyForm = document.createElement('form');
+      replyForm.className = 'ticket-reply';
+      replyForm.innerHTML = '<textarea placeholder="Votre réponse…" rows="3" required></textarea><button class="btn btn--primary" type="submit">Envoyer</button>';
+      replyForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var textarea = replyForm.querySelector('textarea');
+        var text = textarea.value.trim();
+        if (!text) return;
+        var sb = getClient();
+        var { error } = await sb.from('montevia_ticket_messages').insert({
+          ticket_id: ticket.id,
+          sender_id: currentUser.id,
+          sender_type: 'user',
+          message: text
+        });
+        if (error) { alert('Erreur : ' + error.message); return; }
+        textarea.value = '';
+        openConversation(ticket);
+      });
+      conv.append(replyForm);
+    }
+
+    list.append(conv);
   }
 
   function escapeHtml(s) {

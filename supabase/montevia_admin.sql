@@ -411,3 +411,48 @@ on storage.objects
 for delete
 to authenticated
 using (bucket_id = 'montevia-gallery' and public.montevia_is_admin());
+
+-- ============================================================
+-- Messages de tickets (conversation)
+-- ============================================================
+create table if not exists public.montevia_ticket_messages (
+  id uuid primary key default gen_random_uuid(),
+  ticket_id uuid not null references public.montevia_tickets(id) on delete cascade,
+  sender_id uuid references auth.users(id) on delete set null,
+  sender_type text not null check (sender_type in ('user','admin')),
+  message text not null check (char_length(trim(message)) between 1 and 2000),
+  created_at timestamptz not null default now()
+);
+
+alter table public.montevia_ticket_messages enable row level security;
+
+drop policy if exists "read ticket messages" on public.montevia_ticket_messages;
+create policy "read ticket messages"
+on public.montevia_ticket_messages
+for select
+to authenticated
+using (
+  public.montevia_is_admin()
+  or exists (
+    select 1 from public.montevia_tickets t
+    where t.id = ticket_id and t.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "insert ticket messages" on public.montevia_ticket_messages;
+create policy "insert ticket messages"
+on public.montevia_ticket_messages
+for insert
+to authenticated
+with check (
+  public.montevia_is_admin()
+  or exists (
+    select 1 from public.montevia_tickets t
+    where t.id = ticket_id and t.user_id = auth.uid() and t.status <> 'closed'
+  )
+);
+
+grant select, insert on table public.montevia_ticket_messages to authenticated;
+
+create index if not exists montevia_ticket_messages_ticket_idx
+  on public.montevia_ticket_messages (ticket_id, created_at);
