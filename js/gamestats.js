@@ -1,65 +1,14 @@
-/* Montevia — statistiques du jeu en temps réel (Roblox) */
+/* Montevia — statistiques du jeu (Roblox) */
 
 (function () {
   'use strict';
 
-  var UNIVERSE_ID = '10752535690';
-  var GAMES_URL = 'https://games.roblox.com/v1/games?universeIds=' + UNIVERSE_ID;
-  var VOTES_URL = 'https://games.roblox.com/v1/games/votes?universeIds=' + UNIVERSE_ID;
+  var CACHE_KEY = 'montevia-gamestats';
 
   function formatNumber(n) {
     if (typeof n !== 'number' || isNaN(n)) return '—';
     return new Intl.NumberFormat('fr-FR').format(n);
   }
-
-  async function fetchWithTimeout(url, ms) {
-    var controller = new AbortController();
-    var timeout = setTimeout(function () { controller.abort(); }, ms);
-    try {
-      var res = await fetch(url, { signal: controller.signal });
-      clearTimeout(timeout);
-      return res;
-    } catch (e) {
-      clearTimeout(timeout);
-      throw e;
-    }
-  }
-
-  async function fetchGames() {
-    try {
-      var proxy = 'https://proxy.corsfix.com/?' + GAMES_URL;
-      var res = await fetchWithTimeout(proxy, 3000);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      var data = await res.json();
-      var game = data && data.data && data.data[0];
-      if (!game) throw new Error('no data');
-      return {
-        visits: game.visits,
-        playing: game.playing,
-        favorites: game.favoritedCount
-      };
-    } catch (e) {
-      console.warn('gamestats: games fetch failed', e);
-      return null;
-    }
-  }
-
-  async function fetchVotes() {
-    try {
-      var proxy = 'https://proxy.corsfix.com/?' + VOTES_URL;
-      var res = await fetchWithTimeout(proxy, 3000);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      var data = await res.json();
-      var vote = data && data.data && data.data[0];
-      if (!vote) throw new Error('no data');
-      return { likes: vote.upVotes };
-    } catch (e) {
-      console.warn('gamestats: votes fetch failed', e);
-      return null;
-    }
-  }
-
-  var CACHE_KEY = 'montevia-gamestats';
 
   function loadCache() {
     try {
@@ -89,21 +38,24 @@
     if (data.likes != null && likesEl) likesEl.textContent = formatNumber(data.likes);
   }
 
-  async function update() {
-    var games = await fetchGames();
-    var votes = await fetchVotes();
+  async function fetchStats() {
+    try {
+      var url = '/data/stats.json?t=' + Date.now();
+      var res = await fetch(url);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      var data = await res.json();
+      return data;
+    } catch (e) {
+      console.warn('gamestats: fetch failed', e);
+      return null;
+    }
+  }
 
-    var cached = loadCache() || {};
-    if (games) {
-      cached.visits = games.visits;
-      cached.playing = games.playing;
-      cached.favorites = games.favorites;
-    }
-    if (votes) {
-      cached.likes = votes.likes;
-    }
-    saveCache(cached);
-    applyData(cached);
+  async function update() {
+    var data = await fetchStats();
+    if (!data) return;
+    saveCache(data);
+    applyData(data);
   }
 
   function start() {
