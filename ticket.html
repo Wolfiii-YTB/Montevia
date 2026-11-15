@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ticket — Montevia RP</title>
+  <meta name="description" content="Conversation de ticket Montevia.">
+  <meta name="theme-color" content="#07080a">
+  <link rel="icon" type="image/png" href="img/mark.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=4">
+</head>
+<body id="top">
+
+  <a class="skip" href="#contenu">Aller au contenu</a>
+
+  <header class="header" id="header">
+    <div class="wrap header__inner">
+      <a class="brand" href="index.html" aria-label="Montevia, retour à l'accueil">
+        <img class="brand__logo" src="img/mark.png" alt="" width="30" height="30">
+        <span class="brand__name">Montevia</span>
+        <span class="brand__tag">RP FR</span>
+      </a>
+      <nav class="nav" id="nav" aria-label="Navigation principale">
+        <a href="index.html#univers">L'univers</a>
+        <a href="index.html#metiers">Métiers</a>
+        <a href="equipe.html">L'équipe</a>
+        <a href="support.html">Support</a>
+        <a href="index.html#reglement">Règlement</a>
+        <a href="index.html#faq">FAQ</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenu" style="padding-top: 100px;">
+    <div class="wrap">
+      <div class="ticket-page" id="ticketPage">
+        <div class="ticket-page__loading">Chargement du ticket…</div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="js/supabase-config.js" defer></script>
+  <script src="js/ticket-page.js" defer></script>
+</body>
+</html>

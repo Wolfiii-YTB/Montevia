@@ -1489,7 +1489,7 @@
       ticketsRows.addEventListener('click', function (event) {
         var button = event.target.closest('button[data-action]');
         if (!button) return;
-        if (button.dataset.action === 'view-ticket') openTicketConversation(button.dataset.id);
+        if (button.dataset.action === 'view-ticket') window.open('ticket.html?id=' + button.dataset.id, '_blank');
         if (button.dataset.action === 'claim-ticket') handleClaimTicket(button.dataset.id);
         if (button.dataset.action === 'add-participant') handleAddParticipant(button.dataset.id);
         if (button.dataset.action === 'close-ticket') handleCloseTicket(button.dataset.id);

@@ -67,7 +67,7 @@
       var card = document.createElement('div');
       card.className = 'ticket-item';
       card.style.cursor = 'pointer';
-      card.addEventListener('click', function () { openConversation(t); });
+      card.addEventListener('click', function () { window.location.href = 'ticket.html?id=' + t.id; });
 
       var statusClass = 'ticket-item__status--' + (t.status === 'in_progress' ? 'in_progress' : t.status);
 
