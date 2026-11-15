@@ -111,7 +111,7 @@
     var cached = loadCache();
     if (cached) applyData(cached);
     update();
-    setInterval(update, 30000);
+    setInterval(update, 5000);
   }
 
   if (document.readyState === 'loading') {
