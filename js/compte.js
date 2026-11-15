@@ -103,13 +103,26 @@
 
   async function linkProvider(provider) {
     var sb = getClient();
-    if (!sb) { alert('Supabase non chargé.'); return; }
+    if (!sb) { alert('Supabase non chargé. Recharge la page.'); return; }
     if (!currentUser) { alert('Vous devez être connecté pour lier un compte.'); return; }
+
+    console.log('Tentative de liaison avec', provider, 'pour', currentUser.id);
+
     try {
       var { data, error } = await sb.auth.linkIdentity({ provider: provider });
-      if (error) { alert('Erreur : ' + error.message); return; }
-      // Redirection automatique vers le provider
+      console.log('linkIdentity result:', data, error);
+      if (error) {
+        alert('Erreur Supabase : ' + error.message);
+        return;
+      }
+      if (!data || !data.url) {
+        alert('Aucune URL de redirection reçue. Vérifie que le provider ' + provider + ' est activé dans Supabase.');
+        return;
+      }
+      // Redirection manuelle si nécessaire
+      window.location.href = data.url;
     } catch (e) {
+      console.error('linkProvider error:', e);
       alert('Erreur : ' + (e.message || e));
     }
   }
