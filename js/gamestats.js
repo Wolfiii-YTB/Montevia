@@ -77,7 +77,7 @@
   // Fallback : fichier JSON mis à jour par GitHub Action
   async function fetchJson() {
     try {
-      var res = await fetchWithTimeout('/data/stats.json', 3000, { cache: 'no-store' });
+      var res = await fetchWithTimeout('data/stats.json', 3000, { cache: 'no-store' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return await res.json();
     } catch (e) {
