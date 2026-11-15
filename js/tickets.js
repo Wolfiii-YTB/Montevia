@@ -176,19 +176,26 @@
   async function handleSubmit(e) {
     e.preventDefault();
     var sb = getClient();
-    if (!sb || !currentUser) return;
+    if (!sb || !currentUser) {
+      alert('Vous devez être connecté avec Discord pour créer un ticket.');
+      return;
+    }
 
     var subject = document.getElementById('ticketSubject').value.trim();
     var message = document.getElementById('ticketMessage').value.trim();
     if (!subject || !message) return;
 
-    var discordName = currentUser.user_metadata?.preferred_username || currentUser.user_metadata?.name || currentUser.user_metadata?.full_name || currentUser.email || '';
+    // Capturer le pseudo Discord correctement
+    var meta = currentUser.user_metadata || {};
+    var discordName = meta.preferred_username || meta.user_name || meta.name || meta.full_name || currentUser.email || 'Inconnu';
+    console.log('Discord user metadata:', JSON.stringify(meta));
 
     var { error } = await sb.from('montevia_tickets').insert({
       user_id: currentUser.id,
       discord_username: discordName,
       subject: subject,
-      message: message
+      message: message,
+      status: 'open'
     });
 
     if (error) {

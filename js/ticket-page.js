@@ -83,10 +83,8 @@
     var { data: parts } = await sb.from('montevia_ticket_participants').select('*').eq('ticket_id', id);
     participants = parts || [];
 
-    if (ticket.user_id) {
-      var { data: prof } = await sb.from('profiles').select('display_name,nickname').eq('id', ticket.user_id).maybeSingle();
-      if (prof) ticket._openerName = prof.display_name || prof.nickname || ticket.user_id;
-    }
+    // Ne pas utiliser le profil DevReports pour le nom ; utiliser le pseudo Discord
+    ticket._openerName = ticket.discord_username || 'Anonyme';
 
     render();
   }
@@ -102,7 +100,8 @@
     // Header
     document.getElementById('ticketTitle').textContent = ticket.subject;
     var statusEl = document.getElementById('ticketStatus');
-    statusEl.textContent = ticket.status === 'open' ? 'Ouvert' : (ticket.status === 'in_progress' ? 'En cours' : 'Fermé');
+    var st = ticket.status || 'open';
+    statusEl.textContent = st === 'open' ? 'Ouvert' : (st === 'in_progress' ? 'En cours' : 'Fermé');
     statusEl.className = 'ticket-header__status ticket-header__status--' + ticket.status;
 
     // Actions
