@@ -441,8 +441,11 @@
       <div class="admin-form__body">
         <input type="hidden" id="imageId">
         <div class="admin-form__grid">
-          <label class="admin-form__full">URL de l'image (HTTPS)
-            <input id="imageUrl" type="url" maxlength="2048" placeholder="https://…/image.jpg" required>
+          <label class="admin-form__full">Image à uploader
+            <input id="imageFile" type="file" accept="image/*">
+          </label>
+          <label class="admin-form__full">Ou URL directe (optionnel)
+            <input id="imageUrl" type="url" maxlength="2048" placeholder="https://…/image.jpg">
           </label>
           <label class="admin-form__full">Légende
             <input id="imageCaption" type="text" maxlength="200" placeholder="Description courte">

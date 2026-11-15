@@ -865,21 +865,43 @@
     saveImageBtn.textContent = 'Ajouter l\'image';
   }
 
+  async function uploadImageFile(file) {
+    var bucket = 'montevia-gallery';
+    var ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    var path = 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2) + '.' + ext;
+
+    var result = await db.storage.from(bucket).upload(path, file, {
+      cacheControl: '3600',
+      upsert: false
+    });
+
+    if (result.error) throw result.error;
+
+    var publicUrl = db.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+    return publicUrl;
+  }
+
   async function handleImageSubmit(event) {
     event.preventDefault();
+    var fileInput = document.getElementById('imageFile');
+    var file = fileInput && fileInput.files && fileInput.files[0];
     var url = imageUrl.value.trim();
     var caption = imageCaption.value.trim();
     var order = parseInt(imageOrder.value, 10);
     if (isNaN(order)) order = 100;
     order = Math.min(9999, Math.max(0, order));
 
-    if (!url) {
-      showToast('L\'URL de l\'image est obligatoire.', 'error');
-      return;
-    }
-
     setBusy(saveImageBtn, true, 'Enregistrement…');
     try {
+      if (file) {
+        url = await uploadImageFile(file);
+      }
+      if (!url) {
+        showToast('Choisis une image ou saisis une URL.', 'error');
+        setBusy(saveImageBtn, false);
+        return;
+      }
+
       var result = await db.from('montevia_gallery').insert({
         image_url: url,
         caption: caption,

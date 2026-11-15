@@ -306,3 +306,31 @@ notify pgrst, 'reload schema';
 
 -- Vérification rapide après exécution :
 -- select * from public.montevia_team_members order by sort_order, display_name;
+
+-- ============================================================
+-- Stockage des images (bucket public)
+-- ============================================================
+insert into storage.buckets (id, name, public)
+values ('montevia-gallery', 'montevia-gallery', true)
+on conflict (id) do nothing;
+
+drop policy if exists "public read gallery images" on storage.objects;
+create policy "public read gallery images"
+on storage.objects
+for select
+to anon, authenticated
+using (bucket_id = 'montevia-gallery');
+
+drop policy if exists "admins upload gallery images" on storage.objects;
+create policy "admins upload gallery images"
+on storage.objects
+for insert
+to authenticated
+with check (bucket_id = 'montevia-gallery' and public.montevia_is_admin());
+
+drop policy if exists "admins delete gallery images" on storage.objects;
+create policy "admins delete gallery images"
+on storage.objects
+for delete
+to authenticated
+using (bucket_id = 'montevia-gallery' and public.montevia_is_admin());
