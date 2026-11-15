@@ -170,9 +170,9 @@
     var info = document.getElementById('ticketInfo');
     if (info) {
       info.innerHTML = '';
-      info.append(createInfoRow('Ouvert par', ticket._openerName || ticket.user_id || 'Anonyme'));
-      info.append(createInfoRow('ID', ticket.user_id || '—'));
-      info.append(createInfoRow('Discord', ticket.discord_username || '—'));
+      info.append(createInfoRow('Ouvert par', ticket.discord_username || ticket._openerName || 'Anonyme'));
+      info.append(createInfoRow('ID utilisateur', ticket.user_id || '—'));
+      info.append(createInfoRow('Pseudo Discord', ticket.discord_username || '—'));
       info.append(createInfoRow('Créé le', new Date(ticket.created_at).toLocaleString('fr-FR')));
       if (ticket.claimed_by) info.append(createInfoRow('Pris en charge', ticket.claimed_by === currentUser?.id ? 'Vous' : ticket.claimed_by));
       if (ticket.priority) info.append(createInfoRow('Priorité', ticket.priority));

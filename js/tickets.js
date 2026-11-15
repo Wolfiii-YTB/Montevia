@@ -182,7 +182,7 @@
     var message = document.getElementById('ticketMessage').value.trim();
     if (!subject || !message) return;
 
-    var discordName = currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || '';
+    var discordName = currentUser.user_metadata?.preferred_username || currentUser.user_metadata?.name || currentUser.user_metadata?.full_name || currentUser.email || '';
 
     var { error } = await sb.from('montevia_tickets').insert({
       user_id: currentUser.id,
