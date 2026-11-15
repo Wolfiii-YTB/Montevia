@@ -192,5 +192,43 @@ grant select, insert, update, delete on table public.montevia_admin_access to au
 -- Recharge le cache de schéma de PostgREST
 notify pgrst, 'reload schema';
 
+-- ============================================================
+-- Paramètres du site (liens des boutons, etc.)
+-- ============================================================
+create table if not exists public.montevia_site_settings (
+  key text primary key,
+  value text not null default '',
+  updated_at timestamptz not null default now()
+);
+
+alter table public.montevia_site_settings enable row level security;
+
+drop policy if exists "public read montevia settings" on public.montevia_site_settings;
+create policy "public read montevia settings"
+on public.montevia_site_settings
+for select
+to anon, authenticated
+using (true);
+
+drop policy if exists "admins write montevia settings" on public.montevia_site_settings;
+create policy "admins write montevia settings"
+on public.montevia_site_settings
+for all
+to authenticated
+using (public.montevia_is_admin())
+with check (public.montevia_is_admin());
+
+grant select on table public.montevia_site_settings to anon, authenticated;
+grant insert, update, delete on table public.montevia_site_settings to authenticated;
+
+-- Valeurs par défaut
+insert into public.montevia_site_settings (key, value) values
+  ('roblox_url', 'https://www.roblox.com/fr/games/136984692229053/Montevia'),
+  ('discord_url', 'https://discord.gg/6wHfn69Jt')
+on conflict (key) do nothing;
+
+-- Recharge le cache
+notify pgrst, 'reload schema';
+
 -- Vérification rapide après exécution :
 -- select * from public.montevia_team_members order by sort_order, display_name;

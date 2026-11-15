@@ -44,6 +44,11 @@
   var grantAccessForm = document.getElementById('grantAccessForm');
   var grantUserId = document.getElementById('grantUserId');
 
+  var settingsView = document.getElementById('settingsView');
+  var settingsForm = document.getElementById('settingsForm');
+  var settingRoblox = document.getElementById('settingRoblox');
+  var settingDiscord = document.getElementById('settingDiscord');
+
   var memberDialog = document.getElementById('memberDialog');
   var memberForm = document.getElementById('memberForm');
   var memberDialogTitle = document.getElementById('memberDialogTitle');
@@ -81,7 +86,8 @@
   var VIEWS = {
     dashboard: { el: dashboardView, title: "Vue d'ensemble" },
     team: { el: teamView, title: 'Équipe' },
-    access: { el: accessView, title: 'Accès' }
+    access: { el: accessView, title: 'Accès' },
+    settings: { el: settingsView, title: 'Liens' }
   };
 
   var db = null;
@@ -355,6 +361,12 @@
       await loadAccess();
     } catch (error) {
       showToast("Impossible de charger les accès : " + (errorMessage(error) || 'erreur réseau.'), 'error');
+    }
+
+    try {
+      await loadSettings();
+    } catch (error) {
+      showToast("Impossible de charger les liens : " + (errorMessage(error) || 'erreur réseau.'), 'error');
     }
 
     return true;
@@ -706,6 +718,37 @@
     accessRows.append(frag);
   }
 
+  async function loadSettings() {
+    try {
+      var result = await db.from('montevia_site_settings').select('*');
+      if (result.error) {
+        if (isMissingTable(result.error)) return;
+        throw result.error;
+      }
+      var rows = Array.isArray(result.data) ? result.data : [];
+      rows.forEach(function (row) {
+        if (row.key === 'roblox_url' && settingRoblox) settingRoblox.value = row.value || '';
+        if (row.key === 'discord_url' && settingDiscord) settingDiscord.value = row.value || '';
+      });
+    } catch (error) {
+      console.warn('loadSettings failed', error);
+    }
+  }
+
+  async function handleSettingsSubmit(event) {
+    event.preventDefault();
+    var roblox = settingRoblox.value.trim();
+    var discord = settingDiscord.value.trim();
+
+    try {
+      await db.from('montevia_site_settings').upsert({ key: 'roblox_url', value: roblox, updated_at: new Date().toISOString() });
+      await db.from('montevia_site_settings').upsert({ key: 'discord_url', value: discord, updated_at: new Date().toISOString() });
+      showToast('Liens enregistrés.');
+    } catch (error) {
+      showToast(errorMessage(error) || 'Enregistrement impossible.', 'error');
+    }
+  }
+
   async function grantAccessById(userId) {
     try {
       var result = await db.from('montevia_admin_access').insert({ user_id: userId, granted_by: currentProfile.id });
@@ -941,6 +984,10 @@
 
     if (grantAccessForm) {
       grantAccessForm.addEventListener('submit', handleGrantAccess);
+    }
+
+    if (settingsForm) {
+      settingsForm.addEventListener('submit', handleSettingsSubmit);
     }
 
     if (accessRows) {
