@@ -1107,6 +1107,71 @@ h1, h2, h3, h4 {
   margin-left: auto;
   color: var(--text-3);
   font-size: 14px;
+  transition: color .16s ease, transform .16s var(--ease);
+}
+
+/* profils en rotation dans la carte d'organisation */
+
+.org-card__list li.org-card__member-item {
+  padding: 0;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity .17s ease, transform .17s var(--ease);
+}
+.org-card__list li.org-card__member-item:hover { background: transparent; }
+.org-card__list.is-swapping li.org-card__member-item {
+  opacity: 0;
+  transform: translateY(-3px);
+}
+
+.org-card__member {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 13px;
+  border-radius: 16px;
+  color: inherit;
+  text-decoration: none;
+  transition: background-color .16s ease;
+}
+.org-card__member:hover { background: rgba(255, 255, 255, 0.035); }
+.org-card__member:hover .org-card__arrow { color: var(--accent); transform: translateX(2px); }
+.org-card__member:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.org-card__member .org-card__label { flex: 1; }
+.org-card__member .org-card__label strong,
+.org-card__member .org-card__label small {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.org-card__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 11px;
+  background: var(--surface-3);
+  color: var(--text-2);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.org-card__avatar img { width: 100%; height: 100%; object-fit: cover; }
+.org-card__avatar.is-fallback {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .org-card__foot {
@@ -1504,4 +1569,9 @@ h1, h2, h3, h4 {
 
 @media (prefers-reduced-motion: reduce) {
   .member { animation: none; opacity: 1; }
+  .org-card__list li.org-card__member-item,
+  .org-card__member,
+  .org-card__arrow { transition: none; }
+  .org-card__list.is-swapping li.org-card__member-item { opacity: 1; transform: none; }
+  .org-card__member:hover .org-card__arrow { transform: none; }
 }
