@@ -332,7 +332,8 @@ function rotateShowcase() {
 
 /* ---------- Initialisation ---------- */
 
-window.addEventListener('DOMContentLoaded', function() {
+async function init() {
+  await displayMembers();
   renderRoster();
   rotateShowcase();
 
@@ -346,7 +347,9 @@ window.addEventListener('DOMContentLoaded', function() {
       renderShowcase();
     }
   });
-});
+}
+
+window.addEventListener('DOMContentLoaded', init);
 
 /* ---------- Exportation ---------- */
 
