@@ -132,6 +132,15 @@
 
   /* ---------- utilitaires ---------- */
 
+  function escapeHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function errorMessage(error) {
     return (error && (error.message || error.error_description)) || '';
   }
@@ -1085,14 +1094,14 @@
       // Message initial
       var initMsg = document.createElement('div');
       initMsg.style.cssText = 'margin-bottom:12px;padding:12px 16px;background:var(--surface-3);border:1px solid var(--line);border-radius:12px;';
-      initMsg.innerHTML = '<div style="font-size:12px;color:var(--text-3);margin-bottom:4px;">' + (ticket.discord_username || 'Utilisateur') + ' · ' + new Date(ticket.created_at).toLocaleString('fr-FR') + '</div>' +
+      initMsg.innerHTML = '<div style="font-size:12px;color:var(--text-3);margin-bottom:4px;">' + escapeHtml(ticket.discord_username || 'Utilisateur') + ' · ' + new Date(ticket.created_at).toLocaleString('fr-FR') + '</div>' +
         '<div style="color:var(--text);">' + escapeHtml(ticket.message) + '</div>';
       ticketConvBody.append(initMsg);
 
       messages.forEach(function (m) {
         var msg = document.createElement('div');
         msg.style.cssText = 'margin-bottom:12px;padding:12px 16px;border-radius:12px;' + (m.sender_type === 'admin' ? 'background:var(--accent-soft);border:1px solid var(--accent-line);margin-left:24px;' : 'background:var(--surface-3);border:1px solid var(--line);margin-right:24px;');
-        msg.innerHTML = '<div style="font-size:12px;color:var(--text-3);margin-bottom:4px;">' + (m.sender_type === 'admin' ? 'Admin' : (ticket.discord_username || 'Utilisateur')) + ' · ' + new Date(m.created_at).toLocaleString('fr-FR') + '</div>' +
+        msg.innerHTML = '<div style="font-size:12px;color:var(--text-3);margin-bottom:4px;">' + (m.sender_type === 'admin' ? 'Admin' : escapeHtml(ticket.discord_username || 'Utilisateur')) + ' · ' + new Date(m.created_at).toLocaleString('fr-FR') + '</div>' +
           '<div style="color:var(--text);">' + escapeHtml(m.message) + '</div>';
         ticketConvBody.append(msg);
       });
@@ -1312,6 +1321,10 @@
     var userId = grantUserId.value.trim();
     if (!userId) {
       showToast('Saisis un UUID utilisateur.', 'error');
+      return;
+    }
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) {
+      showToast('UUID invalide.', 'error');
       return;
     }
     grantUserId.value = '';
