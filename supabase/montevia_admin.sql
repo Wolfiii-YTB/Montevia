@@ -193,6 +193,80 @@ grant select, insert, update, delete on table public.montevia_admin_access to au
 notify pgrst, 'reload schema';
 
 -- ============================================================
+-- Galerie d'images in-game
+-- ============================================================
+create table if not exists public.montevia_gallery (
+  id uuid primary key default gen_random_uuid(),
+  image_url text not null check (char_length(image_url) between 1 and 2048),
+  caption text not null default '' check (char_length(caption) <= 200),
+  sort_order integer not null default 100 check (sort_order between 0 and 9999),
+  published boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.montevia_gallery enable row level security;
+
+drop policy if exists "public read published gallery" on public.montevia_gallery;
+create policy "public read published gallery"
+on public.montevia_gallery
+for select
+to anon, authenticated
+using (published = true);
+
+drop policy if exists "admins read gallery" on public.montevia_gallery;
+create policy "admins read gallery"
+on public.montevia_gallery
+for select
+to authenticated
+using (public.montevia_is_admin());
+
+drop policy if exists "admins insert gallery" on public.montevia_gallery;
+create policy "admins insert gallery"
+on public.montevia_gallery
+for insert
+to authenticated
+with check (public.montevia_is_admin());
+
+drop policy if exists "admins update gallery" on public.montevia_gallery;
+create policy "admins update gallery"
+on public.montevia_gallery
+for update
+to authenticated
+using (public.montevia_is_admin())
+with check (public.montevia_is_admin());
+
+drop policy if exists "admins delete gallery" on public.montevia_gallery;
+create policy "admins delete gallery"
+on public.montevia_gallery
+for delete
+to authenticated
+using (public.montevia_is_admin());
+
+create index if not exists montevia_gallery_order_idx
+  on public.montevia_gallery (published, sort_order, created_at);
+
+create or replace function public.montevia_touch_gallery()
+returns trigger
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists montevia_gallery_touch on public.montevia_gallery;
+create trigger montevia_gallery_touch
+before update on public.montevia_gallery
+for each row execute function public.montevia_touch_gallery();
+
+grant select on table public.montevia_gallery to anon, authenticated;
+grant insert, update, delete on table public.montevia_gallery to authenticated;
+
+-- ============================================================
 -- Paramètres du site (liens des boutons, etc.)
 -- ============================================================
 create table if not exists public.montevia_site_settings (

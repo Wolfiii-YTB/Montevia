@@ -49,6 +49,20 @@
   var settingRoblox = document.getElementById('settingRoblox');
   var settingDiscord = document.getElementById('settingDiscord');
 
+  var galleryView = document.getElementById('galleryView');
+  var galleryTable = document.getElementById('galleryTable');
+  var galleryRows = document.getElementById('galleryRows');
+  var galleryEmpty = document.getElementById('galleryEmpty');
+  var addImageBtn = document.getElementById('addImageBtn');
+  var imageDialog = document.getElementById('imageDialog');
+  var imageForm = document.getElementById('imageForm');
+  var imageId = document.getElementById('imageId');
+  var imageUrl = document.getElementById('imageUrl');
+  var imageCaption = document.getElementById('imageCaption');
+  var imageOrder = document.getElementById('imageOrder');
+  var imagePublished = document.getElementById('imagePublished');
+  var saveImageBtn = document.getElementById('saveImageBtn');
+
   var memberDialog = document.getElementById('memberDialog');
   var memberForm = document.getElementById('memberForm');
   var memberDialogTitle = document.getElementById('memberDialogTitle');
@@ -87,7 +101,8 @@
     dashboard: { el: dashboardView, title: "Vue d'ensemble" },
     team: { el: teamView, title: 'Équipe' },
     access: { el: accessView, title: 'Accès' },
-    settings: { el: settingsView, title: 'Liens' }
+    settings: { el: settingsView, title: 'Liens' },
+    gallery: { el: galleryView, title: 'Galerie' }
   };
 
   var db = null;
@@ -95,6 +110,7 @@
   var members = [];
   var accessList = [];
   var allProfiles = [];
+  var galleryList = [];
   var tableReady = false;
   var editingId = null;
   var deletingId = null;
@@ -367,6 +383,12 @@
       await loadSettings();
     } catch (error) {
       showToast("Impossible de charger les liens : " + (errorMessage(error) || 'erreur réseau.'), 'error');
+    }
+
+    try {
+      await loadGallery();
+    } catch (error) {
+      showToast("Impossible de charger la galerie : " + (errorMessage(error) || 'erreur réseau.'), 'error');
     }
 
     return true;
@@ -749,6 +771,144 @@
     }
   }
 
+  async function loadGallery() {
+    try {
+      var result = await db
+        .from('montevia_gallery')
+        .select('*')
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: true });
+
+      if (result.error) {
+        if (isMissingTable(result.error)) {
+          galleryList = [];
+          renderGallery();
+          return;
+        }
+        throw result.error;
+      }
+      galleryList = Array.isArray(result.data) ? result.data : [];
+      renderGallery();
+    } catch (error) {
+      showToast("Impossible de charger la galerie : " + (errorMessage(error) || 'erreur réseau.'), 'error');
+    }
+  }
+
+  function renderGallery() {
+    galleryRows.replaceChildren();
+
+    if (!galleryList.length) {
+      galleryTable.hidden = true;
+      galleryEmpty.hidden = false;
+      return;
+    }
+
+    galleryTable.hidden = false;
+    galleryEmpty.hidden = true;
+
+    var fragment = document.createDocumentFragment();
+
+    galleryList.forEach(function (img) {
+      var row = node('div', 'admin-row');
+      row.dataset.id = img.id;
+
+      var imgCell = node('div', 'admin-row__member');
+      var thumb = document.createElement('img');
+      thumb.src = safeHttps(img.image_url);
+      thumb.alt = '';
+      thumb.style.width = '48px';
+      thumb.style.height = '48px';
+      thumb.style.objectFit = 'cover';
+      thumb.style.borderRadius = '8px';
+      imgCell.append(thumb);
+      imgCell.append(node('span', 'admin-row__text', img.caption || 'Sans légende'));
+
+      var orderCell = node('span', 'admin-row__role', String(img.sort_order));
+
+      var statusCell = node('span', 'admin-row__status');
+      var badge = node('span', 'admin-badge ' + (img.published ? 'admin-badge--live' : 'admin-badge--draft'),
+        img.published ? 'Publié' : 'Brouillon');
+      statusCell.append(badge);
+
+      var actions = node('div', 'admin-row__actions');
+      var delBtn = node('button', 'admin-icon-btn admin-icon-btn--danger');
+      delBtn.type = 'button';
+      delBtn.dataset.action = 'delete-image';
+      delBtn.dataset.id = img.id;
+      delBtn.setAttribute('aria-label', 'Supprimer cette image');
+      delBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
+      actions.append(delBtn);
+
+      row.append(imgCell);
+      row.append(orderCell);
+      row.append(statusCell);
+      row.append(actions);
+
+      fragment.append(row);
+    });
+
+    galleryRows.append(fragment);
+  }
+
+  function openImageForm() {
+    resetImageForm();
+    openDialog(imageDialog);
+    window.setTimeout(function () { imageUrl.focus(); }, 30);
+  }
+
+  function resetImageForm() {
+    imageForm.reset();
+    imageId.value = '';
+    imageOrder.value = '100';
+    imagePublished.checked = true;
+    imageDialogTitle.textContent = 'Ajouter une image';
+    saveImageBtn.textContent = 'Ajouter l\'image';
+  }
+
+  async function handleImageSubmit(event) {
+    event.preventDefault();
+    var url = imageUrl.value.trim();
+    var caption = imageCaption.value.trim();
+    var order = parseInt(imageOrder.value, 10);
+    if (isNaN(order)) order = 100;
+    order = Math.min(9999, Math.max(0, order));
+
+    if (!url) {
+      showToast('L\'URL de l\'image est obligatoire.', 'error');
+      return;
+    }
+
+    setBusy(saveImageBtn, true, 'Enregistrement…');
+    try {
+      var result = await db.from('montevia_gallery').insert({
+        image_url: url,
+        caption: caption,
+        sort_order: order,
+        published: imagePublished.checked
+      });
+      if (result.error) throw result.error;
+      closeDialog(imageDialog);
+      showToast('Image ajoutée.');
+      await loadGallery();
+    } catch (error) {
+      showToast(errorMessage(error) || 'Enregistrement impossible.', 'error');
+    } finally {
+      setBusy(saveImageBtn, false);
+    }
+  }
+
+  async function handleDeleteImage(id) {
+    if (!id) return;
+    try {
+      var result = await db.from('montevia_gallery').delete().eq('id', id);
+      if (result.error) throw result.error;
+      showToast('Image supprimée.');
+      await loadGallery();
+    } catch (error) {
+      showToast(errorMessage(error) || 'Suppression impossible.', 'error');
+    }
+  }
+
   async function grantAccessById(userId) {
     try {
       var result = await db.from('montevia_admin_access').insert({ user_id: userId, granted_by: currentProfile.id });
@@ -990,6 +1150,26 @@
       settingsForm.addEventListener('submit', handleSettingsSubmit);
     }
 
+    if (addImageBtn) {
+      addImageBtn.addEventListener('click', function () { openImageForm(); });
+    }
+
+    document.querySelectorAll('[data-add-image]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openImageForm(); });
+    });
+
+    if (galleryRows) {
+      galleryRows.addEventListener('click', function (event) {
+        var button = event.target.closest('button[data-action="delete-image"]');
+        if (!button) return;
+        handleDeleteImage(button.dataset.id);
+      });
+    }
+
+    if (imageForm) {
+      imageForm.addEventListener('submit', handleImageSubmit);
+    }
+
     if (accessRows) {
       accessRows.addEventListener('click', function (event) {
         var button = event.target.closest('button[data-action="revoke-access"]');
@@ -1018,7 +1198,7 @@
       });
     });
 
-    [memberDialog, deleteDialog].forEach(function (dialog) {
+    [memberDialog, deleteDialog, imageDialog].forEach(function (dialog) {
       dialog.addEventListener('click', function (event) {
         if (event.target !== dialog) return;
         var rect = dialog.getBoundingClientRect();
