@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Support — Montevia RP</title>
+  <meta name="description" content="Ouvre un ticket pour contacter l'équipe Montevia. Support rapide et personnalisé.">
+  <meta name="theme-color" content="#07080a">
+  <link rel="icon" type="image/png" href="img/mark.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=3">
+</head>
+<body id="top">
+
+  <a class="skip" href="#contenu">Aller au contenu</a>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <header class="header" id="header">
+    <div class="wrap header__inner">
+      <a class="brand" href="index.html" aria-label="Montevia, retour à l'accueil">
+        <img class="brand__logo" src="img/mark.png" alt="" width="30" height="30">
+        <span class="brand__name">Montevia</span>
+        <span class="brand__tag">RP FR</span>
+      </a>
+
+      <nav class="nav" id="nav" aria-label="Navigation principale">
+        <a href="index.html#univers">L'univers</a>
+        <a href="index.html#metiers">Métiers</a>
+        <a href="equipe.html">L'équipe</a>
+        <a href="support.html" class="is-active" aria-current="page">Support</a>
+        <a href="index.html#reglement">Règlement</a>
+        <a href="index.html#faq">FAQ</a>
+        <div class="nav__actions">
+          <a class="btn btn--ghost btn--sm nav__discord" href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener" data-setting="discord_url">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M20.3 4.4a19.8 19.8 0 0 0-4.9-1.5l-.1 0c-.2.4-.4.9-.6 1.3a18.3 18.3 0 0 0-5.5 0c-.2-.4-.4-.9-.6-1.3l-.1 0a19.7 19.7 0 0 0-4.9 1.5l0 0C.5 9-.3 13.6.1 18.1l0 .1a19.9 19.9 0 0 0 6 3l.1 0c.5-.6.9-1.3 1.2-2v-.1l-1.9-.9v-.1l.4-.3h.1a14.2 14.2 0 0 0 12.1 0h.1l.4.3v.1l-1.9.9v.1c.4.7.7 1.4 1.2 2l.1 0a19.8 19.8 0 0 0 6-3l0-.1c.5-5.2-.8-9.7-3.5-13.7zM8 15.3c-1.2 0-2.2-1.1-2.2-2.4S6.8 10.5 8 10.5s2.2 1.1 2.2 2.4-1 2.4-2.2 2.4zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4z"/></svg>
+            Discord
+          </a>
+          <a class="btn btn--primary btn--sm" href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener" data-setting="roblox_url">Jouer</a>
+        </div>
+      </nav>
+
+      <button class="burger" id="burger" aria-expanded="false" aria-controls="nav" aria-label="Ouvrir le menu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="contenu">
+
+    <section class="page-hero">
+      <div class="page-hero__glow" aria-hidden="true"></div>
+      <div class="wrap">
+        <nav class="crumbs" aria-label="Fil d'Ariane">
+          <a href="index.html">Accueil</a>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">Support</span>
+        </nav>
+        <div class="page-hero__grid">
+          <div>
+            <span class="tag reveal">Support</span>
+            <h1 class="reveal">Une question ? Ouvre un ticket.</h1>
+            <p class="page-hero__lead reveal">
+              Connecte-toi avec Discord pour créer une demande. L'équipe te répondra rapidement.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="ticket-card" id="ticketBox">
+          <div id="ticketAuth" class="ticket-auth">
+            <div class="ticket-auth__icon">🎫</div>
+            <h3>Connexion requise</h3>
+            <p>Connecte-toi avec ton compte Discord pour ouvrir un ticket.</p>
+            <button class="btn btn--primary btn--lg" id="discordLoginBtn" type="button">Se connecter avec Discord</button>
+          </div>
+
+          <div id="ticketForm" hidden>
+            <form id="ticketFormEl" class="ticket-form">
+              <div class="ticket-form__group">
+                <label for="ticketSubject">Sujet</label>
+                <input id="ticketSubject" type="text" maxlength="120" placeholder="Ex. Problème en jeu" required>
+              </div>
+              <div class="ticket-form__group">
+                <label for="ticketMessage">Message</label>
+                <textarea id="ticketMessage" rows="5" maxlength="2000" placeholder="Décris ton problème en détail…" required></textarea>
+              </div>
+              <button class="btn btn--primary" type="submit">Envoyer le ticket</button>
+            </form>
+          </div>
+
+          <div id="ticketUser" class="ticket-user"></div>
+
+          <div id="ticketList" class="ticket-list"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <a class="brand brand--footer" href="index.html" aria-label="Montevia, retour à l'accueil">
+            <img class="brand__full" src="img/logo.png" alt="Montevia" width="140" height="140">
+          </a>
+          <p>
+            Une ville inspirée de l'Alsace, où réalisme, immersion et originalité se rencontrent.
+            Développé par CommunityLine Studio.
+          </p>
+        </div>
+        <div class="footer__cols">
+          <div class="footer__col">
+            <h4>Navigation</h4>
+            <ul>
+              <li><a href="index.html#univers">L'univers</a></li>
+              <li><a href="index.html#metiers">Métiers</a></li>
+              <li><a href="equipe.html">L'équipe</a></li>
+              <li><a href="support.html">Support</a></li>
+              <li><a href="index.html#reglement">Règlement</a></li>
+              <li><a href="index.html#faq">FAQ</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <h4>Communauté</h4>
+            <ul>
+              <li><a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener" data-setting="discord_url">Serveur Discord</a></li>
+              <li><a href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener" data-setting="roblox_url">Jeu sur Roblox</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <h4>Informations</h4>
+            <ul>
+              <li><span>CommunityLine Studio</span></li>
+              <li><span>Phase de test</span></li>
+              <li><span>Serious Roleplay</span></li>
+              <li><a href="admin.html">Espace admin</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© <span id="year">2026</span> Montevia — CommunityLine Studio.</span>
+        <span>Projet communautaire, non affilié à Roblox Corporation.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="js/supabase-config.js" defer></script>
+  <script src="js/script.js" defer></script>
+  <script src="js/tickets.js" defer></script>
+  <script src="js/settings.js" defer></script>
+</body>
+</html>

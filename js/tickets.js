@@ -63,11 +63,18 @@
 
     data.forEach(function (t) {
       var card = document.createElement('div');
-      card.style.cssText = 'background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px;';
-      card.innerHTML = '<strong>' + escapeHtml(t.subject) + '</strong>' +
-        '<span style="float:right;font-size:12px;color:var(--text-3);">' + new Date(t.created_at).toLocaleDateString('fr-FR') + '</span>' +
-        '<p style="margin-top:8px;color:var(--text-2);">' + escapeHtml(t.message) + '</p>' +
-        '<span style="font-size:12px;color:' + (t.status === 'closed' ? 'var(--text-3)' : 'var(--accent)') + ';">' + (t.status === 'open' ? 'Ouvert' : (t.status === 'in_progress' ? 'En cours' : 'Fermé')) + '</span>';
+      card.className = 'ticket-item';
+
+      var statusClass = 'ticket-item__status--' + (t.status === 'in_progress' ? 'in_progress' : t.status);
+
+      card.innerHTML =
+        '<div class="ticket-item__head">' +
+          '<span class="ticket-item__subject">' + escapeHtml(t.subject) + '</span>' +
+          '<span class="ticket-item__date">' + new Date(t.created_at).toLocaleDateString('fr-FR') + '</span>' +
+        '</div>' +
+        '<p class="ticket-item__message">' + escapeHtml(t.message) + '</p>' +
+        '<span class="ticket-item__status ' + statusClass + '">' + (t.status === 'open' ? 'Ouvert' : (t.status === 'in_progress' ? 'En cours' : 'Fermé')) + '</span>';
+
       list.append(card);
     });
   }
