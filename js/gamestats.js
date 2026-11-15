@@ -12,10 +12,23 @@
     return new Intl.NumberFormat('fr-FR').format(n);
   }
 
+  async function fetchWithTimeout(url, ms) {
+    var controller = new AbortController();
+    var timeout = setTimeout(function () { controller.abort(); }, ms);
+    try {
+      var res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeout);
+      return res;
+    } catch (e) {
+      clearTimeout(timeout);
+      throw e;
+    }
+  }
+
   async function fetchGames() {
     try {
       var proxy = 'https://proxy.corsfix.com/?' + GAMES_URL;
-      var res = await fetch(proxy);
+      var res = await fetchWithTimeout(proxy, 3000);
       if (!res.ok) throw new Error('HTTP ' + res.status);
       var data = await res.json();
       var game = data && data.data && data.data[0];
@@ -34,7 +47,7 @@
   async function fetchVotes() {
     try {
       var proxy = 'https://proxy.corsfix.com/?' + VOTES_URL;
-      var res = await fetch(proxy);
+      var res = await fetchWithTimeout(proxy, 3000);
       if (!res.ok) throw new Error('HTTP ' + res.status);
       var data = await res.json();
       var vote = data && data.data && data.data[0];
