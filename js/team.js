@@ -2,46 +2,25 @@
    Utilisation de Supabase pour la synchronisation avec DevReports
    https://bylwvlxxvgumvqgpwgod.supabase.co */
 
-// Configuration chargée depuis supabase-config.js
-var SUPABASE_URL = window.MONTEVIA_SUPABASE.url;
-var SUPABASE_KEY = window.MONTEVIA_SUPABASE.anonKey;
-
 var POLES = {
-  1: 'France',
-  2: 'Belgique',
-  3: 'Canada',
-  4: 'Québec',
-  5: 'Afrique du Sud',
-  6: 'Inde',
-  7: 'Arabie saoudite',
-  8: 'Égypte',
-  9: 'Brésil',
-  10: 'Argentine',
-  11: 'Mexique',
-  12: 'Pologne',
-  13: 'Espagne',
-  14: 'Portugal',
-  15: 'Chine',
-  16: 'Japon',
-  17: 'Corée du Sud',
-  18: 'Turquie',
-  19: 'Russie',
-  20: 'États-Unis',
-  21: 'Australie',
-  22: 'Nouvelle-Zélande',
-  23: 'Philippines',
-  24: 'Malaisie',
-  25: 'Singapour',
-  26: 'Indonésie',
-  27: 'Thaïlande',
-  28: 'Vietnam'
+  direction: 'Direction',
+  developpement: 'Développement',
+  moderation: 'Modération',
+  support: 'Support & animation',
+  studio: 'Studio',
+  autre: 'Autre'
 };
 
 /* ---------- Initialisation Supabase ---------- */
 
 function initSupabase() {
+  if (!window.MONTEVIA_SUPABASE) return null;
+  if (!window.supabase || typeof window.supabase.createClient !== 'function') return null;
   try {
-    var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    var supabase = window.supabase.createClient(
+      window.MONTEVIA_SUPABASE.url,
+      window.MONTEVIA_SUPABASE.anonKey
+    );
     return supabase;
   } catch (e) {
     console.error('Erreur Supabase:', e);
@@ -49,75 +28,98 @@ function initSupabase() {
   }
 }
 
+/* ---------- Utilitaires ---------- */
+
+function node(tag, className, text) {
+  var el = document.createElement(tag);
+  if (className) el.className = className;
+  if (text !== undefined) el.textContent = text;
+  return el;
+}
+
+function safeHttps(url) {
+  if (!url) return null;
+  var protocol = String(url).split('://')[0];
+  return (protocol === 'http' || protocol === '') ? 'https://' + url : url;
+}
+
+function initials(name) {
+  var words = String(name || '').trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return 'M';
+  return words.slice(0, 2).map(function (word) {
+    return Array.from(word)[0] || '';
+  }).join('').toUpperCase();
+}
+
+function avatar(member) {
+  var wrap = node('span', 'member__avatar');
+  var url = safeHttps(member.avatar_url);
+  if (url) {
+    var img = document.createElement('img');
+    img.src = url;
+    img.alt = '';
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.referrerPolicy = 'no-referrer';
+    img.addEventListener('error', function () {
+      img.remove();
+      wrap.textContent = initials(member.display_name);
+      wrap.classList.add('is-fallback');
+    });
+    wrap.append(img);
+  } else {
+    wrap.textContent = initials(member.display_name);
+    wrap.classList.add('is-fallback');
+  }
+  return wrap;
+}
+
 /* ---------- Récupération des membres ---------- */
 
 async function fetchMembers() {
-  const supabase = initSupabase();
-  if (!supabase) {
-    return [];
-  }
+  var supabase = initSupabase();
+  if (!supabase) return [];
+
+  var table = (window.MONTEVIA_SUPABASE && window.MONTEVIA_SUPABASE.teamTable) || 'montevia_team_members';
 
   try {
-    const { data, error } = await supabase
-      .from('montevia_team_members')
+    var result = await supabase
+      .from(table)
       .select('*')
-      .order('display_name');
+      .order('sort_order', { ascending: true })
+      .order('display_name', { ascending: true });
 
-    if (error) {
-      console.error('Erreur récupération membres:', error);
+    if (result.error) {
+      console.error('Erreur récupération membres:', result.error);
       return [];
     }
-
-    if (!data) data = [];
-    return data;
+    return Array.isArray(result.data) ? result.data : [];
   } catch (e) {
     console.error('Erreur récupération membres:', e);
     return [];
   }
 }
 
-/* ---------- Synchronisation ---------- */
-
-async function syncMembers() {
-  const supabase = initSupabase();
-  if (!supabase) {
-    return false;
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from('montevia_team_members')
-      .select('*')
-      .order('display_name');
-
-    if (error) {
-      console.error('Erreur synchronisation:', error);
-      return false;
-    }
-
-    if (!data || data.length === 0) {
-      console.log('Aucun membre synchronisé');
-      return false;
-    }
-
-    console.log('Membres synchronisés:', data.length);
-    return true;
-  } catch (e) {
-    console.error('Erreur synchronisation:', e);
-    return false;
-  }
-}
-
-/* ---------- Affichage des membres ---------- */
+/* ---------- État ---------- */
 
 var members = [];
+var showcaseIndex = 0;
+var showcaseTimer = null;
+
+/* ---------- Affichage ---------- */
 
 async function displayMembers() {
   members = await fetchMembers();
-  renderRoster();
-}
 
-/* ---------- Raster de membres ---------- */
+  var section = document.getElementById('membres');
+  if (section) {
+    section.hidden = members.length === 0;
+  }
+
+  renderRoster();
+  renderShowcase();
+  startRotation();
+}
 
 function renderRoster() {
   var container = document.getElementById('roster');
@@ -125,59 +127,34 @@ function renderRoster() {
 
   container.innerHTML = '';
 
-  members.forEach((member, index) => {
-    var row = node('tr', 'member__row');
-    row.dataset.memberId = member.id;
+  members.forEach(function (member) {
+    var card = node('article', 'member');
 
-    var cell = node('td', 'member__cell');
-
-    var avatar = node('div', 'member__avatar');
-    avatar.style.width = '64px';
-    avatar.style.height = '64px';
-    avatar.style.borderRadius = '50%';
-    avatar.style.overflow = 'hidden';
-    avatar.style.border = '2px solid #35d39a';
-
-    var img = node('img', 'member__avatar__img');
-    img.src = member.avatar_url || 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#35d39a" d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path fill="#35d39a" d="M12 12a4 4 0 0 1 4 4v4h-8v-4a4 4 0 0 1 4-4Z"/><path fill="#35d39a" d="M5 8v8l6 4 6-4V8H5Z"/></svg>');
-    img.alt = member.display_name || 'Membre';
-    avatar.append(img);
-
-    cell.append(avatar);
+    var head = node('div', 'member__head');
+    head.append(avatar(member));
 
     var identity = node('div', 'member__identity');
-    var displayName = member.display_name || 'Membre';
-    identity.append(node('h3', '', displayName));
-
+    identity.append(node('h3', '', member.display_name || 'Membre'));
     if (member.username) {
-      var username = String(member.username).replace(/^@/, '');
-      identity.append(node('p', '', '@' + username));
+      identity.append(node('p', '', '@' + String(member.username).replace(/^@/, '')));
     }
+    head.append(identity);
+    card.append(head);
 
+    var tags = node('div', 'member__tags');
     if (member.role_label) {
-      identity.append(node('p', '', 'Rôle : ' + member.role_label));
+      tags.append(node('span', 'member__role', member.role_label));
     }
-
     if (POLES[member.pole]) {
-      identity.append(node('p', '', 'Affiliation : ' + POLES[member.pole]));
+      tags.append(node('span', 'member__pole', POLES[member.pole]));
     }
+    if (tags.childElementCount) card.append(tags);
 
-    if (member.status) {
-      identity.append(node('p', '', 'Statut : ' + member.status));
+    if (member.bio) {
+      card.append(node('p', 'member__bio', member.bio));
     }
-
-    if (member.is_moderator) {
-      identity.append(node('p', '', 'Modérateur'));
-    }
-
-    if (member.is_admin) {
-      identity.append(node('p', '', 'Administrateur'));
-    }
-
-    cell.append(identity);
 
     var links = node('div', 'member__links');
-
     var roblox = safeHttps(member.roblox_url);
     if (roblox) {
       var link = document.createElement('a');
@@ -187,89 +164,75 @@ function renderRoster() {
       link.textContent = 'Profil Roblox';
       links.append(link);
     }
-
     if (member.discord_username) {
-      var discordUsername = String(member.discord_username).replace(/^@/, '');
-      links.append(node('span', 'member__discord', 'Discord · ' + discordUsername));
+      links.append(node('span', 'member__discord', 'Discord · ' + String(member.discord_username).replace(/^@/, '')));
     }
+    if (links.childElementCount) card.append(links);
 
-    if (links.childElementCount) {
-      cell.append(links);
-    }
-
-    container.append(row);
+    container.append(card);
   });
-}
-
-/* ---------- Fonction utilitaire ---------- */
-
-function safeHttps(url) {
-  if (!url) return null;
-  var protocol = url.split('://')[0];
-  return (protocol === 'http' || protocol === '') ? 'https://' + url : url;
-}
-
-/* ---------- Carte d'organisation : profils en rotation ---------- */
-
-function shuffle(list) {
-  var array = list.slice();
-  for (var i = array.length - 1; i > 0; i -= 1) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var value = array[i];
-    array[i] = array[j];
-    array[j] = value;
-  }
-  return array;
 }
 
 function renderShowcase() {
   var container = document.getElementById('showcase');
   if (!container) return;
 
-  var membersToShow = members.length > 0 ? shuffle(members) : [];
-  var member = membersToShow.length > 0 ? membersToShow[0] : null;
+  container.innerHTML = '';
 
-  if (!member) {
-    container.innerHTML = '<p>Aucun membre disponible</p>';
+  if (!members.length) {
+    var empty = node('p', '', 'Aucun membre disponible');
+    empty.style.textAlign = 'center';
+    empty.style.color = 'var(--text-3)';
+    container.append(empty);
     return;
   }
 
-  var article = node('article', 'member');
-  article.style.animationDelay = Math.min(8) * 45 + 'ms';
+  var member = members[showcaseIndex % members.length];
 
-  var container = node('div', 'member__container');
-  container.style.display = 'flex';
-  container.style.alignItems = 'center';
-  container.style.gap = '16px';
+  var card = node('article', 'member');
 
   var head = node('div', 'member__head');
   head.append(avatar(member));
-  article.append(head);
 
   var identity = node('div', 'member__identity');
   identity.append(node('h3', '', member.display_name || 'Membre'));
   if (member.username) {
     identity.append(node('p', '', '@' + String(member.username).replace(/^@/, '')));
   }
+  head.append(identity);
+  card.append(head);
+
+  var tags = node('div', 'member__tags');
   if (member.role_label) {
-    identity.append(node('p', '', 'Rôle : ' + member.role_label));
+    tags.append(node('span', 'member__role', member.role_label));
   }
   if (POLES[member.pole]) {
-    identity.append(node('p', '', 'Affiliation : ' + POLES[member.pole]));
+    tags.append(node('span', 'member__pole', POLES[member.pole]));
   }
+  if (tags.childElementCount) card.append(tags);
+
+  var meta = node('div', 'member__meta');
   if (member.status) {
-    identity.append(node('p', '', 'Statut : ' + member.status));
+    var statusP = node('p', 'member__status', '');
+    var dotClass = 'member__status__dot';
+    var lower = String(member.status).toLowerCase();
+    if (lower !== 'actif' && lower !== 'active' && lower !== 'en ligne') {
+      dotClass += ' member__status__dot--inactive';
+    }
+    statusP.append(node('span', dotClass));
+    statusP.append(node('span', 'member__status__label', member.status));
+    meta.append(statusP);
   }
   if (member.is_moderator) {
-    identity.append(node('p', '', 'Modérateur'));
+    meta.append(node('p', '', 'Modérateur'));
   }
   if (member.is_admin) {
-    identity.append(node('p', '', 'Administrateur'));
+    meta.append(node('p', '', 'Administrateur'));
   }
-  article.append(identity);
+  if (meta.childElementCount) card.append(meta);
 
   if (member.bio) {
-    article.append(node('p', 'member__bio', member.bio));
+    card.append(node('p', 'member__bio', member.bio));
   }
 
   var links = node('div', 'member__links');
@@ -285,84 +248,40 @@ function renderShowcase() {
   if (member.discord_username) {
     links.append(node('span', 'member__discord', 'Discord · ' + String(member.discord_username).replace(/^@/, '')));
   }
-  if (links.childElementCount) {
-    article.append(links);
-  }
+  if (links.childElementCount) card.append(links);
 
-  container.append(article);
-  container.style.maxWidth = '350px';
-  container.style.margin = '0 auto';
-  container.style.padding = '20px';
-  container.style.backgroundColor = '#1a1a1a';
-  container.style.borderRadius = '12px';
-  container.style.boxShadow = '0 4px 20px rgba(53, 211, 154, 0.2)';
-
-  container.querySelector('.member__container').style.borderRadius = '16px';
-
-  container.querySelector('.member__container').style.border = 'none';
-  container.querySelector('.member__identity h3').style.fontWeight = '600';
-  container.querySelector('.member__identity p').style.marginBottom = '4px';
-  container.querySelector('.member__identity p:last-child').style.marginBottom = '0';
-
-  container.querySelector('.member__bio').style.fontSize = '14px';
-  container.querySelector('.member__bio').style.lineHeight = '1.6';
-  container.querySelector('.member__bio').style.marginTop = '12px';
-  container.querySelector('.member__links').style.display = 'flex';
-  container.querySelector('.member__links').style.gap = '12px';
-  container.querySelector('.member__links a').style.color = '#35d39a';
-  container.querySelector('.member__links span').style.color = '#888';
-
-  container.querySelector('.member__avatar').style.borderRadius = '50%';
-  container.querySelector('.member__avatar img').style.borderRadius = '50%';
-  container.querySelector('.member__avatar img').style.objectFit = 'cover';
-  container.querySelector('.member__avatar img').style.width = '100%';
-  container.querySelector('.member__avatar img').style.height = '100%';
-
-  container.querySelector('.member__identity').style.flex = '1';
-  container.querySelector('.member__links').style.flex = '0 0 auto';
+  container.append(card);
 }
 
-/* ---------- Rotation automatique ---------- */
-
-var showMemberTimeout;
-
-function rotateShowcase() {
-  renderShowcase();
-  showMemberTimeout = setTimeout(rotateShowcase, 6000);
+function startRotation() {
+  if (showcaseTimer) clearTimeout(showcaseTimer);
+  if (members.length <= 1) return;
+  showcaseTimer = setTimeout(function () {
+    showcaseIndex = (showcaseIndex + 1) % members.length;
+    renderShowcase();
+    startRotation();
+  }, 6000);
 }
 
 /* ---------- Initialisation ---------- */
 
 async function init() {
   await displayMembers();
-  renderRoster();
-  rotateShowcase();
-
-  window.addEventListener('resize', function() {
-    renderShowcase();
-  });
-
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      clearTimeout(showMemberTimeout);
-      renderShowcase();
-    }
-  });
 }
 
-// Exposer les membres globalement pour que rotateShowcase puisse les utiliser
-window.teamMembers = members;
-
-window.addEventListener('DOMContentLoaded', init);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
 
 /* ---------- Exportation ---------- */
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    fetchMembers,
-    syncMembers,
-    displayMembers,
-    renderRoster,
-    renderShowcase
+    fetchMembers: fetchMembers,
+    displayMembers: displayMembers,
+    renderRoster: renderRoster,
+    renderShowcase: renderShowcase
   };
 }
