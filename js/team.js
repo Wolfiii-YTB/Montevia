@@ -349,6 +349,9 @@ async function init() {
   });
 }
 
+// Exposer les membres globalement pour que rotateShowcase puisse les utiliser
+window.teamMembers = members;
+
 window.addEventListener('DOMContentLoaded', init);
 
 /* ---------- Exportation ---------- */
