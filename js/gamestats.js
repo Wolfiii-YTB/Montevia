@@ -40,11 +40,12 @@
     if (data.likes != null && likesEl) likesEl.textContent = formatNumber(data.likes);
   }
 
-  async function fetchWithTimeout(url, ms) {
+  async function fetchWithTimeout(url, ms, opts) {
     var controller = new AbortController();
     var timeout = setTimeout(function () { controller.abort(); }, ms);
     try {
-      var res = await fetch(url, { signal: controller.signal });
+      var fetchOpts = Object.assign({ signal: controller.signal }, opts || {});
+      var res = await fetch(url, fetchOpts);
       clearTimeout(timeout);
       return res;
     } catch (e) {
@@ -76,7 +77,7 @@
   // Fallback : fichier JSON mis à jour par GitHub Action
   async function fetchJson() {
     try {
-      var res = await fetchWithTimeout('/data/stats.json?t=' + Date.now(), 3000);
+      var res = await fetchWithTimeout('/data/stats.json', 3000, { cache: 'no-store' });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return await res.json();
     } catch (e) {
