@@ -1747,6 +1747,155 @@ h1, h2, h3, h4 {
   color: var(--text-3);
 }
 
+/* ---------- animations ---------- */
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-12px); }
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(53, 211, 154, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(53, 211, 154, 0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* Hero title gradient */
+.hero h1,
+.page-hero h1 {
+  background: linear-gradient(90deg, var(--text-1), var(--accent), var(--text-1));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 6s ease infinite;
+}
+
+/* Hero glow float */
+.hero__glow,
+.page-hero__glow {
+  animation: float 8s ease-in-out infinite;
+}
+
+/* Primary button pulse */
+.btn--primary {
+  animation: pulse 2.5s ease-in-out infinite;
+}
+
+/* Card hover glow */
+.pole:hover,
+.team__card:hover,
+.principle:hover,
+.member:hover {
+  box-shadow: 0 8px 30px rgba(53, 211, 154, 0.12);
+}
+
+/* Icon bounce on hover */
+.icon:hover,
+.btn svg {
+  transition: transform .2s var(--ease);
+}
+.btn:hover svg {
+  animation: bounce .4s ease;
+}
+
+/* Footer links underline animation */
+.footer__col a {
+  position: relative;
+  display: inline-block;
+}
+.footer__col a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 1px;
+  background: var(--accent);
+  transition: width .25s var(--ease);
+}
+.footer__col a:hover::after {
+  width: 100%;
+}
+
+/* Nav active underline */
+.nav > a.is-active {
+  color: var(--accent);
+}
+.nav > a.is-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* Metric value shimmer on load */
+.metric__value {
+  background: linear-gradient(90deg, var(--text-1) 30%, var(--accent) 50%, var(--text-1) 70%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 4s linear infinite;
+}
+
+/* Section tag pulse */
+.tag {
+  animation: pulse 3s ease-in-out infinite;
+}
+
+/* Reveal stagger enhancement */
+.reveal {
+  transition: opacity .7s var(--ease), transform .7s var(--ease);
+}
+
+/* Carousel image zoom on hover */
+.carousel__slide img {
+  transition: transform .6s var(--ease);
+}
+.carousel__slide:hover img {
+  transform: scale(1.04);
+}
+
+/* Admin button hover */
+.admin-nav__item {
+  transition: background-color .15s ease, transform .15s var(--ease);
+}
+.admin-nav__item:hover {
+  transform: translateX(2px);
+}
+
+/* Loading skeleton for stats */
+.metric__value:empty {
+  background: linear-gradient(90deg, var(--surface-3) 25%, var(--surface-2) 50%, var(--surface-3) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  min-height: 26px;
+  display: inline-block;
+  width: 60px;
+}
+
 /* --- principes --- */
 
 .principles {
