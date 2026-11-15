@@ -600,6 +600,7 @@ h1, h2, h3, h4 {
   justify-content: center;
   align-items: flex-start;
   padding: 32px 0;
+  min-height: 320px;
 }
 
 .member__container {
@@ -1477,6 +1478,58 @@ h1, h2, h3, h4 {
   border-color: var(--line-strong);
   background: var(--surface-3);
   transform: translateY(-2px);
+}
+
+.member--showcase {
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px;
+  gap: 18px;
+  box-shadow: 0 8px 40px rgba(53, 211, 154, 0.18);
+}
+
+.member--showcase .member__avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 24px;
+}
+
+.member--showcase .member__identity h3 {
+  font-size: 24px;
+  letter-spacing: -0.03em;
+}
+
+.member--showcase .member__identity p {
+  font-size: 15px;
+}
+
+.member--showcase .member__tags {
+  margin-top: 20px;
+  gap: 8px;
+}
+
+.member--showcase .member__tags span {
+  font-size: 13px;
+  padding: 6px 14px;
+}
+
+.member--showcase .member__meta {
+  margin-top: 18px;
+  font-size: 14px;
+}
+
+.member--showcase .member__bio {
+  margin-top: 16px;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.member--showcase .member__links {
+  margin-top: 20px;
+  padding-top: 20px;
+  font-size: 14px;
+  gap: 16px;
 }
 
 @keyframes member-fade {

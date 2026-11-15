@@ -116,6 +116,10 @@ async function displayMembers() {
     section.hidden = members.length === 0;
   }
 
+  if (members.length) {
+    showcaseIndex = Math.floor(Math.random() * members.length);
+  }
+
   renderRoster();
   renderShowcase();
   startRotation();
@@ -189,7 +193,7 @@ function renderShowcase() {
 
   var member = members[showcaseIndex % members.length];
 
-  var card = node('article', 'member');
+  var card = node('article', 'member member--showcase');
 
   var head = node('div', 'member__head');
   head.append(avatar(member));
@@ -257,10 +261,14 @@ function startRotation() {
   if (showcaseTimer) clearTimeout(showcaseTimer);
   if (members.length <= 1) return;
   showcaseTimer = setTimeout(function () {
-    showcaseIndex = (showcaseIndex + 1) % members.length;
+    var next = Math.floor(Math.random() * members.length);
+    if (next === showcaseIndex && members.length > 1) {
+      next = (next + 1) % members.length;
+    }
+    showcaseIndex = next;
     renderShowcase();
     startRotation();
-  }, 6000);
+  }, 5000);
 }
 
 /* ---------- Initialisation ---------- */
