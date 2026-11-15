@@ -54,7 +54,8 @@
     isAdmin = await checkAdmin();
 
     var { data: t, error } = await sb.from('montevia_tickets').select('*').eq('id', id).maybeSingle();
-    if (error || !t) { renderError('Ticket introuvable.'); return; }
+    if (error) { renderError('Erreur : ' + error.message); return; }
+    if (!t) { renderError('Ticket introuvable. Vérifiez l\'URL ou vos droits d\'accès.'); return; }
     ticket = t;
 
     var { data: msgs } = await sb.from('montevia_ticket_messages').select('*').eq('ticket_id', id).order('created_at', { ascending: true });
