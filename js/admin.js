@@ -37,6 +37,13 @@
   var teamEmpty = document.getElementById('teamEmpty');
   var teamEmptyText = document.getElementById('teamEmptyText');
 
+  var accessView = document.getElementById('accessView');
+  var accessTable = document.getElementById('accessTable');
+  var accessRows = document.getElementById('accessRows');
+  var accessEmpty = document.getElementById('accessEmpty');
+  var grantAccessForm = document.getElementById('grantAccessForm');
+  var grantUserId = document.getElementById('grantUserId');
+
   var memberDialog = document.getElementById('memberDialog');
   var memberForm = document.getElementById('memberForm');
   var memberDialogTitle = document.getElementById('memberDialogTitle');
@@ -73,12 +80,15 @@
 
   var VIEWS = {
     dashboard: { el: dashboardView, title: "Vue d'ensemble" },
-    team: { el: teamView, title: 'Équipe' }
+    team: { el: teamView, title: 'Équipe' },
+    access: { el: accessView, title: 'Accès' }
   };
 
   var db = null;
   var currentProfile = null;
   var members = [];
+  var accessList = [];
+  var allProfiles = [];
   var tableReady = false;
   var editingId = null;
   var deletingId = null;
@@ -260,6 +270,20 @@
     return result.data;
   }
 
+  async function hasMonteviaAccess(userId) {
+    try {
+      var result = await db
+        .from('montevia_admin_access')
+        .select('user_id')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (result.error) return false;
+      return !!result.data;
+    } catch (e) {
+      return false;
+    }
+  }
+
   async function loginByIdentifier(identifier, password) {
     var base = config.url.replace(/\/$/, '');
     var functionName = config.loginFunction || 'login-by-identifier';
@@ -306,7 +330,10 @@
       throw new Error("Impossible de vérifier ton profil. Réessaie dans un instant.");
     }
 
-    if (!profile || profile.role !== 'admin' || profile.status !== 'active') {
+    var isDevReportsAdmin = profile && profile.role === 'admin' && profile.status === 'active';
+    var isMonteviaAdmin = await hasMonteviaAccess(user.id);
+
+    if (!isDevReportsAdmin && !isMonteviaAdmin) {
       await db.auth.signOut().catch(function () {});
       window.sessionStorage.removeItem('montevia-admin-auth');
       showAuth("Ce compte n'a pas les droits d'administration. Utilise un compte administrateur actif de DevReports.");
@@ -322,6 +349,12 @@
       await loadMembers();
     } catch (error) {
       showToast("Impossible de charger l'équipe : " + (errorMessage(error) || 'erreur réseau.'), 'error');
+    }
+
+    try {
+      await loadAccess();
+    } catch (error) {
+      showToast("Impossible de charger les accès : " + (errorMessage(error) || 'erreur réseau.'), 'error');
     }
 
     return true;
@@ -532,6 +565,159 @@
     renderAll();
   }
 
+  async function loadAccess() {
+    // Charger la liste des accès accordés
+    try {
+      var result = await db
+        .from('montevia_admin_access')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (result.error) {
+        if (isMissingTable(result.error)) {
+          accessList = [];
+        } else {
+          throw result.error;
+        }
+      } else {
+        accessList = Array.isArray(result.data) ? result.data : [];
+      }
+    } catch (error) {
+      accessList = [];
+      console.warn('loadAccess: access list failed', error);
+    }
+
+    // Charger tous les profils si possible (pour checkboxes)
+    try {
+      var profResult = await db
+        .from('profiles')
+        .select('id,display_name,nickname,role,status')
+        .order('display_name', { ascending: true });
+      if (!profResult.error && Array.isArray(profResult.data)) {
+        allProfiles = profResult.data;
+      } else {
+        allProfiles = [];
+      }
+    } catch (e) {
+      allProfiles = [];
+    }
+
+    renderAccess();
+  }
+
+  function renderAccess() {
+    accessRows.replaceChildren();
+
+    var grantedIds = new Set(accessList.map(function (e) { return e.user_id; }));
+
+    // Si on a la liste des profils, afficher des checkboxes
+    if (allProfiles.length) {
+      accessTable.hidden = false;
+      accessEmpty.hidden = true;
+
+      var fragment = document.createDocumentFragment();
+
+      allProfiles.forEach(function (profile) {
+        var isDevReportsAdmin = profile.role === 'admin' && profile.status === 'active';
+        var isGranted = grantedIds.has(profile.id);
+
+        var row = node('div', 'admin-row');
+        row.dataset.id = profile.id;
+
+        var userCell = node('div', 'admin-row__member');
+        var label = node('label', 'admin-check');
+        var checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = isDevReportsAdmin || isGranted;
+        checkbox.disabled = isDevReportsAdmin; // les admins DevReports sont toujours autorisés
+        checkbox.dataset.userId = profile.id;
+        checkbox.addEventListener('change', function () {
+          if (checkbox.checked) {
+            grantAccessById(profile.id);
+          } else {
+            handleRevokeAccess(profile.id);
+          }
+        });
+        label.append(checkbox);
+        label.append(node('span', '', (profile.display_name || profile.nickname || profile.id) + (isDevReportsAdmin ? ' (admin DevReports)' : '')));
+        userCell.append(label);
+
+        var dateCell = node('span', 'admin-row__role', isDevReportsAdmin ? 'Permanent' : (isGranted ? shortDate(accessList.filter(function (e) { return e.user_id === profile.id; })[0]?.created_at) : '—'));
+
+        var actions = node('div', 'admin-row__actions');
+        if (!isDevReportsAdmin && isGranted) {
+          var revokeBtn = node('button', 'admin-icon-btn admin-icon-btn--danger');
+          revokeBtn.type = 'button';
+          revokeBtn.dataset.action = 'revoke-access';
+          revokeBtn.dataset.id = profile.id;
+          revokeBtn.setAttribute('aria-label', 'Révoquer ' + profile.id);
+          revokeBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
+          actions.append(revokeBtn);
+        }
+
+        row.append(userCell);
+        row.append(dateCell);
+        row.append(actions);
+
+        fragment.append(row);
+      });
+
+      accessRows.append(fragment);
+      return;
+    }
+
+    // Fallback : liste des accès accordés uniquement
+    if (!accessList.length) {
+      accessTable.hidden = true;
+      accessEmpty.hidden = false;
+      return;
+    }
+
+    accessTable.hidden = false;
+    accessEmpty.hidden = true;
+
+    var frag = document.createDocumentFragment();
+
+    accessList.forEach(function (entry) {
+      var row = node('div', 'admin-row');
+      row.dataset.id = entry.user_id;
+
+      var userCell = node('div', 'admin-row__member');
+      userCell.append(node('span', 'admin-row__text', entry.user_id));
+
+      var dateCell = node('span', 'admin-row__role', shortDate(entry.created_at));
+
+      var actions = node('div', 'admin-row__actions');
+      var revokeBtn = node('button', 'admin-icon-btn admin-icon-btn--danger');
+      revokeBtn.type = 'button';
+      revokeBtn.dataset.action = 'revoke-access';
+      revokeBtn.dataset.id = entry.user_id;
+      revokeBtn.setAttribute('aria-label', 'Révoquer ' + entry.user_id);
+      revokeBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
+      actions.append(revokeBtn);
+
+      row.append(userCell);
+      row.append(dateCell);
+      row.append(actions);
+
+      frag.append(row);
+    });
+
+    accessRows.append(frag);
+  }
+
+  async function grantAccessById(userId) {
+    try {
+      var result = await db.from('montevia_admin_access').insert({ user_id: userId, granted_by: currentProfile.id });
+      if (result.error) throw result.error;
+      showToast('Accès accordé.');
+      await loadAccess();
+    } catch (error) {
+      showToast(errorMessage(error) || 'Autorisation impossible.', 'error');
+      await loadAccess();
+    }
+  }
+
   /* ---------- formulaires ---------- */
 
   function openDialog(dialog) {
@@ -698,6 +884,29 @@
     }
   }
 
+  async function handleGrantAccess(event) {
+    event.preventDefault();
+    var userId = grantUserId.value.trim();
+    if (!userId) {
+      showToast('Saisis un UUID utilisateur.', 'error');
+      return;
+    }
+    grantUserId.value = '';
+    await grantAccessById(userId);
+  }
+
+  async function handleRevokeAccess(userId) {
+    if (!userId) return;
+    try {
+      var result = await db.from('montevia_admin_access').delete().eq('user_id', userId);
+      if (result.error) throw result.error;
+      showToast('Accès révoqué.');
+      await loadAccess();
+    } catch (error) {
+      showToast(errorMessage(error) || 'Révocation impossible.', 'error');
+    }
+  }
+
   /* ---------- initialisation ---------- */
 
   function bindEvents() {
@@ -729,6 +938,18 @@
 
     document.getElementById('addMemberBtn').addEventListener('click', function () { openMemberForm(null); });
     document.getElementById('dashboardAddMember').addEventListener('click', function () { openMemberForm(null); });
+
+    if (grantAccessForm) {
+      grantAccessForm.addEventListener('submit', handleGrantAccess);
+    }
+
+    if (accessRows) {
+      accessRows.addEventListener('click', function (event) {
+        var button = event.target.closest('button[data-action="revoke-access"]');
+        if (!button) return;
+        handleRevokeAccess(button.dataset.id);
+      });
+    }
 
     teamRows.addEventListener('click', function (event) {
       var button = event.target.closest('button[data-action]');

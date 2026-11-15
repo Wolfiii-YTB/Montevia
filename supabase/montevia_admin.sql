@@ -105,8 +105,91 @@ revoke all on table public.montevia_team_members from anon, authenticated;
 grant select on table public.montevia_team_members to anon, authenticated;
 grant insert, update, delete on table public.montevia_team_members to authenticated;
 
--- Recharge le cache de schéma de PostgREST pour que la table soit
--- immédiatement visible par l'API REST.
+-- ============================================================
+-- Accès au panneau admin Montevia
+-- ============================================================
+create table if not exists public.montevia_admin_access (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  granted_by uuid references auth.users(id),
+  created_at timestamptz not null default now()
+);
+
+alter table public.montevia_admin_access enable row level security;
+
+-- Lecture : admins DevReports ou admins Montevia
+drop policy if exists "admins read montevia admin access" on public.montevia_admin_access;
+create policy "admins read montevia admin access"
+on public.montevia_admin_access
+for select
+to authenticated
+using (
+  (select public.is_admin())
+  or exists (select 1 from public.montevia_admin_access where user_id = auth.uid())
+);
+
+-- Écriture : admins DevReports ou admins Montevia
+drop policy if exists "admins write montevia admin access" on public.montevia_admin_access;
+create policy "admins write montevia admin access"
+on public.montevia_admin_access
+for all
+to authenticated
+using (
+  (select public.is_admin())
+  or exists (select 1 from public.montevia_admin_access where user_id = auth.uid())
+)
+with check (
+  (select public.is_admin())
+  or exists (select 1 from public.montevia_admin_access where user_id = auth.uid())
+);
+
+-- Fonction combinée : accès admin Montevia
+create or replace function public.montevia_is_admin()
+returns boolean
+language sql
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1 from public.profiles
+    where id = auth.uid() and role = 'admin' and status = 'active'
+  ) or exists (
+    select 1 from public.montevia_admin_access where user_id = auth.uid()
+  );
+$$;
+
+-- Mettre à jour les politiques RLS de l'équipe pour utiliser montevia_is_admin()
+drop policy if exists "admins read montevia team" on public.montevia_team_members;
+create policy "admins read montevia team"
+on public.montevia_team_members
+for select
+to authenticated
+using ((select public.montevia_is_admin()));
+
+drop policy if exists "admins insert montevia team" on public.montevia_team_members;
+create policy "admins insert montevia team"
+on public.montevia_team_members
+for insert
+to authenticated
+with check ((select public.montevia_is_admin()));
+
+drop policy if exists "admins update montevia team" on public.montevia_team_members;
+create policy "admins update montevia team"
+on public.montevia_team_members
+for update
+to authenticated
+using ((select public.montevia_is_admin()))
+with check ((select public.montevia_is_admin()));
+
+drop policy if exists "admins delete montevia team" on public.montevia_team_members;
+create policy "admins delete montevia team"
+on public.montevia_team_members
+for delete
+to authenticated
+using ((select public.montevia_is_admin()));
+
+grant select, insert, update, delete on table public.montevia_admin_access to authenticated;
+
+-- Recharge le cache de schéma de PostgREST
 notify pgrst, 'reload schema';
 
 -- Vérification rapide après exécution :

@@ -87,6 +87,10 @@
           Équipe
           <span class="admin-nav__badge" id="navTeamCount">0</span>
         </button>
+        <button class="admin-nav__item" type="button" data-view="access">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6l-8-4z"/></svg>
+          Accès
+        </button>
       </nav>
 
       <div class="admin-side__bottom">
@@ -205,6 +209,57 @@
             <h3>Aucun membre pour le moment</h3>
             <p id="teamEmptyText">Ajoute une première fiche pour commencer à présenter l'équipe.</p>
             <button class="btn btn--primary" type="button" data-add-member>Ajouter un membre</button>
+          </div>
+        </section>
+
+        <section id="accessView" hidden>
+          <div class="admin-setup" data-setup hidden>
+            <div>
+              <strong>Base de données pas encore initialisée</strong>
+              <p>Exécute le script SQL dans Supabase, puis recharge cette page.</p>
+            </div>
+            <a class="btn btn--secondary btn--sm" href="supabase/montevia_admin.sql" download>Télécharger le script SQL</a>
+          </div>
+
+          <div class="admin-view-head">
+            <div>
+              <h2>Accès au panneau</h2>
+              <p>Gère qui peut ouvrir ce panneau d'administration (en plus des admins DevReports).</p>
+            </div>
+          </div>
+
+          <div class="admin-card" style="margin-bottom:16px;">
+            <div class="admin-card__head">
+              <div>
+                <h2>Ajouter un accès</h2>
+                <p>Saisis l'identifiant (UUID) du compte Supabase à autoriser.</p>
+              </div>
+            </div>
+            <form id="grantAccessForm" class="admin-form" style="padding:0;">
+              <div class="admin-form__grid">
+                <label>UUID utilisateur
+                  <input id="grantUserId" type="text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" required>
+                </label>
+              </div>
+              <div class="admin-dialog__actions" style="padding:16px 0 0;">
+                <button class="btn btn--primary" type="submit">Autoriser</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="admin-table" id="accessTable">
+            <div class="admin-table__head">
+              <span>Utilisateur</span>
+              <span>Autorisé le</span>
+              <span>Actions</span>
+            </div>
+            <div id="accessRows"></div>
+          </div>
+
+          <div class="admin-empty" id="accessEmpty" hidden>
+            <div class="admin-empty__icon" aria-hidden="true">＋</div>
+            <h3>Aucun accès supplémentaire</h3>
+            <p>Les administrateurs DevReports ont déjà accès. Ajoute des comptes ici si besoin.</p>
           </div>
         </section>
       </main>
