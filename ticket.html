@@ -11,37 +11,51 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=4">
+  <link rel="stylesheet" href="css/style.css?v=5">
 </head>
-<body id="top">
+<body class="ticket-body">
 
-  <a class="skip" href="#contenu">Aller au contenu</a>
-
-  <header class="header" id="header">
-    <div class="wrap header__inner">
-      <a class="brand" href="index.html" aria-label="Montevia, retour à l'accueil">
-        <img class="brand__logo" src="img/mark.png" alt="" width="30" height="30">
-        <span class="brand__name">Montevia</span>
-        <span class="brand__tag">RP FR</span>
-      </a>
-      <nav class="nav" id="nav" aria-label="Navigation principale">
-        <a href="index.html#univers">L'univers</a>
-        <a href="index.html#metiers">Métiers</a>
-        <a href="equipe.html">L'équipe</a>
-        <a href="support.html">Support</a>
-        <a href="index.html#reglement">Règlement</a>
-        <a href="index.html#faq">FAQ</a>
-      </nav>
-    </div>
-  </header>
-
-  <main id="contenu" style="padding-top: 100px;">
-    <div class="wrap">
-      <div class="ticket-page" id="ticketPage">
-        <div class="ticket-page__loading">Chargement du ticket…</div>
+  <div class="ticket-app" id="ticketApp">
+    <!-- Header -->
+    <header class="ticket-header">
+      <div class="ticket-header__left">
+        <a href="support.html" class="ticket-header__back" title="Retour">←</a>
+        <span class="ticket-header__icon">#</span>
+        <span class="ticket-header__title" id="ticketTitle">Chargement…</span>
+        <span class="ticket-header__status" id="ticketStatus"></span>
       </div>
+      <div class="ticket-header__actions" id="ticketActions"></div>
+    </header>
+
+    <div class="ticket-main">
+      <!-- Chat area -->
+      <div class="ticket-chat" id="ticketChat">
+        <div class="ticket-chat__loading">Chargement de la conversation…</div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="ticket-sidebar" id="ticketSidebar">
+        <div class="ticket-sidebar__section">
+          <h3>Informations</h3>
+          <div id="ticketInfo"></div>
+        </div>
+        <div class="ticket-sidebar__section">
+          <h3>Participants</h3>
+          <div id="ticketParticipants"></div>
+        </div>
+      </aside>
     </div>
-  </main>
+
+    <!-- Input bar -->
+    <div class="ticket-input" id="ticketInput">
+      <form id="replyForm" class="ticket-input__form">
+        <textarea id="replyMsg" placeholder="Envoyer un message…" rows="1"></textarea>
+        <button type="submit" class="ticket-input__send" title="Envoyer">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </form>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="js/supabase-config.js" defer></script>
