@@ -3,6 +3,8 @@
 (function () {
   'use strict';
 
+  var UNIVERSE_ID = '10752535690';
+  var GAMES_URL = 'https://games.roblox.com/v1/games?universeIds=' + UNIVERSE_ID;
   var CACHE_KEY = 'montevia-gamestats';
 
   function formatNumber(n) {
@@ -38,24 +40,73 @@
     if (data.likes != null && likesEl) likesEl.textContent = formatNumber(data.likes);
   }
 
-  async function fetchStats() {
+  async function fetchWithTimeout(url, ms) {
+    var controller = new AbortController();
+    var timeout = setTimeout(function () { controller.abort(); }, ms);
     try {
-      var url = '/data/stats.json?t=' + Date.now();
-      var res = await fetch(url);
+      var res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeout);
+      return res;
+    } catch (e) {
+      clearTimeout(timeout);
+      throw e;
+    }
+  }
+
+  // Essayer le proxy live (fonctionne en localhost)
+  async function fetchLive() {
+    try {
+      var proxy = 'https://proxy.corsfix.com/?' + GAMES_URL;
+      var res = await fetchWithTimeout(proxy, 3000);
       if (!res.ok) throw new Error('HTTP ' + res.status);
       var data = await res.json();
-      return data;
+      var game = data && data.data && data.data[0];
+      if (!game) throw new Error('no data');
+      return {
+        visits: game.visits,
+        playing: game.playing,
+        favorites: game.favoritedCount,
+        likes: null
+      };
     } catch (e) {
-      console.warn('gamestats: fetch failed', e);
+      return null;
+    }
+  }
+
+  // Fallback : fichier JSON mis à jour par GitHub Action
+  async function fetchJson() {
+    try {
+      var res = await fetchWithTimeout('/data/stats.json?t=' + Date.now(), 3000);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.json();
+    } catch (e) {
       return null;
     }
   }
 
   async function update() {
-    var data = await fetchStats();
-    if (!data) return;
-    saveCache(data);
-    applyData(data);
+    // 1. Essayer le live
+    var live = await fetchLive();
+    if (live) {
+      // Récupérer les votes si possible
+      try {
+        var vRes = await fetchWithTimeout('https://proxy.corsfix.com/?https://games.roblox.com/v1/games/votes?universeIds=' + UNIVERSE_ID, 3000);
+        if (vRes.ok) {
+          var vData = await vRes.json();
+          live.likes = vData?.data?.[0]?.upVotes ?? live.likes;
+        }
+      } catch (e) {}
+      saveCache(live);
+      applyData(live);
+      return;
+    }
+
+    // 2. Sinon fallback JSON
+    var json = await fetchJson();
+    if (json) {
+      saveCache(json);
+      applyData(json);
+    }
   }
 
   function start() {
