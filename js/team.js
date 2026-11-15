@@ -177,12 +177,11 @@
   }
 
   function paintShowcase() {
-    if (!orgList) return;
+    if (!orgList || !orgCard) return;
 
+    var member = showcase.deck[showcase.index];
     var fragment = document.createDocumentFragment();
-    showcaseRows().forEach(function (member) {
-      fragment.append(orgRow(member));
-    });
+    fragment.append(orgRow(member));
 
     orgList.replaceChildren(fragment);
     orgList.classList.remove('is-swapping');
