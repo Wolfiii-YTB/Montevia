@@ -331,7 +331,7 @@ h1, h2, h3, h4 {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(7, 8, 10, 0.88), rgba(7, 8, 10, 0.5), rgba(53, 211, 154, 0.08));
+  background: linear-gradient(135deg, rgba(7, 8, 10, 0.75), rgba(7, 8, 10, 0.4), rgba(53, 211, 154, 0.06));
   z-index: 0;
   pointer-events: none;
 }
@@ -1800,15 +1800,10 @@ h1, h2, h3, h4 {
   50% { transform: translateY(-4px); }
 }
 
-/* Hero title gradient */
+/* Hero title — solid color for readability */
 .hero h1,
 .page-hero h1 {
-  background: linear-gradient(90deg, var(--text-1), var(--accent), var(--text-1));
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: gradient-shift 6s ease infinite;
+  color: var(--text-1);
 }
 
 /* Hero glow float */
@@ -1874,14 +1869,9 @@ h1, h2, h3, h4 {
   background: var(--accent);
 }
 
-/* Metric value shimmer on load */
+/* Metric value */
 .metric__value {
-  background: linear-gradient(90deg, var(--text-1) 30%, var(--accent) 50%, var(--text-1) 70%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: gradient-shift 4s linear infinite;
+  color: var(--text-1);
 }
 
 /* Section tag pulse */
