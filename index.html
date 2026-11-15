@@ -1,683 +1,565 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Montévia RP — Roleplay Français sur Roblox</title>
-  
-  <meta name="description" content="Montévia RP est un serveur de Serious Roleplay sur Roblox inspiré de l'Alsace. Un univers urbain réaliste développé par une équipe à l'écoute de sa communauté.">
-  <meta name="keywords" content="Montévia, Montevia RP, Roblox, Roleplay Français, Serious RP, Alsace, CommunityLine Studio">
-  <meta name="author" content="CommunityLine Studio">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Montevia — Roleplay français sur Roblox</title>
+  <meta name="description" content="Montevia est un serveur roleplay français sur Roblox inspiré de l'Alsace : des métiers, une économie locale, des habitants et une équipe à l'écoute de sa communauté.">
+  <meta name="theme-color" content="#07080a">
+  <link rel="icon" type="image/png" href="img/mark.png">
 
-  <!-- PDP / Favicon officiel du jeu (Roblox & Discord) -->
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="icon" type="image/png" href="assets/images/favicon.png?v=2">
-  <link rel="shortcut icon" type="image/png" href="assets/images/favicon.png?v=2">
-  <link rel="apple-touch-icon" href="assets/images/favicon.png?v=2">
-
-  <!-- Open Graph / Discord Embed avec la vraie PDP du jeu -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Montévia RP — Roleplay Français sur Roblox">
-  <meta property="og:description" content="Une ville inspirée de l'Alsace, où réalisme, immersion et originalité se rencontrent.">
-  <meta property="og:image" content="https://wolfiii-ytb.github.io/Montevia/assets/images/game_icon.png">
-  <meta property="og:image:width" content="512">
-  <meta property="og:image:height" content="512">
-  <meta property="og:url" content="https://wolfiii-ytb.github.io/Montevia/">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:image" content="https://wolfiii-ytb.github.io/Montevia/assets/images/game_icon.png">
-  <meta name="theme-color" content="#2563eb">
+  <meta property="og:title" content="Montevia — Roleplay français sur Roblox">
+  <meta property="og:description" content="Une ville, des métiers, des habitants. Le roleplay s'écrit avec les joueurs.">
+  <meta property="og:image" content="img/hero.jpg">
 
-  <!-- Styles avec cache-busting -->
-  <link rel="stylesheet" href="assets/css/style.css?v=20261114-14">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body id="top">
 
-  <!-- ==========================================================================
-       NAVIGATION
-       ========================================================================== -->
-  <header class="site-header">
-    <div class="container nav-wrapper">
-      
-      <a href="#accueil" class="brand">
-        <img src="assets/images/game_icon.png" alt="Photo de profil Montévia" class="brand-logo" style="border-radius: 8px; width: 34px; height: 34px; object-fit: cover;">
-        <span class="brand-title">MONTEVIA</span>
-        <span class="brand-badge">RP FR</span>
+  <a class="skip" href="#contenu">Aller au contenu</a>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <header class="header" id="header">
+    <div class="wrap header__inner">
+      <a class="brand" href="#accueil" aria-label="Montevia, retour à l'accueil">
+        <img class="brand__logo" src="img/mark.png" alt="" width="30" height="30">
+        <span class="brand__name">Montevia</span>
+        <span class="brand__tag">RP FR</span>
       </a>
 
-      <nav class="nav-menu">
-        <a href="#accueil" class="nav-link">Accueil</a>
-        <a href="#univers" class="nav-link">L'Univers</a>
-        <a href="#equipe" class="nav-link">L'Équipe</a>
-        <a href="#reglement" class="nav-link">Règlement</a>
-        <a href="#faq" class="nav-link">FAQ</a>
-        <a href="admin.html" class="nav-link" style="color: var(--accent); display: inline-flex; align-items: center; gap: 5px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-          </svg>
-          <span>Espace Staff</span>
-        </a>
+      <nav class="nav" id="nav" aria-label="Navigation principale">
+        <a href="#univers">L'univers</a>
+        <a href="#metiers">Métiers</a>
+        <a href="equipe.html">L'équipe</a>
+        <a href="#reglement">Règlement</a>
+        <a href="#faq">FAQ</a>
+        <div class="nav__actions">
+          <a class="btn btn--ghost btn--sm nav__discord" href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M20.3 4.4a19.8 19.8 0 0 0-4.9-1.5l-.1 0c-.2.4-.4.9-.6 1.3a18.3 18.3 0 0 0-5.5 0c-.2-.4-.4-.9-.6-1.3l-.1 0a19.7 19.7 0 0 0-4.9 1.5l0 0C.5 9-.3 13.6.1 18.1l0 .1a19.9 19.9 0 0 0 6 3l.1 0c.5-.6.9-1.3 1.2-2v-.1l-1.9-.9v-.1l.4-.3h.1a14.2 14.2 0 0 0 12.1 0h.1l.4.3v.1l-1.9.9v.1c.4.7.7 1.4 1.2 2l.1 0a19.8 19.8 0 0 0 6-3l0-.1c.5-5.2-.8-9.7-3.5-13.7zM8 15.3c-1.2 0-2.2-1.1-2.2-2.4S6.8 10.5 8 10.5s2.2 1.1 2.2 2.4-1 2.4-2.2 2.4zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4z"/></svg>
+            Discord
+          </a>
+          <a class="btn btn--primary btn--sm" href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener">Jouer</a>
+        </div>
       </nav>
 
-      <div class="nav-actions">
-        <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer" class="btn btn-discord">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.893.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
-          </svg>
-          <span>Discord</span>
-        </a>
-
-        <a href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M5.333 1.333l13.334 3.556-3.556 13.778-13.334-3.556 3.556-13.778zm6.444 8.222l-1.777-.444-.445 1.777 1.778.445.444-1.778z"/>
-          </svg>
-          <span>Jouer</span>
-        </a>
-
-        <button class="mobile-toggle-btn" aria-label="Menu Mobile">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-
+      <button class="burger" id="burger" aria-expanded="false" aria-controls="nav" aria-label="Ouvrir le menu">
+        <span></span><span></span>
+      </button>
     </div>
   </header>
 
-  <!-- ==========================================================================
-       HERO SECTION AVEC VRAIE CAPTURE IN-GAME EN ARRIÈRE-PLAN
-       ========================================================================== -->
-  <main>
-    <section id="accueil" class="hero">
-      <div class="container hero-inner">
-        
-        <div class="status-badge">
-          <span class="status-dot"></span>
-          <span>Phase de test active • Serious RP 16+</span>
+  <main id="contenu">
+
+    <!-- HERO -->
+    <section class="hero" id="accueil">
+      <div class="hero__glow" aria-hidden="true"></div>
+      <div class="wrap">
+        <div class="hero__grid">
+
+          <div class="hero__text">
+            <span class="pill reveal"><span class="pill__dot" aria-hidden="true"></span>Phase de test · Serious RP</span>
+            <h1 class="reveal">Montevia, une ville où chaque rôle compte.</h1>
+            <p class="hero__lead reveal">
+              Serveur roleplay français sur Roblox, inspiré de l'Alsace. Des métiers, une économie locale,
+              des habitants — et une équipe qui écoute vraiment sa communauté.
+            </p>
+            <div class="hero__actions reveal">
+              <a class="btn btn--primary btn--lg" href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M5.3 1.3 18.7 4.9l-3.6 13.8L1.8 15.1 5.3 1.3zm6.5 8.2-1.8-.4-.4 1.8 1.8.4.4-1.8z"/></svg>
+                Jouer sur Roblox
+              </a>
+              <a class="btn btn--secondary btn--lg" href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener">
+                Rejoindre le Discord
+              </a>
+            </div>
+          </div>
+
+          <figure class="hero__media reveal">
+            <img src="img/hero.jpg" alt="Aperçu en jeu du centre-ville de Montevia" width="768" height="432">
+
+            <span class="chip chip--top"><span class="chip__dot" aria-hidden="true"></span>Aperçu en jeu</span>
+
+            <a class="play" href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener" aria-label="Lancer Montevia sur Roblox">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 5.1v13.8L19 12 8 5.1z"/></svg>
+            </a>
+
+            <figcaption class="hero__caption">
+              <img src="img/mark.png" alt="" width="32" height="32">
+              <span>
+                <strong>Montevia RP</strong>
+                <small>Server roleplay · 50 joueurs</small>
+              </span>
+            </figcaption>
+          </figure>
+
         </div>
 
-        <h1 class="hero-title">
-          Le Roleplay français inspiré de l'Alsace.
-        </h1>
-
-        <p class="hero-description">
-          Plongez dans <strong>Montévia</strong>, un univers urbain soigné développé par <strong>CommunityLine Studio</strong>. Une ville vivante, des interactions crédibles et surtout une équipe disponible et attentive à sa communauté.
-        </p>
-
-        <div class="hero-actions">
-          <a href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M5.333 1.333l13.334 3.556-3.556 13.778-13.334-3.556 3.556-13.778zm6.444 8.222l-1.777-.444-.445 1.777 1.778.445.444-1.778z"/>
-            </svg>
-            <span>Jouer sur Roblox</span>
-          </a>
-
-          <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-lg">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="color: #5865F2;">
-              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.893.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
-          </svg>
-          <span>Rejoindre le Discord</span>
-        </a>
-      </div>
-
-      <div class="hero-metrics">
-        <div class="metric-item">
-          <span class="metric-value">50 Joueurs</span>
-          <span class="metric-label">Capacité / Serveur</span>
+        <div class="metrics reveal">
+          <div class="metric">
+            <span class="metric__value">50</span>
+            <span class="metric__label">Joueurs par serveur</span>
+          </div>
+          <div class="metric">
+            <span class="metric__value">100 %</span>
+            <span class="metric__label">Accès gratuit</span>
+          </div>
+          <div class="metric">
+            <span class="metric__value">FR</span>
+            <span class="metric__label">Communauté francophone</span>
+          </div>
+          <div class="metric">
+            <span class="metric__value">RP</span>
+            <span class="metric__label">Immersion &amp; cohérence</span>
+          </div>
         </div>
-        <div class="metric-item">
-          <span class="metric-value">100% Gratuit</span>
-          <span class="metric-label">Accès Libre</span>
-        </div>
-        <div class="metric-item">
-          <span class="metric-value">Serious RP</span>
-          <span class="metric-label">Maturité 16+</span>
-        </div>
-      </div>
-
       </div>
     </section>
 
-    <!-- ==========================================================================
-         SECTION 1 : L'EXPÉRIENCE ROLEPLAY (L'UNIVERS)
-         ========================================================================== -->
-    <section id="univers" class="section section-alt">
-      <div class="container">
-        
-        <div class="section-header center">
-          <span class="section-tag">Immersion & Réalisme</span>
-          <h2 class="section-title">Ce Qui Fait l'Esprit de Montévia</h2>
-          <p class="section-desc">
-            Loin des affrontements permanents, Montévia est pensée comme une ville où chaque métier, chaque citoyen et chaque décision participent à la vie commune.
+    <!-- UNIVERS -->
+    <section class="section section--soft" id="univers">
+      <div class="wrap">
+        <div class="section-head section-head--center reveal">
+          <span class="tag">L'univers</span>
+          <h2>Ce qui fait l'esprit de Montevia</h2>
+          <p>
+            Loin des affrontements permanents, Montevia est pensée comme une ville où chaque métier,
+            chaque citoyen et chaque décision participent à la vie commune.
           </p>
         </div>
 
-        <div class="grid-2">
-          
-          <div class="feature-card">
-            <div class="feature-icon-wrap">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                <polyline points="9 22 9 12 15 12 15 22"></polyline>
-              </svg>
-            </div>
-            <h3 class="feature-title">Cadre Urbain Alsacien</h3>
-            <p class="feature-text">
-              Architecture traditionnelle en pierre de taille et colombages, places pavées, commerces de proximité et signalétique française authentique pour une immersion visuelle immédiate.
+        <div class="features">
+          <article class="feature reveal">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+            </span>
+            <h3>Un cadre alsacien</h3>
+            <p>
+              Architecture traditionnelle, places pavées, commerces de proximité et signalétique française.
+              Une ville construite pour être habitée, pas seulement traversée.
             </p>
-          </div>
+          </article>
 
-          <div class="feature-card">
-            <div class="feature-icon-wrap">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
-            </div>
-            <h3 class="feature-title">Serious RP & Dialogue</h3>
-            <p class="feature-text">
-              Chaque interaction est privilégiée. Le dialogue, la négociation et la cohérence de votre personnage passent toujours avant l'usage des armes ou la confrontation brutale.
+          <article class="feature reveal">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </span>
+            <h3>Le dialogue avant tout</h3>
+            <p>
+              Une interaction se joue au dialogue, à la négociation, à la cohérence du personnage.
+              L'arme est un dernier recours, jamais une solution de facilité.
             </p>
-          </div>
+          </article>
 
-          <div class="feature-card">
-            <div class="feature-icon-wrap">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-              </svg>
-            </div>
-            <h3 class="feature-title">Services Publics & Protection</h3>
-            <p class="feature-text">
-              Gendarmerie Nationale, Police municipale, Sapeurs-Pompiers et SAMU. Des factions organisées avec des procédures réalistes, au service de la population.
+          <article class="feature reveal">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </span>
+            <h3>Des services publics</h3>
+            <p>
+              Sécurité, secours et santé fonctionnent avec des procédures claires, au service
+              de la population. Des factions utiles, pas décoratives.
             </p>
-          </div>
+          </article>
 
-          <div class="feature-card">
-            <div class="feature-icon-wrap">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-              </svg>
-            </div>
-            <h3 class="feature-title">Économie & Vie Citoyenne</h3>
-            <p class="feature-text">
-              Ouvrez votre commerce, travaillez à la pharmacie, conduisez le réseau de tramway ou gérez vos affaires bancaires avec un système monétaire cohérent sans argent magique.
+          <article class="feature reveal">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 21V12h6v9"/></svg>
+            </span>
+            <h3>Une économie locale</h3>
+            <p>
+              Salaires, commerces, services : l'argent circule entre les joueurs.
+              Pas d'argent magique, pas de fortune sortie de nulle part.
             </p>
-          </div>
-
+          </article>
         </div>
-
       </div>
     </section>
 
-    <!-- ==========================================================================
-         SECTION 2 : UNE ÉQUIPE À VOTRE ÉCOUTE
-         ========================================================================== -->
-    <section id="equipe" class="section">
-      <div class="container">
-        
-        <div class="section-header center">
-          <span class="section-tag">Proximité & Transparence</span>
-          <h2 class="section-title">Une Équipe Accessible et à Votre Écoute</h2>
-          <p class="section-desc">
-            Chez <strong>CommunityLine Studio</strong>, le projet est développé par des passionnés qui placent les avis et les envies des joueurs au cœur de chaque mise à jour.
-          </p>
-        </div>
-
-        <div class="team-grid">
-          
-          <div class="team-card">
-            <div class="team-card-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              </svg>
-            </div>
-            <h4>Vos Suggestions Comptent Vraiment</h4>
-            <p>
-              Chaque proposition déposée sur notre Discord est examinée et débattue avec l'équipe. Nouveaux commerces, ajustements de règles, équilibrage des métiers : vous orientez les choix de sortie.
-            </p>
-          </div>
-
-          <div class="team-card">
-            <div class="team-card-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
-            </div>
-            <h4>Un Staff Humain & Disponible</h4>
-            <p>
-              Pas de barrière hiérarchique ni de staff distant. Les fondateurs et modérateurs échangent directement en salon vocal ou écrit, dans un esprit de convivialité et d'écoute mutuelle.
-            </p>
-          </div>
-
-          <div class="team-card">
-            <div class="team-card-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                <line x1="9" y1="9" x2="9.01" y2="9"></line>
-                <line x1="15" y1="9" x2="15.01" y2="9"></line>
-              </svg>
-            </div>
-            <h4>Développement Libre & Sans Pression</h4>
-            <p>
-              Le projet avance à son rythme avec une priorité unique : délivrer une expérience de Roleplay francophone de grande qualité, équilibrée et plaisante pour tous.
-            </p>
-          </div>
-
-        </div>
-
-        <div class="discord-banner-box">
-          <div class="discord-banner-text">
-            <h4>Échangez en direct avec les créateurs</h4>
-            <p>
-              Rejoignez notre serveur Discord pour proposer vos idées, suivre les carnets de développement et participer aux prochaines sessions de test.
-            </p>
-          </div>
-          <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer" class="btn btn-discord btn-lg">
-            Rejoindre la Communauté
-          </a>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ==========================================================================
-         SECTION 3 : RÈGLEMENT OFFICIEL COMPLET DU SERVEUR (10 RÈGLES)
-         ========================================================================== -->
-    <section id="reglement" class="section section-alt">
-      <div class="container">
-        
-        <div class="section-header center">
-          <span class="section-tag">Charte Officielle</span>
-          <h2 class="section-title">Règlement Officiel de Montevia</h2>
-          <p class="section-desc">
-            Bienvenue sur le serveur Discord officiel de Montevia. Afin de garantir une communauté agréable et respectueuse, merci de respecter l'ensemble des règles suivantes.
-          </p>
-        </div>
-
-        <div class="rules-container">
-          <div class="official-rules-grid">
-            
-            <!-- Règle 01 -->
-            <div class="official-rule-item">
-              <div class="rule-icon-box">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
-                </svg>
-              </div>
-              <div class="rule-content">
-                <div class="rule-top-line">
-                  <span class="rule-number-badge">Règle 01</span>
-                  <h4 class="rule-name">Respect</h4>
-                </div>
-                <p class="rule-detail-text">
-                  Le respect est obligatoire envers tous les membres. Les insultes, provocations, harcèlement, discriminations ou comportements toxiques ne sont pas tolérés.
-                </p>
-              </div>
-            </div>
-
-            <!-- Règle 02 -->
-            <div class="official-rule-item">
-              <div class="rule-icon-box">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-              </div>
-              <div class="rule-content">
-                <div class="rule-top-line">
-                  <span class="rule-number-badge">Règle 02</span>
-                  <h4 class="rule-name">Comportement</h4>
-                </div>
-                <p class="rule-detail-text">
-                  Gardez un comportement mature et respectueux. Les conflits personnels doivent impérativement rester en dehors du serveur.
-                </p>
-              </div>
-            </div>
-
-            <!-- Règle 03 -->
-            <div class="official-rule-item">
-              <div class="rule-icon-box">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                  <line x1="23" y1="9" x2="17" y2="15"></line>
-                  <line x1="17" y1="9" x2="23" y2="15"></line>
-                </svg>
-              </div>
-              <div class="rule-content">
-                <div class="rule-top-line">
-                  <span class="rule-number-badge">Règle 03</span>
-                  <h4 class="rule-name">Spam & Publicité</h4>
-                </div>
-                <p class="rule-detail-text">
-                  Le spam, flood, publicité ou promotion non autorisée sont formellement interdits. Toute publicité doit être préalablement autorisée par l’équipe.
-                </p>
-              </div>
-            </div>
-
-            <!-- Règle 04 -->
-            <div class="official-rule-item">
-              <div class="rule-icon-box">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                  <line x1="12" y1="9" x2="12" y2="13"></line>
-                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                </svg>
-              </div>
-              <div class="rule-content">
-                <div class="rule-top-line">
-                  <span class="rule-number-badge">Règle 04</span>
-                  <h4 class="rule-name">Contenu</h4>
-                </div>
-                <p class="rule-detail-text">
-                  Les contenus NSFW, choquants, illégaux ou inappropriés sont strictement interdits. N’envoyez pas de fichiers ou liens suspects.
-                </p>
-              </div>
-            </div>
-
-            <!-- Règle 05 -->
-            <div class="official-rule-item">
-              <div class="rule-icon-box">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="4" y1="9" x2="20" y2="9"></line>
-                  <line x1="4" y1="15" x2="20" y2="15"></line>
-                  <line x1="10" y1="3" x2="8" y2="21"></line>
-                  <line x1="16" y1="3" x2="14" y2="21"></line>
-                </svg>
-              </div>
-              <div class="rule-content">
-                <div class="rule-top-line">
-                  <span class="rule-number-badge">Règle 05</span>
-                  <h4 class="rule-name">Salons</h4>
-                </div>
-                <p class="rule-detail-text">
-                  Utilisez chaque salon pour son objectif dédié. Évitez de déranger les discussions avec des messages hors sujet.
-                </p>
-              </div>
-            </div>
-
-            <!-- Règle 06 -->
-            <div class="official-rule-item">
-              <div class="rule-icon-box">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-              </div>
-              <div class="rule-content">
-                <div class="rule-top-line">
-                  <span class="rule-number-badge">Règle 06</span>
-                  <h4 class="rule-name">Développement</h4>
-                </div>
-                <p class="rule-detail-text">
-                  Les suggestions sont les bienvenues. Merci cependant de rester constructif et de respecter les décisions prises par l’équipe.
-                </p>
-              </div>
-            </div>
-
-            <!-- Règle 07 -->
-            <div class="official-rule-item">
-              <div class="rule-icon-box">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                </svg>
-              </div>
-              <div class="rule-content">
-                <div class="rule-top-line">
-                  <span class="rule-number-badge">Règle 07</span>
-                  <h4 class="rule-name">Staff</h4>
-                </div>
-                <p class="rule-detail-text">
-                  Les décisions du staff doivent être respectées. Si vous avez un problème avec une décision, contactez un membre de l’équipe plutôt que de créer un conflit public.
-                </p>
-              </div>
-            </div>
-
-            <!-- Règle 08 -->
-            <div class="official-rule-item">
-              <div class="rule-icon-box">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                </svg>
-              </div>
-              <div class="rule-content">
-                <div class="rule-top-line">
-                  <span class="rule-number-badge">Règle 08</span>
-                  <h4 class="rule-name">Confidentialité</h4>
-                </div>
-                <p class="rule-detail-text">
-                  Ne partagez jamais les informations personnelles d’un autre membre sans son accord explicite.
-                </p>
-              </div>
-            </div>
-
-            <!-- Règle 09 -->
-            <div class="official-rule-item">
-              <div class="rule-icon-box">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="23 4 23 10 17 10"></polyline>
-                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-                </svg>
-              </div>
-              <div class="rule-content">
-                <div class="rule-top-line">
-                  <span class="rule-number-badge">Règle 09</span>
-                  <h4 class="rule-name">Contournement</h4>
-                </div>
-                <p class="rule-detail-text">
-                  Toute tentative de contournement d’une sanction pourra entraîner une sanction supplémentaire immédiate.
-                </p>
-              </div>
-            </div>
-
-            <!-- Règle 10 -->
-            <div class="official-rule-item">
-              <div class="rule-icon-box">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="3" y1="6" x2="21" y2="6"></line>
-                  <line x1="12" y1="3" x2="12" y2="21"></line>
-                  <path d="M5 21h14"></path>
-                  <path d="M7 6l3 7H4l3-7z"></path>
-                  <path d="M17 6l3 7h-6l3-7z"></path>
-                </svg>
-              </div>
-              <div class="rule-content">
-                <div class="rule-top-line">
-                  <span class="rule-number-badge">Règle 10</span>
-                  <h4 class="rule-name">Sanctions</h4>
-                </div>
-                <p class="rule-detail-text">
-                  En cas de non-respect du règlement, l’équipe peut appliquer une sanction adaptée à la situation :<br>
-                  <strong>Avertissement → Timeout → Expulsion → Bannissement</strong><br>
-                  Les sanctions peuvent varier selon la gravité des faits.
-                </p>
-              </div>
-            </div>
-
-          </div>
-
-          <div class="rule-acceptance-callout">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent); flex-shrink: 0;">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-            <p>
-              <strong>En rejoignant Montevia, vous acceptez automatiquement ce règlement.</strong><br>
-              Le règlement peut être modifié à tout moment par l’équipe afin de garantir le bon fonctionnement de la communauté. Merci de contribuer à faire de Montevia une communauté agréable, mature et respectueuse.
-            </p>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ==========================================================================
-         SECTION 4 : FOIRE AUX QUESTIONS (FAQ)
-         ========================================================================== -->
-    <section id="faq" class="section">
-      <div class="container">
-        
-        <div class="section-header center">
-          <span class="section-tag">Aide & Informations</span>
-          <h2 class="section-title">Foire Aux Questions</h2>
-        </div>
-
-        <div class="faq-container">
-          
-          <div class="faq-item">
-            <button class="faq-question">
-              <span>Le jeu est-il gratuit ?</span>
-              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
-            <div class="faq-answer">
-              <div class="faq-answer-inner">
-                Oui, l'accès à Montévia RP est totalement gratuit sur la plateforme Roblox. Aucune transaction obligatoire n'est requise pour jouer.
-              </div>
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <button class="faq-question">
-              <span>Pourquoi le serveur est-il conseillé aux 16 ans et plus ?</span>
-              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
-            <div class="faq-answer">
-              <div class="faq-answer-inner">
-                Montévia est axé sur le Serious RP (scènes policières, médicales, judiciaires et économiques). Un certain niveau de maturité et de sérieux est nécessaire pour maintenir une bonne cohérence de jeu.
-              </div>
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <button class="faq-question">
-              <span>Comment intégrer la Gendarmerie, la Police ou les Secours ?</span>
-              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
-            <div class="faq-answer">
-              <div class="faq-answer-inner">
-                Rendez-vous sur notre serveur Discord officiel. Des salons de recrutement sont régulièrement ouverts avec un formulaire simple et une formation pratique en jeu.
-              </div>
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <button class="faq-question">
-              <span>Comment proposer une idée ou une suggestion à l'équipe ?</span>
-              <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
-            <div class="faq-answer">
-              <div class="faq-answer-inner">
-                Un salon <code>#suggestions</code> est disponible sur le Discord. Chaque joueur peut y exposer ses idées, qui sont ensuite lues et votées par la communauté et l'équipe.
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ==========================================================================
-         CALL TO ACTION FINAL
-         ========================================================================== -->
-    <section class="container">
-      <div class="cta-banner">
-        <h2>Prêt à Écrire Votre Histoire ?</h2>
-        <p>
-          Rejoignez Montévia RP dès maintenant et participez activement à l'évolution du serveur.
-        </p>
-        <div class="cta-banner-actions">
-          <a href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg">
-            Jouer sur Roblox
-          </a>
-          <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer" class="btn btn-discord btn-lg">
-            Rejoindre sur Discord
-          </a>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- ==========================================================================
-       PIED DE PAGE (FOOTER)
-       ========================================================================== -->
-  <footer class="site-footer">
-    <div class="container">
-      
-      <div class="footer-top">
-        <div class="footer-brand-col">
-          <div class="brand">
-            <img src="assets/images/game_icon.png" alt="Photo de profil Montévia" class="brand-logo" style="border-radius: 8px; width: 34px; height: 34px; object-fit: cover;">
-            <span class="brand-title">MONTEVIA RP</span>
+    <!-- MÉTIERS -->
+    <section class="section" id="metiers">
+      <div class="wrap">
+        <div class="section-head section-head--split reveal">
+          <div>
+            <span class="tag">La ville</span>
+            <h2>La ville et ses métiers</h2>
           </div>
           <p>
-            Une ville inspirée de l'Alsace, où réalisme, immersion et originalité se rencontrent. 
-            Développé avec passion par CommunityLine Studio.
+            Montevia vit par ses services. Chacun tient une place dans la journée des autres —
+            du premier bus du matin au dernier café du soir.
           </p>
         </div>
 
-        <div class="footer-nav-groups">
-          <div class="footer-col">
-            <h5>Navigation</h5>
+        <ul class="jobs">
+          <li class="job reveal">
+            <span class="icon icon--sm" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"/><path d="M16 8h2a2 2 0 0 1 2 2v11"/><path d="M3 21h18"/><path d="M8 7h4"/><path d="M8 11h4"/><path d="M8 15h4"/></svg></span>
+            <div>
+              <h3>Services publics</h3>
+              <p>Mairie, accueil, entretien de la ville.</p>
+            </div>
+          </li>
+          <li class="job reveal">
+            <span class="icon icon--sm" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="14" rx="3"/><path d="M4 11h16"/><path d="M8 17v3"/><path d="M16 17v3"/><path d="M9 20h6"/></svg></span>
+            <div>
+              <h3>Transports</h3>
+              <p>Lignes de tramway et de bus, conduite, contrôle.</p>
+            </div>
+          </li>
+          <li class="job reveal">
+            <span class="icon icon--sm" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 4 6v13a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6l-2-4z"/><path d="M4 6h16"/><path d="M9 11a3 3 0 0 1 6 0"/></svg></span>
+            <div>
+              <h3>Commerce</h3>
+              <p>Boutiques, épiceries, prêt-à-porter.</p>
+            </div>
+          </li>
+          <li class="job reveal">
+            <span class="icon icon--sm" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4z"/><path d="M6 1v3"/><path d="M10 1v3"/><path d="M14 1v3"/></svg></span>
+            <div>
+              <h3>Restauration</h3>
+              <p>Cafés, restaurants, terrasses.</p>
+            </div>
+          </li>
+          <li class="job reveal">
+            <span class="icon icon--sm" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg></span>
+            <div>
+              <h3>Sécurité</h3>
+              <p>Police, pompiers, interventions.</p>
+            </div>
+          </li>
+          <li class="job reveal">
+            <span class="icon icon--sm" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8"/><path d="M8 12h8"/></svg></span>
+            <div>
+              <h3>Santé</h3>
+              <p>Hôpital, urgences, médecine de ville.</p>
+            </div>
+          </li>
+          <li class="job reveal">
+            <span class="icon icon--sm" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.1 2.1-2.8-2.8z"/></svg></span>
+            <div>
+              <h3>Artisanat</h3>
+              <p>Ateliers, réparations, petites entreprises.</p>
+            </div>
+          </li>
+          <li class="job reveal">
+            <span class="icon icon--sm" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M21 2l-9.6 9.6"/><path d="M15.5 7.5l3 3"/></svg></span>
+            <div>
+              <h3>Immobilier</h3>
+              <p>Logements, locaux, visites.</p>
+            </div>
+          </li>
+        </ul>
+
+        <p class="jobs__note reveal">
+          Un métier vous intéresse ? Les recrutements sont annoncés sur le
+          <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener">Discord</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- ÉQUIPE -->
+    <section class="section section--soft" id="equipe">
+      <div class="wrap">
+        <div class="section-head section-head--center reveal">
+          <span class="tag">L'équipe</span>
+          <h2>Une équipe accessible et à votre écoute</h2>
+          <p>
+            Montevia est développé par une petite équipe, sans pression et sans promesse intenable.
+            Ce qui compte : un serveur agréable, des problèmes réglés et des joueurs entendus.
+          </p>
+        </div>
+
+        <div class="team">
+          <article class="team__card reveal">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2V18h6v-1.3c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z"/></svg>
+            </span>
+            <h3>Vos suggestions comptent</h3>
+            <p>
+              Chaque proposition déposée sur le Discord est lue et débattue avec l'équipe.
+              Nouveaux commerces, équilibrage, ajustements de règles : vous orientez les choix.
+            </p>
+          </article>
+
+          <article class="team__card reveal">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+            </span>
+            <h3>Un staff humain</h3>
+            <p>
+              Pas de barrière hiérarchique ni de staff distant. Les fondateurs et modérateurs
+              échangent directement, en vocal comme à l'écrit.
+            </p>
+          </article>
+
+          <article class="team__card reveal">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+            </span>
+            <h3>Un développement libre</h3>
+            <p>
+              Le projet avance à son rythme, avec une priorité : une expérience roleplay
+              francophone propre, équilibrée et agréable pour tous.
+            </p>
+          </article>
+        </div>
+
+        <div class="banner reveal">
+          <div class="banner__text">
+            <h3>Échangez directement avec les créateurs</h3>
+            <p>
+              Suggestions, carnets de développement, sessions de test : tout se passe sur le Discord.
+            </p>
+          </div>
+          <a class="btn btn--primary" href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener">
+            Rejoindre la communauté
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+
+        <p class="more-link reveal">
+          <a href="equipe.html">
+            Voir l'organisation de l'équipe
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+          </a>
+        </p>
+      </div>
+    </section>
+
+    <!-- RÈGLEMENT -->
+    <section class="section" id="reglement">
+      <div class="wrap">
+        <div class="section-head section-head--center reveal">
+          <span class="tag">La charte</span>
+          <h2>Le règlement, sans surprise</h2>
+          <p>
+            Peu de règles, mais elles posent le cadre du roleplay. Elles s'appliquent
+            sur le serveur comme sur le Discord.
+          </p>
+        </div>
+
+        <div class="rules">
+          <article class="rule reveal">
+            <span class="rule__num">01</span>
+            <div>
+              <h3>Respect</h3>
+              <p>Insultes, provocations, harcèlement et discriminations ne sont pas tolérés.</p>
+            </div>
+          </article>
+          <article class="rule reveal">
+            <span class="rule__num">02</span>
+            <div>
+              <h3>Comportement</h3>
+              <p>Restez mature. Les conflits personnels restent en dehors du serveur.</p>
+            </div>
+          </article>
+          <article class="rule reveal">
+            <span class="rule__num">03</span>
+            <div>
+              <h3>Spam &amp; publicité</h3>
+              <p>Le flood et la publicité non autorisée sont interdits sur tous les salons.</p>
+            </div>
+          </article>
+          <article class="rule reveal">
+            <span class="rule__num">04</span>
+            <div>
+              <h3>Contenu</h3>
+              <p>Aucun contenu NSFW, choquant ou illégal. Aucun lien suspect.</p>
+            </div>
+          </article>
+          <article class="rule reveal">
+            <span class="rule__num">05</span>
+            <div>
+              <h3>Salons</h3>
+              <p>Chaque salon a un usage précis. Gardez les discussions au bon endroit.</p>
+            </div>
+          </article>
+          <article class="rule reveal">
+            <span class="rule__num">06</span>
+            <div>
+              <h3>Staff &amp; sanctions</h3>
+              <p>Les décisions du staff se respectent. Les sanctions sont graduées selon la gravité.</p>
+            </div>
+          </article>
+          <article class="rule reveal">
+            <span class="rule__num">07</span>
+            <div>
+              <h3>Confidentialité</h3>
+              <p>Ne partagez jamais les informations personnelles d'un autre membre.</p>
+            </div>
+          </article>
+          <article class="rule reveal">
+            <span class="rule__num">08</span>
+            <div>
+              <h3>Contournement</h3>
+              <p>Toute tentative d'échapper à une sanction entraîne une sanction supplémentaire.</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="note reveal">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="M22 4 12 14l-3-3"/></svg>
+          <p>
+            En rejoignant Montevia, vous acceptez ce règlement. La version complète est
+            disponible sur le <a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener">Discord</a>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section section--soft" id="faq">
+      <div class="wrap">
+        <div class="section-head section-head--center reveal">
+          <span class="tag">Questions fréquentes</span>
+          <h2>Tout ce qu'il faut savoir</h2>
+        </div>
+
+        <div class="faq">
+          <div class="faq__item reveal">
+            <button class="faq__question" aria-expanded="false" aria-controls="faq-1">
+              <span>Le jeu est-il gratuit ?</span>
+              <svg class="faq__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            </button>
+            <div class="faq__answer" id="faq-1" role="region">
+              <p>
+                Oui. L'accès à Montevia est totalement gratuit sur Roblox. Aucune transaction
+                n'est nécessaire pour jouer.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq__item reveal">
+            <button class="faq__question" aria-expanded="false" aria-controls="faq-2">
+              <span>Quel niveau de roleplay est attendu ?</span>
+              <svg class="faq__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            </button>
+            <div class="faq__answer" id="faq-2" role="region">
+              <p>
+                Du serious RP : des personnages cohérents, des interactions crédibles et le dialogue
+                avant l'action. Un minimum de maturité est demandé pour tenir la scène sur la durée.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq__item reveal">
+            <button class="faq__question" aria-expanded="false" aria-controls="faq-3">
+              <span>Comment rejoindre la police, les secours ou un commerce ?</span>
+              <svg class="faq__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            </button>
+            <div class="faq__answer" id="faq-3" role="region">
+              <p>
+                Les recrutements sont ouverts par vagues sur le Discord, avec un formulaire simple
+                et une prise en main en jeu. Aucune candidature ne se fait en dehors du serveur.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq__item reveal">
+            <button class="faq__question" aria-expanded="false" aria-controls="faq-4">
+              <span>Comment proposer une idée à l'équipe ?</span>
+              <svg class="faq__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            </button>
+            <div class="faq__answer" id="faq-4" role="region">
+              <p>
+                Un salon dédié aux suggestions est disponible sur le Discord. Les idées y sont
+                lues, discutées et parfois intégrées à la mise à jour suivante.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq__item reveal">
+            <button class="faq__question" aria-expanded="false" aria-controls="faq-5">
+              <span>Faut-il parler français pour jouer ?</span>
+              <svg class="faq__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            </button>
+            <div class="faq__answer" id="faq-5" role="region">
+              <p>
+                Oui, le serveur est francophone. Le roleplay, les annonces et le support
+                se déroulent en français.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta" id="rejoindre">
+      <div class="wrap">
+        <div class="cta__card reveal">
+          <img class="cta__bg" src="img/hero.jpg" alt="" aria-hidden="true">
+          <div class="cta__overlay" aria-hidden="true"></div>
+          <div class="cta__content">
+            <span class="tag">Rejoindre</span>
+            <h2>Prêt à écrire votre histoire ?</h2>
+            <p>
+              Rejoignez Montevia, rencontrez les habitants et participez à l'évolution du serveur.
+            </p>
+            <div class="cta__actions">
+              <a class="btn btn--primary btn--lg" href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener">Jouer sur Roblox</a>
+              <a class="btn btn--secondary btn--lg" href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener">Rejoindre le Discord</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <a class="brand brand--footer" href="#accueil" aria-label="Montevia, retour en haut">
+            <img class="brand__full" src="img/logo.png" alt="Montevia" width="140" height="140">
+          </a>
+          <p>
+            Une ville inspirée de l'Alsace, où réalisme, immersion et originalité se rencontrent.
+            Développé par CommunityLine Studio.
+          </p>
+        </div>
+
+        <div class="footer__cols">
+          <div class="footer__col">
+            <h4>Navigation</h4>
             <ul>
-              <li><a href="#accueil">Accueil</a></li>
-              <li><a href="#univers">L'Univers</a></li>
-              <li><a href="#equipe">L'Équipe</a></li>
+              <li><a href="#univers">L'univers</a></li>
+              <li><a href="#metiers">Métiers</a></li>
+              <li><a href="equipe.html">L'équipe</a></li>
               <li><a href="#reglement">Règlement</a></li>
-              <li><a href="admin.html">Espace Staff</a></li>
+              <li><a href="#faq">FAQ</a></li>
             </ul>
           </div>
 
-          <div class="footer-col">
-            <h5>Communauté</h5>
+          <div class="footer__col">
+            <h4>Communauté</h4>
             <ul>
-              <li><a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener noreferrer">Serveur Discord</a></li>
-              <li><a href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener noreferrer">Jeu sur Roblox</a></li>
-              <li><a href="https://wolfiii-ytb.github.io/DevReports/" target="_blank" rel="noopener noreferrer">Hub DevReports</a></li>
+              <li><a href="https://discord.gg/6wHfn69Jt" target="_blank" rel="noopener">Serveur Discord</a></li>
+              <li><a href="https://www.roblox.com/fr/games/136984692229053/Montevia" target="_blank" rel="noopener">Jeu sur Roblox</a></li>
             </ul>
           </div>
 
-          <div class="footer-col">
-            <h5>Studio</h5>
+          <div class="footer__col">
+            <h4>Informations</h4>
             <ul>
-              <li style="color: var(--text-secondary); font-size: 0.88rem;">CommunityLine Studio (CLS)</li>
-              <li style="color: var(--text-muted); font-size: 0.82rem;">Version : Phase de Test</li>
-              <li style="color: var(--text-muted); font-size: 0.82rem;">Genre : Serious Roleplay</li>
+              <li><span>CommunityLine Studio</span></li>
+              <li><span>Phase de test</span></li>
+              <li><span>Serious Roleplay</span></li>
             </ul>
           </div>
         </div>
       </div>
 
-      <div class="footer-bottom">
-        <span>© 2026 Montévia RP — CommunityLine Studio. Tous droits réservés.</span>
-        <span>Jeu indépendant sur la plateforme Roblox. Roblox est une marque de Roblox Corporation.</span>
+      <div class="footer__bottom">
+        <span>© <span id="year">2026</span> Montevia — CommunityLine Studio.</span>
+        <span>Projet communautaire, non affilié à Roblox Corporation.</span>
       </div>
-
     </div>
   </footer>
 
-  <script src="assets/js/main.js?v=20261114-14"></script>
+  <script src="js/script.js"></script>
 </body>
 </html>
