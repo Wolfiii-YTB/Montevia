@@ -456,3 +456,48 @@ grant select, insert on table public.montevia_ticket_messages to authenticated;
 
 create index if not exists montevia_ticket_messages_ticket_idx
   on public.montevia_ticket_messages (ticket_id, created_at);
+
+-- ============================================================
+-- Évolution tickets : claim, participants, infos opener
+-- ============================================================
+alter table public.montevia_tickets
+  add column if not exists claimed_by uuid references auth.users(id) on delete set null,
+  add column if not exists claimed_at timestamptz;
+
+create table if not exists public.montevia_ticket_participants (
+  id uuid primary key default gen_random_uuid(),
+  ticket_id uuid not null references public.montevia_tickets(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  added_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  unique (ticket_id, user_id)
+);
+
+alter table public.montevia_ticket_participants enable row level security;
+
+drop policy if exists "read ticket participants" on public.montevia_ticket_participants;
+create policy "read ticket participants"
+on public.montevia_ticket_participants
+for select
+to authenticated
+using (
+  public.montevia_is_admin()
+  or exists (
+    select 1 from public.montevia_tickets t
+    where t.id = ticket_id and t.user_id = auth.uid()
+  )
+  or user_id = auth.uid()
+);
+
+drop policy if exists "admins manage ticket participants" on public.montevia_ticket_participants;
+create policy "admins manage ticket participants"
+on public.montevia_ticket_participants
+for all
+to authenticated
+using (public.montevia_is_admin())
+with check (public.montevia_is_admin());
+
+grant select, insert, delete on table public.montevia_ticket_participants to authenticated;
+
+create index if not exists montevia_ticket_participants_ticket_idx
+  on public.montevia_ticket_participants (ticket_id);

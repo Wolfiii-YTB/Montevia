@@ -976,6 +976,21 @@
         throw result.error;
       }
       ticketsList = Array.isArray(result.data) ? result.data : [];
+
+      // Charger les profils des ouvreurs pour afficher le nom
+      var userIds = ticketsList.map(function (t) { return t.user_id; }).filter(Boolean);
+      if (userIds.length) {
+        var profResult = await db.from('profiles').select('id,display_name,nickname').in('id', userIds);
+        if (!profResult.error && Array.isArray(profResult.data)) {
+          var profMap = {};
+          profResult.data.forEach(function (p) { profMap[p.id] = p; });
+          ticketsList.forEach(function (t) {
+            var p = profMap[t.user_id];
+            t._openerName = p ? (p.display_name || p.nickname || t.user_id) : t.user_id;
+          });
+        }
+      }
+
       renderTickets();
     } catch (error) {
       showToast("Impossible de charger les tickets : " + (errorMessage(error) || 'erreur réseau.'), 'error');
@@ -1002,8 +1017,9 @@
 
       var subjectCell = node('div', 'admin-row__member');
       subjectCell.append(node('span', 'admin-row__text', t.subject));
+      subjectCell.append(node('small', '', t._openerName || t.user_id || 'Anonyme'));
 
-      var userCell = node('span', 'admin-row__role', t.discord_username || t.user_id || 'Anonyme');
+      var userCell = node('span', 'admin-row__role', (t.discord_username || '—') + ' · ' + (t.user_id || '—'));
 
       var statusCell = node('span', 'admin-row__status');
       var badgeClass = t.status === 'closed' ? 'admin-badge--draft' : 'admin-badge--live';
@@ -1021,6 +1037,31 @@
       viewBtn.setAttribute('aria-label', 'Voir la conversation');
       viewBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
       actions.append(viewBtn);
+
+      // Claim button
+      if (!t.claimed_by && t.status !== 'closed') {
+        var claimBtn = node('button', 'admin-icon-btn');
+        claimBtn.type = 'button';
+        claimBtn.dataset.action = 'claim-ticket';
+        claimBtn.dataset.id = t.id;
+        claimBtn.setAttribute('aria-label', 'Prendre en charge');
+        claimBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6l-8-4z"/></svg>';
+        actions.append(claimBtn);
+      } else if (t.claimed_by) {
+        var claimedLabel = node('span', '', '✅ ' + (t.claimed_by === currentProfile.id ? 'Vous' : 'Pris'));
+        claimedLabel.style.fontSize = '11px';
+        claimedLabel.style.color = 'var(--accent)';
+        actions.append(claimedLabel);
+      }
+
+      // Add participant button
+      var addPartBtn = node('button', 'admin-icon-btn');
+      addPartBtn.type = 'button';
+      addPartBtn.dataset.action = 'add-participant';
+      addPartBtn.dataset.id = t.id;
+      addPartBtn.setAttribute('aria-label', 'Ajouter un participant');
+      addPartBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg>';
+      actions.append(addPartBtn);
 
       if (t.status !== 'closed') {
         var closeBtn = node('button', 'admin-icon-btn');
@@ -1086,10 +1127,22 @@
     openDialog(ticketDialog);
 
     try {
-      var result = await db.from('montevia_ticket_messages').select('*').eq('ticket_id', id).order('created_at', { ascending: true });
-      var messages = result.error ? [] : (result.data || []);
+      var msgResult = await db.from('montevia_ticket_messages').select('*').eq('ticket_id', id).order('created_at', { ascending: true });
+      var messages = msgResult.error ? [] : (msgResult.data || []);
+
+      var partResult = await db.from('montevia_ticket_participants').select('*').eq('ticket_id', id);
+      var participants = partResult.error ? [] : (partResult.data || []);
 
       ticketConvBody.innerHTML = '';
+
+      // Infos opener
+      var infoDiv = document.createElement('div');
+      infoDiv.style.cssText = 'margin-bottom:12px;padding:12px 16px;background:var(--surface-3);border:1px solid var(--line);border-radius:12px;font-size:13px;';
+      infoDiv.innerHTML = '<strong>Ouvert par :</strong> ' + escapeHtml(ticket._openerName || ticket.user_id || 'Anonyme') +
+        '<br><strong>ID :</strong> ' + escapeHtml(ticket.user_id || '—') +
+        '<br><strong>Discord :</strong> ' + escapeHtml(ticket.discord_username || '—') +
+        (participants.length ? '<br><strong>Participants :</strong> ' + participants.length : '');
+      ticketConvBody.append(infoDiv);
 
       // Message initial
       var initMsg = document.createElement('div');
@@ -1135,6 +1188,31 @@
       openTicketConversation(currentTicketId);
     } catch (error) {
       showToast(errorMessage(error) || 'Envoi impossible.', 'error');
+    }
+  }
+
+  async function handleClaimTicket(id) {
+    if (!id) return;
+    try {
+      var result = await db.from('montevia_tickets').update({ claimed_by: currentProfile.id, claimed_at: new Date().toISOString(), status: 'in_progress' }).eq('id', id);
+      if (result.error) throw result.error;
+      showToast('Ticket pris en charge.');
+      await loadTickets();
+    } catch (error) {
+      showToast(errorMessage(error) || 'Action impossible.', 'error');
+    }
+  }
+
+  async function handleAddParticipant(ticketId) {
+    if (!ticketId) return;
+    var userId = prompt('UUID de l\'utilisateur à ajouter :');
+    if (!userId) return;
+    try {
+      var result = await db.from('montevia_ticket_participants').insert({ ticket_id: ticketId, user_id: userId.trim(), added_by: currentProfile.id });
+      if (result.error) throw result.error;
+      showToast('Participant ajouté.');
+    } catch (error) {
+      showToast(errorMessage(error) || 'Ajout impossible.', 'error');
     }
   }
 
@@ -1412,6 +1490,8 @@
         var button = event.target.closest('button[data-action]');
         if (!button) return;
         if (button.dataset.action === 'view-ticket') openTicketConversation(button.dataset.id);
+        if (button.dataset.action === 'claim-ticket') handleClaimTicket(button.dataset.id);
+        if (button.dataset.action === 'add-participant') handleAddParticipant(button.dataset.id);
         if (button.dataset.action === 'close-ticket') handleCloseTicket(button.dataset.id);
         if (button.dataset.action === 'delete-ticket') handleDeleteTicket(button.dataset.id);
       });
