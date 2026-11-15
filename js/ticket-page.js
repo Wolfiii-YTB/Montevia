@@ -72,7 +72,7 @@
   }
 
   function renderError(msg) {
-    var page = document.getElementById('ticketPage');
+    var page = document.getElementById('ticketApp');
     if (page) page.innerHTML = '<div class="ticket-page__error">' + escapeHtml(msg) + '</div>';
   }
 
@@ -247,7 +247,7 @@
   }
 
   function renderError(msg) {
-    var page = document.getElementById('ticketPage');
+    var page = document.getElementById('ticketApp');
     if (page) page.innerHTML = '<div class="ticket-page__error">' + escapeHtml(msg) + '</div>';
   }
 
