@@ -181,7 +181,7 @@
 
     var member = showcase.deck[showcase.index];
     var fragment = document.createDocumentFragment();
-    fragment.append(orgRow(member));
+    fragment.append(card(member, showcase.index));
 
     orgList.replaceChildren(fragment);
     orgList.classList.remove('is-swapping');
