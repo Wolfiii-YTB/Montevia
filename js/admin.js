@@ -63,6 +63,11 @@
   var imagePublished = document.getElementById('imagePublished');
   var saveImageBtn = document.getElementById('saveImageBtn');
 
+  var ticketsView = document.getElementById('ticketsView');
+  var ticketsTable = document.getElementById('ticketsTable');
+  var ticketsRows = document.getElementById('ticketsRows');
+  var ticketsEmpty = document.getElementById('ticketsEmpty');
+
   var memberDialog = document.getElementById('memberDialog');
   var memberForm = document.getElementById('memberForm');
   var memberDialogTitle = document.getElementById('memberDialogTitle');
@@ -102,7 +107,8 @@
     team: { el: teamView, title: 'Équipe' },
     access: { el: accessView, title: 'Accès' },
     settings: { el: settingsView, title: 'Liens' },
-    gallery: { el: galleryView, title: 'Galerie' }
+    gallery: { el: galleryView, title: 'Galerie' },
+    tickets: { el: ticketsView, title: 'Tickets' }
   };
 
   var db = null;
@@ -111,6 +117,7 @@
   var accessList = [];
   var allProfiles = [];
   var galleryList = [];
+  var ticketsList = [];
   var tableReady = false;
   var editingId = null;
   var deletingId = null;
@@ -389,6 +396,12 @@
       await loadGallery();
     } catch (error) {
       showToast("Impossible de charger la galerie : " + (errorMessage(error) || 'erreur réseau.'), 'error');
+    }
+
+    try {
+      await loadTickets();
+    } catch (error) {
+      showToast("Impossible de charger les tickets : " + (errorMessage(error) || 'erreur réseau.'), 'error');
     }
 
     return true;
@@ -931,6 +944,114 @@
     }
   }
 
+  async function loadTickets() {
+    try {
+      var result = await db
+        .from('montevia_tickets')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (result.error) {
+        if (isMissingTable(result.error)) {
+          ticketsList = [];
+          renderTickets();
+          return;
+        }
+        throw result.error;
+      }
+      ticketsList = Array.isArray(result.data) ? result.data : [];
+      renderTickets();
+    } catch (error) {
+      showToast("Impossible de charger les tickets : " + (errorMessage(error) || 'erreur réseau.'), 'error');
+    }
+  }
+
+  function renderTickets() {
+    ticketsRows.replaceChildren();
+
+    if (!ticketsList.length) {
+      ticketsTable.hidden = true;
+      ticketsEmpty.hidden = false;
+      return;
+    }
+
+    ticketsTable.hidden = false;
+    ticketsEmpty.hidden = true;
+
+    var fragment = document.createDocumentFragment();
+
+    ticketsList.forEach(function (t) {
+      var row = node('div', 'admin-row');
+      row.dataset.id = t.id;
+
+      var subjectCell = node('div', 'admin-row__member');
+      subjectCell.append(node('span', 'admin-row__text', t.subject));
+
+      var userCell = node('span', 'admin-row__role', t.discord_username || t.user_id || 'Anonyme');
+
+      var statusCell = node('span', 'admin-row__status');
+      var badgeClass = t.status === 'closed' ? 'admin-badge--draft' : 'admin-badge--live';
+      var badge = node('span', 'admin-badge ' + badgeClass, t.status === 'open' ? 'Ouvert' : (t.status === 'in_progress' ? 'En cours' : 'Fermé'));
+      statusCell.append(badge);
+
+      var dateCell = node('span', 'admin-row__pole', shortDate(t.created_at));
+
+      var actions = node('div', 'admin-row__actions');
+
+      if (t.status !== 'closed') {
+        var closeBtn = node('button', 'admin-icon-btn');
+        closeBtn.type = 'button';
+        closeBtn.dataset.action = 'close-ticket';
+        closeBtn.dataset.id = t.id;
+        closeBtn.setAttribute('aria-label', 'Fermer ce ticket');
+        closeBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+        actions.append(closeBtn);
+      }
+
+      var delBtn = node('button', 'admin-icon-btn admin-icon-btn--danger');
+      delBtn.type = 'button';
+      delBtn.dataset.action = 'delete-ticket';
+      delBtn.dataset.id = t.id;
+      delBtn.setAttribute('aria-label', 'Supprimer ce ticket');
+      delBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
+      actions.append(delBtn);
+
+      row.append(subjectCell);
+      row.append(userCell);
+      row.append(statusCell);
+      row.append(dateCell);
+      row.append(actions);
+
+      fragment.append(row);
+    });
+
+    ticketsRows.append(fragment);
+  }
+
+  async function handleCloseTicket(id) {
+    if (!id) return;
+    try {
+      var result = await db.from('montevia_tickets').update({ status: 'closed' }).eq('id', id);
+      if (result.error) throw result.error;
+      showToast('Ticket fermé.');
+      await loadTickets();
+    } catch (error) {
+      showToast(errorMessage(error) || 'Action impossible.', 'error');
+    }
+  }
+
+  async function handleDeleteTicket(id) {
+    if (!id) return;
+    try {
+      var result = await db.from('montevia_tickets').delete().eq('id', id);
+      if (result.error) throw result.error;
+      showToast('Ticket supprimé.');
+      await loadTickets();
+    } catch (error) {
+      showToast(errorMessage(error) || 'Suppression impossible.', 'error');
+    }
+  }
+
   async function grantAccessById(userId) {
     try {
       var result = await db.from('montevia_admin_access').insert({ user_id: userId, granted_by: currentProfile.id });
@@ -1190,6 +1311,15 @@
 
     if (imageForm) {
       imageForm.addEventListener('submit', handleImageSubmit);
+    }
+
+    if (ticketsRows) {
+      ticketsRows.addEventListener('click', function (event) {
+        var button = event.target.closest('button[data-action]');
+        if (!button) return;
+        if (button.dataset.action === 'close-ticket') handleCloseTicket(button.dataset.id);
+        if (button.dataset.action === 'delete-ticket') handleDeleteTicket(button.dataset.id);
+      });
     }
 
     if (accessRows) {

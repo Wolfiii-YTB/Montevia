@@ -99,6 +99,10 @@
           <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
           Galerie
         </button>
+        <button class="admin-nav__item" type="button" data-view="tickets">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/><path d="M9 4v16"/></svg>
+          Tickets
+        </button>
       </nav>
 
       <div class="admin-side__bottom">
@@ -340,6 +344,40 @@
             <h3>Aucune image pour le moment</h3>
             <p>Ajoute une première image pour commencer le carrousel.</p>
             <button class="btn btn--primary" type="button" data-add-image>Ajouter une image</button>
+          </div>
+        </section>
+
+        <section id="ticketsView" hidden>
+          <div class="admin-setup" data-setup hidden>
+            <div>
+              <strong>Base de données pas encore initialisée</strong>
+              <p>Exécute le script SQL dans Supabase, puis recharge cette page.</p>
+            </div>
+            <a class="btn btn--secondary btn--sm" href="supabase/montevia_admin.sql" download>Télécharger le script SQL</a>
+          </div>
+
+          <div class="admin-view-head">
+            <div>
+              <h2>Tickets</h2>
+              <p>Gère les demandes des membres.</p>
+            </div>
+          </div>
+
+          <div class="admin-table" id="ticketsTable">
+            <div class="admin-table__head">
+              <span>Sujet</span>
+              <span>Utilisateur</span>
+              <span>Statut</span>
+              <span>Date</span>
+              <span>Actions</span>
+            </div>
+            <div id="ticketsRows"></div>
+          </div>
+
+          <div class="admin-empty" id="ticketsEmpty" hidden>
+            <div class="admin-empty__icon" aria-hidden="true">✉</div>
+            <h3>Aucun ticket</h3>
+            <p>Aucune demande pour le moment.</p>
           </div>
         </section>
       </main>

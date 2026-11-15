@@ -308,6 +308,83 @@ notify pgrst, 'reload schema';
 -- select * from public.montevia_team_members order by sort_order, display_name;
 
 -- ============================================================
+-- Système de tickets
+-- ============================================================
+create table if not exists public.montevia_tickets (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete set null,
+  discord_username text not null default '',
+  subject text not null check (char_length(trim(subject)) between 1 and 120),
+  message text not null check (char_length(trim(message)) between 1 and 2000),
+  status text not null default 'open' check (status in ('open','in_progress','closed')),
+  priority text not null default 'normal' check (priority in ('low','normal','high')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  closed_at timestamptz
+);
+
+alter table public.montevia_tickets enable row level security;
+
+-- Lecture : l'utilisateur voit ses propres tickets, les admins voient tout
+drop policy if exists "users read own tickets" on public.montevia_tickets;
+create policy "users read own tickets"
+on public.montevia_tickets
+for select
+to authenticated
+using (user_id = auth.uid() or public.montevia_is_admin());
+
+-- Insertion : tout utilisateur authentifié peut créer un ticket
+drop policy if exists "users insert tickets" on public.montevia_tickets;
+create policy "users insert tickets"
+on public.montevia_tickets
+for insert
+to authenticated
+with check (user_id = auth.uid());
+
+-- Mise à jour : admins peuvent modifier le statut
+drop policy if exists "admins update tickets" on public.montevia_tickets;
+create policy "admins update tickets"
+on public.montevia_tickets
+for update
+to authenticated
+using (public.montevia_is_admin())
+with check (public.montevia_is_admin());
+
+-- Suppression : admins uniquement
+drop policy if exists "admins delete tickets" on public.montevia_tickets;
+create policy "admins delete tickets"
+on public.montevia_tickets
+for delete
+to authenticated
+using (public.montevia_is_admin());
+
+create index if not exists montevia_tickets_status_idx
+  on public.montevia_tickets (status, created_at desc);
+
+create or replace function public.montevia_touch_ticket()
+returns trigger
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+begin
+  new.updated_at = now();
+  if new.status = 'closed' and old.status <> 'closed' then
+    new.closed_at = now();
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists montevia_tickets_touch on public.montevia_tickets;
+create trigger montevia_tickets_touch
+before update on public.montevia_tickets
+for each row execute function public.montevia_touch_ticket();
+
+grant select, insert on table public.montevia_tickets to authenticated;
+grant update, delete on table public.montevia_tickets to authenticated;
+
+-- ============================================================
 -- Stockage des images (bucket public)
 -- ============================================================
 insert into storage.buckets (id, name, public)
