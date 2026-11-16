@@ -205,6 +205,9 @@
             </button>
           </div>
 
+          <div style="margin-bottom:12px;">
+            <input type="search" id="teamSearch" placeholder="Rechercher un membre…" style="width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--text);font-family:inherit;font-size:14px;">
+          </div>
           <div class="admin-table" id="teamTable">
             <div class="admin-table__head">
               <span>Membre</span>
@@ -299,6 +302,9 @@
                 </label>
                 <label>Lien Discord
                   <input id="settingDiscord" type="url" placeholder="https://discord.gg/..." required>
+                </label>
+                <label class="admin-form__full">Webhook Discord (notifications tickets)
+                  <input id="settingWebhook" type="url" placeholder="https://discord.com/api/webhooks/...">
                 </label>
               </div>
               <div class="admin-dialog__actions" style="padding:16px 0 0;">

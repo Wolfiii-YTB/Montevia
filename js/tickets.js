@@ -214,6 +214,31 @@
       return;
     }
 
+    // Envoyer une notification Discord via webhook (si configuré)
+    try {
+      var sb = getClient();
+      var { data: settings } = await sb.from('montevia_site_settings').select('value').eq('key', 'discord_webhook').maybeSingle();
+      if (settings && settings.value) {
+        await fetch(settings.value, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            embeds: [{
+              title: '🎫 Nouveau ticket',
+              description: '**' + subject + '**\n' + message,
+              color: 0x35d39a,
+              fields: [
+                { name: 'Utilisateur', value: discordName, inline: true },
+                { name: 'Catégorie', value: category, inline: true },
+                { name: 'Priorité', value: priority, inline: true }
+              ],
+              timestamp: new Date().toISOString()
+            }]
+          })
+        });
+      }
+    } catch (e) { /* ignore webhook errors */ }
+
     document.getElementById('ticketSubject').value = '';
     document.getElementById('ticketMessage').value = '';
     await loadMyTickets();

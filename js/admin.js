@@ -48,6 +48,7 @@
   var settingsForm = document.getElementById('settingsForm');
   var settingRoblox = document.getElementById('settingRoblox');
   var settingDiscord = document.getElementById('settingDiscord');
+  var settingWebhook = document.getElementById('settingWebhook');
 
   var galleryView = document.getElementById('galleryView');
   var galleryTable = document.getElementById('galleryTable');
@@ -547,10 +548,21 @@
     return button;
   }
 
+  var teamSearchQuery = '';
+
   function renderTeam() {
     teamRows.replaceChildren();
 
-    if (!members.length) {
+    var filtered = members.filter(function (m) {
+      if (!teamSearchQuery) return true;
+      var q = teamSearchQuery.toLowerCase();
+      return (m.display_name || '').toLowerCase().indexOf(q) !== -1 ||
+        (m.role_label || '').toLowerCase().indexOf(q) !== -1 ||
+        (m.username || '').toLowerCase().indexOf(q) !== -1 ||
+        (m.discord_username || '').toLowerCase().indexOf(q) !== -1;
+    });
+
+    if (!filtered.length) {
       teamTable.hidden = true;
       teamEmpty.hidden = false;
       teamEmptyText.textContent = tableReady
@@ -564,7 +576,7 @@
 
     var fragment = document.createDocumentFragment();
 
-    members.forEach(function (member) {
+    filtered.forEach(function (member) {
       var row = node('div', 'admin-row');
       row.dataset.id = member.id;
 
@@ -780,6 +792,7 @@
       rows.forEach(function (row) {
         if (row.key === 'roblox_url' && settingRoblox) settingRoblox.value = row.value || '';
         if (row.key === 'discord_url' && settingDiscord) settingDiscord.value = row.value || '';
+        if (row.key === 'discord_webhook' && settingWebhook) settingWebhook.value = row.value || '';
       });
     } catch (error) {
       console.warn('loadSettings failed', error);
@@ -790,11 +803,13 @@
     event.preventDefault();
     var roblox = settingRoblox.value.trim();
     var discord = settingDiscord.value.trim();
+    var webhook = settingWebhook ? settingWebhook.value.trim() : '';
 
     try {
       await db.from('montevia_site_settings').upsert({ key: 'roblox_url', value: roblox, updated_at: new Date().toISOString() });
       await db.from('montevia_site_settings').upsert({ key: 'discord_url', value: discord, updated_at: new Date().toISOString() });
-      showToast('Liens enregistrés.');
+      await db.from('montevia_site_settings').upsert({ key: 'discord_webhook', value: webhook, updated_at: new Date().toISOString() });
+      showToast('Paramètres enregistrés.');
     } catch (error) {
       showToast(errorMessage(error) || 'Enregistrement impossible.', 'error');
     }
@@ -1459,6 +1474,14 @@
 
     if (settingsForm) {
       settingsForm.addEventListener('submit', handleSettingsSubmit);
+    }
+
+    var teamSearch = document.getElementById('teamSearch');
+    if (teamSearch) {
+      teamSearch.addEventListener('input', function () {
+        teamSearchQuery = teamSearch.value;
+        renderTeam();
+      });
     }
 
     if (addImageBtn) {
