@@ -405,7 +405,10 @@
       var result = await sb.from('profiles').select('id,display_name,nickname').in('id', unique);
       if (result.error || !Array.isArray(result.data)) return;
       result.data.forEach(function (profile) {
-        namesById[profile.id] = profile.display_name || profile.nickname || namesById[profile.id];
+        var name = (profile.display_name && profile.display_name !== 'Membre') ? profile.display_name : null;
+        name = name || (profile.nickname && profile.nickname !== 'Membre' ? profile.nickname : null);
+        name = name || namesById[profile.id] || shortId(profile.id);
+        namesById[profile.id] = name;
       });
     } catch (e) { /* les noms sont un bonus, pas un bloquant */ }
   }
