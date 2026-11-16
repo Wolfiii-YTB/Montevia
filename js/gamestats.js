@@ -54,27 +54,7 @@
     }
   }
 
-  // Essayer le proxy live (fonctionne en localhost)
-  async function fetchLive() {
-    try {
-      var proxy = 'https://proxy.corsfix.com/?' + GAMES_URL;
-      var res = await fetchWithTimeout(proxy, 3000);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      var data = await res.json();
-      var game = data && data.data && data.data[0];
-      if (!game) throw new Error('no data');
-      return {
-        visits: game.visits,
-        playing: game.playing,
-        favorites: game.favoritedCount,
-        likes: null
-      };
-    } catch (e) {
-      return null;
-    }
-  }
-
-  // Fallback : fichier JSON mis à jour par GitHub Action
+  // Fichier JSON mis à jour par GitHub Action
   async function fetchJson() {
     try {
       var res = await fetchWithTimeout('data/stats.json', 3000, { cache: 'no-store' });
