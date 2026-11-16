@@ -458,6 +458,30 @@ create index if not exists montevia_ticket_messages_ticket_idx
   on public.montevia_ticket_messages (ticket_id, created_at);
 
 -- ============================================================
+-- Évolution tickets : catégories, priorité, notes internes
+-- ============================================================
+alter table public.montevia_tickets
+  add column if not exists category text not null default 'general'
+  check (category in ('general','bug','question','suggestion','autre'));
+
+alter table public.montevia_ticket_messages
+  add column if not exists is_internal boolean not null default false;
+
+-- Les notes internes ne sont visibles que par les admins
+drop policy if exists "read ticket messages" on public.montevia_ticket_messages;
+create policy "read ticket messages"
+on public.montevia_ticket_messages
+for select
+to authenticated
+using (
+  public.montevia_is_admin()
+  or (is_internal = false and exists (
+    select 1 from public.montevia_tickets t
+    where t.id = ticket_id and t.user_id = auth.uid()
+  ))
+);
+
+-- ============================================================
 -- Évolution tickets : claim, participants, infos opener
 -- ============================================================
 alter table public.montevia_tickets

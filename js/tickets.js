@@ -191,6 +191,8 @@
 
     var subject = document.getElementById('ticketSubject').value.trim();
     var message = document.getElementById('ticketMessage').value.trim();
+    var category = document.getElementById('ticketCategory')?.value || 'general';
+    var priority = document.getElementById('ticketPriority')?.value || 'normal';
     if (!subject || !message) return;
 
     // Capturer le pseudo Discord correctement
@@ -203,6 +205,8 @@
       discord_username: discordName,
       subject: subject,
       message: message,
+      category: category,
+      priority: priority,
       status: 'open'
     });
 

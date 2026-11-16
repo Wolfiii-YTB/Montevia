@@ -2401,6 +2401,33 @@ h1, h2, h3, h4 {
   border: 1px solid var(--line);
   border-bottom-left-radius: 4px;
 }
+.ticket-msg--internal {
+  opacity: 0.85;
+}
+.ticket-msg--internal .ticket-msg__bubble {
+  background: rgba(251, 191, 36, 0.08);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+}
+.ticket-msg__internal-badge {
+  font-size: 10px;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+}
+.ticket-internal-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-3);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ticket-internal-toggle input {
+  accent-color: var(--accent);
+}
 
 .ticket-sidebar {
   width: 300px;

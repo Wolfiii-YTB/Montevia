@@ -117,6 +117,24 @@
             <div id="ticketForm" hidden>
               <form id="ticketFormEl" class="ticket-form">
                 <div class="ticket-form__group">
+                  <label for="ticketCategory">Catégorie</label>
+                  <select id="ticketCategory" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-3);color:var(--text);font-family:inherit;font-size:14px;">
+                    <option value="general">Général</option>
+                    <option value="bug">Bug</option>
+                    <option value="question">Question</option>
+                    <option value="suggestion">Suggestion</option>
+                    <option value="autre">Autre</option>
+                  </select>
+                </div>
+                <div class="ticket-form__group">
+                  <label for="ticketPriority">Priorité</label>
+                  <select id="ticketPriority" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-3);color:var(--text);font-family:inherit;font-size:14px;">
+                    <option value="low">Basse</option>
+                    <option value="normal" selected>Normale</option>
+                    <option value="high">Haute</option>
+                  </select>
+                </div>
+                <div class="ticket-form__group">
                   <label for="ticketSubject">Sujet</label>
                   <input id="ticketSubject" type="text" maxlength="120" placeholder="Ex. Problème en jeu" required>
                 </div>

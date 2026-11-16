@@ -159,6 +159,13 @@
     messages.forEach(function (m) {
       var senderName = m.sender_type === 'admin' ? 'Admin' : (ticket.discord_username || 'Utilisateur');
       var msg = createMessage(senderName, m.message, m.created_at, m.sender_type);
+      if (m.is_internal) {
+        msg.classList.add('ticket-msg--internal');
+        var badge = document.createElement('span');
+        badge.className = 'ticket-msg__internal-badge';
+        badge.textContent = '🔒 Note interne';
+        msg.querySelector('.ticket-msg__meta').append(badge);
+      }
       chat.append(msg);
     });
 
@@ -172,6 +179,8 @@
       info.append(createInfoRow('Ouvert par', ticket.discord_username || ticket._openerName || 'Anonyme'));
       info.append(createInfoRow('ID utilisateur', ticket.user_id || '—'));
       info.append(createInfoRow('Pseudo Discord', ticket.discord_username || '—'));
+      info.append(createInfoRow('Catégorie', ticket.category || 'general'));
+      info.append(createInfoRow('Priorité', ticket.priority || 'normal'));
       info.append(createInfoRow('Créé le', new Date(ticket.created_at).toLocaleString('fr-FR')));
       if (ticket.claimed_by) info.append(createInfoRow('Pris en charge', ticket.claimed_by === currentUser?.id ? 'Vous' : ticket.claimed_by));
       if (ticket.priority) info.append(createInfoRow('Priorité', ticket.priority));
@@ -198,7 +207,8 @@
     if (ticket.status === 'closed' || (!isAdmin && currentUser?.id !== ticket.user_id)) {
       input.innerHTML = '<div class="ticket-input__closed">Ce ticket est fermé.</div>';
     } else {
-      input.innerHTML = '<form id="replyForm" class="ticket-input__form"><textarea id="replyMsg" placeholder="Envoyer un message…" rows="1"></textarea><button type="submit" class="ticket-input__send" title="Envoyer"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></form>';
+      var internalCheckbox = isAdmin ? '<label class="ticket-internal-toggle"><input type="checkbox" id="internalNote"> Note interne</label>' : '';
+      input.innerHTML = '<form id="replyForm" class="ticket-input__form">' + internalCheckbox + '<textarea id="replyMsg" placeholder="Envoyer un message…" rows="1"></textarea><button type="submit" class="ticket-input__send" title="Envoyer"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></form>';
       var form = document.getElementById('replyForm');
       form.addEventListener('submit', async function (e) {
         e.preventDefault();
@@ -206,11 +216,13 @@
         var text = textarea.value.trim();
         if (!text) return;
         var senderType = isAdmin ? 'admin' : 'user';
+        var isInternal = isAdmin && document.getElementById('internalNote')?.checked;
         await client.from('montevia_ticket_messages').insert({
           ticket_id: ticket.id,
           sender_id: currentUser.id,
           sender_type: senderType,
-          message: text
+          message: text,
+          is_internal: !!isInternal
         });
         textarea.value = '';
         loadTicket();
@@ -270,8 +282,21 @@
     if (page) page.innerHTML = '<div class="ticket-page__error">' + escapeHtml(msg) + '</div>';
   }
 
+  var pollTimer = null;
+
   async function init() {
     await loadTicket();
+    // Auto-refresh toutes les 5 secondes
+    pollTimer = setInterval(async function () {
+      if (!ticket) return;
+      var sb = getClient();
+      if (!sb) return;
+      var { data: msgs } = await sb.from('montevia_ticket_messages').select('*').eq('ticket_id', ticket.id).order('created_at', { ascending: true });
+      var { data: t } = await sb.from('montevia_tickets').select('*').eq('id', ticket.id).maybeSingle();
+      if (t) ticket = t;
+      messages = msgs || messages;
+      render();
+    }, 5000);
   }
 
   if (document.readyState === 'loading') {
