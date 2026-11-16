@@ -3,8 +3,14 @@
 (function () {
   'use strict';
 
-  var SUPABASE_URL = 'https://bylwvlxxvgumvqgpwgod.supabase.co';
-  var SUPABASE_KEY = 'sb_publishable_T3XYbDWXV5VaC8WQj3CZOQ_LmB7CTwv';
+  var FALLBACK_CONFIG = {
+    url: 'https://bylwvlxxvgumvqgpwgod.supabase.co',
+    anonKey: 'sb_publishable_T3XYbDWXV5VaC8WQj3CZOQ_LmB7CTwv'
+  };
+
+  function getConfig() {
+    return window.MONTEVIA_SUPABASE || FALLBACK_CONFIG;
+  }
 
   function safeHttps(value) {
     try {
@@ -35,7 +41,9 @@
         setTimeout(load, 500);
         return;
       }
-      var client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      var config = getConfig();
+      if (!config || !config.url || !config.anonKey) { setTimeout(load, 500); return; }
+      var client = window.supabase.createClient(config.url, config.anonKey);
       var result = await client.from('montevia_site_settings').select('*');
       if (result.error) return;
       var settings = {};

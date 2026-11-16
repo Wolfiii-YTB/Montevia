@@ -3,8 +3,14 @@
 (function () {
   'use strict';
 
-  var SUPABASE_URL = 'https://bylwvlxxvgumvqgpwgod.supabase.co';
-  var SUPABASE_KEY = 'sb_publishable_T3XYbDWXV5VaC8WQj3CZOQ_LmB7CTwv';
+  var FALLBACK_CONFIG = {
+    url: 'https://bylwvlxxvgumvqgpwgod.supabase.co',
+    anonKey: 'sb_publishable_T3XYbDWXV5VaC8WQj3CZOQ_LmB7CTwv'
+  };
+
+  function getConfig() {
+    return window.MONTEVIA_SUPABASE || FALLBACK_CONFIG;
+  }
 
   var client = null;
   var currentUser = null;
@@ -13,7 +19,9 @@
   function getClient() {
     if (client) return client;
     if (!window.supabase || typeof window.supabase.createClient !== 'function') return null;
-    client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    var config = getConfig();
+    if (!config || !config.url || !config.anonKey) return null;
+    client = window.supabase.createClient(config.url, config.anonKey);
     return client;
   }
 

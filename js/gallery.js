@@ -3,12 +3,25 @@
 (function () {
   'use strict';
 
-  var SUPABASE_URL = 'https://bylwvlxxvgumvqgpwgod.supabase.co';
-  var SUPABASE_KEY = 'sb_publishable_T3XYbDWXV5VaC8WQj3CZOQ_LmB7CTwv';
+  var FALLBACK_CONFIG = {
+    url: 'https://bylwvlxxvgumvqgpwgod.supabase.co',
+    anonKey: 'sb_publishable_T3XYbDWXV5VaC8WQj3CZOQ_LmB7CTwv'
+  };
 
   var images = [];
   var current = 0;
   var timer = null;
+
+  function getConfig() {
+    return window.MONTEVIA_SUPABASE || FALLBACK_CONFIG;
+  }
+
+  function node(tag, className, text) {
+    var el = document.createElement(tag);
+    if (className) el.className = className;
+    if (text !== undefined) el.textContent = text;
+    return el;
+  }
 
   function render() {
     var container = document.getElementById('carousel');
@@ -89,26 +102,28 @@
     }, 5000);
   }
 
-  function node(tag, className, text) {
-    var el = document.createElement(tag);
-    if (className) el.className = className;
-    if (text !== undefined) el.textContent = text;
-    return el;
-  }
-
   async function load() {
     try {
       if (!window.supabase || typeof window.supabase.createClient !== 'function') {
         setTimeout(load, 500);
         return;
       }
-      var client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      var config = getConfig();
+      if (!config || !config.url || !config.anonKey) {
+        setTimeout(load, 500);
+        return;
+      }
+      var client = window.supabase.createClient(config.url, config.anonKey);
       var result = await client.from('montevia_gallery').select('*').eq('published', true).order('sort_order', { ascending: true });
       if (result.error) throw result.error;
       images = Array.isArray(result.data) ? result.data : [];
       render();
     } catch (e) {
       console.warn('gallery: load failed', e);
+      var container = document.getElementById('carousel');
+      if (container) {
+        container.innerHTML = '<div class="carousel__empty">Impossible de charger la galerie.</div>';
+      }
     }
   }
 
