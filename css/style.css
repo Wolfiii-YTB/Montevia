@@ -1197,6 +1197,17 @@ h1, h2, h3, h4 {
 @media (max-width: 560px) {
   :root { --pad: 20px; }
 
+  /* Compte */
+  .account-card { padding: 20px; border-radius: 18px; }
+  .account-profile { flex-direction: column; text-align: center; }
+  .account-profile > div { text-align: center; }
+  .account-linked__row { flex-wrap: wrap; gap: 8px; }
+
+  /* Tickets */
+  .ticket-item { padding: 14px 16px; }
+  .ticket-item__foot { flex-wrap: wrap; gap: 6px; }
+  .ticket-card { padding: 20px; border-radius: 18px; }
+
   .member--showcase {
     max-width: 100%;
     padding: 20px;
