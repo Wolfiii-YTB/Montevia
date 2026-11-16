@@ -599,6 +599,19 @@
   <script src="js/gamestats.js?v=2" defer></script>
   <script src="js/faq-search.js" defer></script>
   <script src="js/changelog.js" defer></script>
+  <button class="back-to-top" id="backToTop" aria-label="Retour en haut">↑</button>
+  <script>
+    (function() {
+      var btn = document.getElementById('backToTop');
+      if (!btn) return;
+      window.addEventListener('scroll', function() {
+        btn.classList.toggle('is-visible', window.scrollY > 400);
+      });
+      btn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    })();
+  </script>
   <script src="js/gallery.js" defer></script>
   <script src="js/tickets.js" defer></script>
   <script src="js/settings.js" defer></script>
