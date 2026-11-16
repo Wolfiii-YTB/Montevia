@@ -1828,6 +1828,87 @@ h1, h2, h3, h4 {
   50% { transform: translateY(-4px); }
 }
 
+/* ---------- animations supplémentaires ---------- */
+
+/* Sidebar button hover */
+.side-nav__link {
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, color .2s ease;
+}
+.side-nav__link:hover {
+  transform: translateX(-4px) scale(1.03);
+  box-shadow: 0 4px 16px rgba(53, 211, 154, 0.15);
+}
+
+/* Card hover lift */
+.card, .admin-card, .admin-row {
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.card:hover, .admin-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* Smooth fade-in for sections */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.section, .hero, .metrics {
+  animation: fadeInUp .6s ease both;
+}
+
+/* Button click pulse */
+.btn:active {
+  transform: scale(0.97);
+  transition: transform .1s ease;
+}
+
+/* Sidebar entrance */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateY(-50%) translateX(20px); }
+  to { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+.side-nav {
+  animation: slideInRight .5s ease .3s both;
+}
+
+/* Smooth scroll indicator */
+.progress {
+  transition: width .1s linear;
+}
+
+/* Metric counter pulse */
+@keyframes metricPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.metric__value {
+  animation: metricPulse 2s ease-in-out infinite;
+}
+
+/* Toast slide-in */
+@keyframes toastSlide {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.admin-toast, .ticket-toast {
+  animation: toastSlide .3s ease both;
+}
+
+/* Dialog open animation */
+dialog[open] {
+  animation: fadeInUp .25s ease both;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.loading-spinner, .admin-boot__spinner {
+  animation: spin 1s linear infinite;
+}
+
 /* Hero title — solid color for readability */
 .hero h1,
 .page-hero h1 {
