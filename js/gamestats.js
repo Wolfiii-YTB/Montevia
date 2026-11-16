@@ -86,23 +86,6 @@
   }
 
   async function update() {
-    // 1. Essayer le live
-    var live = await fetchLive();
-    if (live) {
-      // Récupérer les votes si possible
-      try {
-        var vRes = await fetchWithTimeout('https://proxy.corsfix.com/?https://games.roblox.com/v1/games/votes?universeIds=' + UNIVERSE_ID, 3000);
-        if (vRes.ok) {
-          var vData = await vRes.json();
-          live.likes = vData?.data?.[0]?.upVotes ?? live.likes;
-        }
-      } catch (e) {}
-      saveCache(live);
-      applyData(live);
-      return;
-    }
-
-    // 2. Sinon fallback JSON
     var json = await fetchJson();
     if (json) {
       saveCache(json);
