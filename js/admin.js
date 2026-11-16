@@ -56,6 +56,7 @@
   var galleryEmpty = document.getElementById('galleryEmpty');
   var addImageBtn = document.getElementById('addImageBtn');
   var imageDialog = document.getElementById('imageDialog');
+  var imageDialogTitle = document.getElementById('imageDialogTitle');
   var imageForm = document.getElementById('imageForm');
   var imageId = document.getElementById('imageId');
   var imageUrl = document.getElementById('imageUrl');
@@ -84,6 +85,7 @@
   var changelogEmpty = document.getElementById('changelogEmpty');
   var addChangelogBtn = document.getElementById('addChangelogBtn');
   var changelogDialog = document.getElementById('changelogDialog');
+  var changelogDialogTitle = document.getElementById('changelogDialogTitle');
   var changelogForm = document.getElementById('changelogForm');
   var changelogId = document.getElementById('changelogId');
   var changelogVersion = document.getElementById('changelogVersion');
