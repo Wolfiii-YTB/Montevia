@@ -39,8 +39,12 @@ function node(tag, className, text) {
 
 function safeHttps(url) {
   if (!url) return null;
-  var protocol = String(url).split('://')[0];
-  return (protocol === 'http' || protocol === '') ? 'https://' + url : url;
+  try {
+    var parsed = new URL(String(url).trim());
+    return parsed.protocol === 'https:' ? parsed.href : null;
+  } catch (e) {
+    return null;
+  }
 }
 
 function initials(name) {
