@@ -30,7 +30,9 @@
     if (!window.supabase || typeof window.supabase.createClient !== 'function') return null;
     var config = getConfig();
     if (!config || !config.url || !config.anonKey) return null;
-    client = window.supabase.createClient(config.url, config.anonKey);
+    client = window.supabase.createClient(config.url, config.anonKey, {
+      auth: { detectSessionInUrl: true, persistSession: true }
+    });
     return client;
   }
 
