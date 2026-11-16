@@ -80,12 +80,27 @@
     var sb = getClient();
     if (!sb) { setTimeout(loadTicket, 500); return; }
 
+    // Timeout de 10s pour éviter le chargement infini
+    var timeoutPromise = new Promise(function (resolve) {
+      setTimeout(function () { resolve({ data: null, error: new Error('Délai dépassé. Vérifiez votre connexion.') }); }, 10000);
+    });
+
     var { data: { session } } = await sb.auth.getSession();
     currentUser = session ? session.user : null;
     isAdmin = await checkAdmin();
 
-    var { data: t, error } = await sb.from('montevia_tickets').select('*').eq('id', id).maybeSingle();
-    if (error) { renderError('Erreur : ' + error.message); return; }
+    var { data: t, error } = await Promise.race([
+      sb.from('montevia_tickets').select('*').eq('id', id).maybeSingle(),
+      timeoutPromise
+    ]);
+    if (error) {
+      if (error.code === '42P01' || /does not exist/i.test(error.message)) {
+        renderError('La table des tickets n\'existe pas encore. Exécutez le script SQL dans Supabase.');
+      } else {
+        renderError('Erreur : ' + error.message);
+      }
+      return;
+    }
     if (!t) { renderError('Ticket introuvable. Vérifiez l\'URL ou vos droits d\'accès.'); return; }
     ticket = t;
 
@@ -103,7 +118,7 @@
 
   function renderError(msg) {
     var page = document.getElementById('ticketApp');
-    if (page) page.innerHTML = '<div class="ticket-page__error">' + escapeHtml(msg) + '</div>';
+    if (page) page.innerHTML = '<div class="ticket-page__error">' + escapeHtml(msg) + '<br><button class="btn btn--secondary" style="margin-top:16px;" onclick="window.location.reload()">Réessayer</button></div>';
   }
 
   function render() {
@@ -303,7 +318,7 @@
 
   function renderError(msg) {
     var page = document.getElementById('ticketApp');
-    if (page) page.innerHTML = '<div class="ticket-page__error">' + escapeHtml(msg) + '</div>';
+    if (page) page.innerHTML = '<div class="ticket-page__error">' + escapeHtml(msg) + '<br><button class="btn btn--secondary" style="margin-top:16px;" onclick="window.location.reload()">Réessayer</button></div>';
   }
 
   var pollTimer = null;
