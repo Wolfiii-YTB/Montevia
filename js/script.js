@@ -106,6 +106,11 @@
         links.forEach(function (link) {
           link.classList.toggle('is-active', link.getAttribute('href') === id);
         });
+        // side-nav highlight
+        var sideLinks = document.querySelectorAll('.side-nav__link');
+        sideLinks.forEach(function (link) {
+          link.classList.toggle('is-active', link.getAttribute('href') === id);
+        });
       });
     }, { rootMargin: '-42% 0px -54% 0px' });
 

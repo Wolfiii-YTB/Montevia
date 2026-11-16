@@ -315,6 +315,53 @@ h1, h2, h3, h4 {
 .burger[aria-expanded="true"] span:nth-child(1) { transform: translateY(3px) rotate(45deg); }
 .burger[aria-expanded="true"] span:nth-child(2) { transform: translateY(-3px) rotate(-45deg); }
 
+/* ---------- side navigation (in-page anchors) ---------- */
+
+.side-nav {
+  position: fixed;
+  top: 86px;
+  left: 24px;
+  width: 180px;
+  z-index: 50;
+}
+
+.side-nav__list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(9, 11, 15, 0.72);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.side-nav__link {
+  display: block;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-2);
+  transition: color .15s ease, background-color .15s ease;
+}
+
+.side-nav__link:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.side-nav__link.is-active {
+  color: var(--accent);
+  background: var(--accent-soft, rgba(53, 211, 154, 0.1));
+}
+
+/* Hide sidebar on smaller screens */
+@media (max-width: 1280px) {
+  .side-nav { display: none; }
+}
+
 /* ---------- hero ---------- */
 
 .hero {
