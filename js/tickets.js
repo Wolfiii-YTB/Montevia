@@ -198,7 +198,6 @@
     // Capturer le pseudo Discord correctement
     var meta = currentUser.user_metadata || {};
     var discordName = meta.preferred_username || meta.user_name || meta.name || meta.full_name || currentUser.email || 'Inconnu';
-    console.log('Discord user metadata:', JSON.stringify(meta));
 
     var { error } = await sb.from('montevia_tickets').insert({
       user_id: currentUser.id,

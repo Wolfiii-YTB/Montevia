@@ -114,11 +114,9 @@
     if (!sb) { alert('Supabase non chargé. Recharge la page.'); return; }
     if (!currentUser) { alert('Vous devez être connecté pour lier un compte.'); return; }
 
-    console.log('Tentative de liaison avec', provider, 'pour', currentUser.id);
 
     try {
       var { data, error } = await sb.auth.linkIdentity({ provider: provider });
-      console.log('linkIdentity result:', data, error);
       if (error) {
         alert('Erreur Supabase : ' + error.message);
         return;
