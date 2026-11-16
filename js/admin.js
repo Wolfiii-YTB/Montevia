@@ -76,6 +76,20 @@
 
   var currentTicketId = null;
 
+  var changelogView = document.getElementById('changelogView');
+  var changelogTable = document.getElementById('changelogTable');
+  var changelogRows = document.getElementById('changelogRows');
+  var changelogEmpty = document.getElementById('changelogEmpty');
+  var addChangelogBtn = document.getElementById('addChangelogBtn');
+  var changelogDialog = document.getElementById('changelogDialog');
+  var changelogForm = document.getElementById('changelogForm');
+  var changelogId = document.getElementById('changelogId');
+  var changelogVersion = document.getElementById('changelogVersion');
+  var changelogTitle = document.getElementById('changelogTitle');
+  var changelogContent = document.getElementById('changelogContent');
+  var changelogPublished = document.getElementById('changelogPublished');
+  var saveChangelogBtn = document.getElementById('saveChangelogBtn');
+
   var memberDialog = document.getElementById('memberDialog');
   var memberForm = document.getElementById('memberForm');
   var memberDialogTitle = document.getElementById('memberDialogTitle');
@@ -116,7 +130,8 @@
     access: { el: accessView, title: 'Accès' },
     settings: { el: settingsView, title: 'Liens' },
     gallery: { el: galleryView, title: 'Galerie' },
-    tickets: { el: ticketsView, title: 'Tickets' }
+    tickets: { el: ticketsView, title: 'Tickets' },
+    changelog: { el: changelogView, title: 'Changelog' }
   };
 
   var db = null;
@@ -126,6 +141,7 @@
   var allProfiles = [];
   var galleryList = [];
   var ticketsList = [];
+  var changelogList = [];
   var tableReady = false;
   var editingId = null;
   var deletingId = null;
@@ -419,6 +435,12 @@
       await loadTickets();
     } catch (error) {
       showToast("Impossible de charger les tickets : " + (errorMessage(error) || 'erreur réseau.'), 'error');
+    }
+
+    try {
+      await loadChangelog();
+    } catch (error) {
+      showToast("Impossible de charger le changelog : " + (errorMessage(error) || 'erreur réseau.'), 'error');
     }
 
     return true;
@@ -1231,6 +1253,108 @@
     }
   }
 
+  async function loadChangelog() {
+    try {
+      var result = await db.from('montevia_changelog').select('*').order('created_at', { ascending: false });
+      if (result.error) {
+        if (isMissingTable(result.error)) { changelogList = []; renderChangelog(); return; }
+        throw result.error;
+      }
+      changelogList = Array.isArray(result.data) ? result.data : [];
+      renderChangelog();
+    } catch (error) {
+      showToast("Impossible de charger le changelog : " + (errorMessage(error) || 'erreur réseau.'), 'error');
+    }
+  }
+
+  function renderChangelog() {
+    changelogRows.replaceChildren();
+    if (!changelogList.length) {
+      changelogTable.hidden = true;
+      changelogEmpty.hidden = false;
+      return;
+    }
+    changelogTable.hidden = false;
+    changelogEmpty.hidden = true;
+    var fragment = document.createDocumentFragment();
+    changelogList.forEach(function (entry) {
+      var row = node('div', 'admin-row');
+      row.dataset.id = entry.id;
+      var verCell = node('div', 'admin-row__member');
+      verCell.append(node('span', 'admin-row__text', 'v' + entry.version));
+      var titleCell = node('span', 'admin-row__role', entry.title);
+      var statusCell = node('span', 'admin-row__status');
+      var badge = node('span', 'admin-badge ' + (entry.published ? 'admin-badge--live' : 'admin-badge--draft'), entry.published ? 'Publié' : 'Brouillon');
+      statusCell.append(badge);
+      var dateCell = node('span', 'admin-row__pole', shortDate(entry.created_at));
+      var actions = node('div', 'admin-row__actions');
+      var delBtn = node('button', 'admin-icon-btn admin-icon-btn--danger');
+      delBtn.type = 'button';
+      delBtn.dataset.action = 'delete-changelog';
+      delBtn.dataset.id = entry.id;
+      delBtn.setAttribute('aria-label', 'Supprimer');
+      delBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
+      actions.append(delBtn);
+      row.append(verCell);
+      row.append(titleCell);
+      row.append(statusCell);
+      row.append(dateCell);
+      row.append(actions);
+      fragment.append(row);
+    });
+    changelogRows.append(fragment);
+  }
+
+  function openChangelogForm() {
+    changelogForm.reset();
+    changelogId.value = '';
+    changelogPublished.checked = true;
+    changelogDialogTitle.textContent = 'Ajouter une entrée';
+    saveChangelogBtn.textContent = 'Ajouter';
+    openDialog(changelogDialog);
+    window.setTimeout(function () { changelogVersion.focus(); }, 30);
+  }
+
+  async function handleChangelogSubmit(event) {
+    event.preventDefault();
+    var version = changelogVersion.value.trim();
+    var title = changelogTitle.value.trim();
+    var content = changelogContent.value.trim();
+    if (!version || !title || !content) {
+      showToast('Tous les champs sont obligatoires.', 'error');
+      return;
+    }
+    setBusy(saveChangelogBtn, true, 'Enregistrement…');
+    try {
+      var result = await db.from('montevia_changelog').insert({
+        version: version,
+        title: title,
+        content: content,
+        published: changelogPublished.checked
+      });
+      if (result.error) throw result.error;
+      closeDialog(changelogDialog);
+      showToast('Entrée ajoutée.');
+      await loadChangelog();
+    } catch (error) {
+      showToast(errorMessage(error) || 'Enregistrement impossible.', 'error');
+    } finally {
+      setBusy(saveChangelogBtn, false);
+    }
+  }
+
+  async function handleDeleteChangelog(id) {
+    if (!id) return;
+    try {
+      var result = await db.from('montevia_changelog').delete().eq('id', id);
+      if (result.error) throw result.error;
+      showToast('Entrée supprimée.');
+      await loadChangelog();
+    } catch (error) {
+      showToast(errorMessage(error) || 'Suppression impossible.', 'error');
+    }
+  }
+
   async function grantAccessById(userId) {
     try {
       var result = await db.from('montevia_admin_access').insert({ user_id: userId, granted_by: currentProfile.id });
@@ -1504,6 +1628,32 @@
       imageForm.addEventListener('submit', handleImageSubmit);
     }
 
+    if (addChangelogBtn) {
+      addChangelogBtn.addEventListener('click', function () { openChangelogForm(); });
+    }
+    document.querySelectorAll('[data-add-changelog]').forEach(function (btn) {
+      btn.addEventListener('click', function () { openChangelogForm(); });
+    });
+    if (changelogForm) {
+      changelogForm.addEventListener('submit', handleChangelogSubmit);
+    }
+    if (changelogRows) {
+      changelogRows.addEventListener('click', function (event) {
+        var button = event.target.closest('button[data-action="delete-changelog"]');
+        if (!button) return;
+        handleDeleteChangelog(button.dataset.id);
+      });
+    }
+    [changelogDialog].forEach(function (dialog) {
+      dialog.addEventListener('click', function (event) {
+        if (event.target !== dialog) return;
+        var rect = dialog.getBoundingClientRect();
+        var inside = event.clientX >= rect.left && event.clientX <= rect.right &&
+          event.clientY >= rect.top && event.clientY <= rect.bottom;
+        if (!inside) closeDialog(dialog);
+      });
+    });
+
     if (ticketReplyForm) {
       ticketReplyForm.addEventListener('submit', handleTicketReply);
     }
@@ -1548,7 +1698,7 @@
       });
     });
 
-    [memberDialog, deleteDialog, imageDialog, ticketDialog].forEach(function (dialog) {
+    [memberDialog, deleteDialog, imageDialog, ticketDialog, changelogDialog].forEach(function (dialog) {
       dialog.addEventListener('click', function (event) {
         if (event.target !== dialog) return;
         var rect = dialog.getBoundingClientRect();

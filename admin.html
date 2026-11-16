@@ -103,6 +103,10 @@
           <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/><path d="M9 4v16"/></svg>
           Tickets
         </button>
+        <button class="admin-nav__item" type="button" data-view="changelog">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+          Changelog
+        </button>
       </nav>
 
       <div class="admin-side__bottom">
@@ -386,6 +390,45 @@
             <p>Aucune demande pour le moment.</p>
           </div>
         </section>
+
+        <section id="changelogView" hidden>
+          <div class="admin-setup" data-setup hidden>
+            <div>
+              <strong>Base de données pas encore initialisée</strong>
+              <p>Exécute le script SQL dans Supabase, puis recharge cette page.</p>
+            </div>
+            <a class="btn btn--secondary btn--sm" href="supabase/montevia_admin.sql" download>Télécharger le script SQL</a>
+          </div>
+
+          <div class="admin-view-head">
+            <div>
+              <h2>Changelog</h2>
+              <p>Gère les notes de mise à jour affichées sur le site.</p>
+            </div>
+            <button class="btn btn--primary" id="addChangelogBtn" type="button">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              Ajouter une entrée
+            </button>
+          </div>
+
+          <div class="admin-table" id="changelogTable">
+            <div class="admin-table__head">
+              <span>Version</span>
+              <span>Titre</span>
+              <span>Statut</span>
+              <span>Date</span>
+              <span>Actions</span>
+            </div>
+            <div id="changelogRows"></div>
+          </div>
+
+          <div class="admin-empty" id="changelogEmpty" hidden>
+            <div class="admin-empty__icon" aria-hidden="true">＋</div>
+            <h3>Aucune entrée</h3>
+            <p>Ajoute une première note de mise à jour.</p>
+            <button class="btn btn--primary" type="button" data-add-changelog>Ajouter une entrée</button>
+          </div>
+        </section>
       </main>
     </div>
   </div>
@@ -528,6 +571,40 @@
       <div class="admin-dialog__actions" style="padding:12px 0 0;">
         <button class="btn btn--secondary" type="button" data-close-dialog>Annuler</button>
         <button class="btn btn--primary" type="submit">Envoyer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="admin-dialog" id="changelogDialog" aria-labelledby="changelogDialogTitle">
+    <form id="changelogForm" class="admin-form">
+      <div class="admin-dialog__head">
+        <div>
+          <span class="tag">Changelog</span>
+          <h2 id="changelogDialogTitle">Ajouter une entrée</h2>
+        </div>
+        <button class="admin-icon-btn" type="button" data-close-dialog aria-label="Fermer la fenêtre">×</button>
+      </div>
+      <div class="admin-form__body">
+        <input type="hidden" id="changelogId">
+        <div class="admin-form__grid">
+          <label>Version
+            <input id="changelogVersion" type="text" maxlength="20" placeholder="Ex. 1.0.0" required>
+          </label>
+          <label>Titre
+            <input id="changelogTitle" type="text" maxlength="120" placeholder="Ex. Nouveau système de tickets" required>
+          </label>
+          <label class="admin-form__full">Contenu
+            <textarea id="changelogContent" rows="4" maxlength="2000" placeholder="Description des changements…" required></textarea>
+          </label>
+        </div>
+        <label class="admin-check">
+          <input id="changelogPublished" type="checkbox" checked>
+          <span>Publier sur le site</span>
+        </label>
+      </div>
+      <div class="admin-dialog__actions">
+        <button class="btn btn--secondary" type="button" data-close-dialog>Annuler</button>
+        <button class="btn btn--primary" type="submit" id="saveChangelogBtn">Ajouter</button>
       </div>
     </form>
   </dialog>

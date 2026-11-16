@@ -434,6 +434,9 @@
           <span class="tag">Questions fréquentes</span>
           <h2>Tout ce qu'il faut savoir</h2>
         </div>
+        <div class="faq-search reveal">
+          <input type="search" id="faqSearch" placeholder="Rechercher une question…" style="width:100%;max-width:480px;margin:0 auto 24px;display:block;padding:12px 16px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--text);font-family:inherit;font-size:14px;">
+        </div>
 
         <div class="faq">
           <div class="faq__item reveal">
@@ -501,6 +504,18 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- CHANGELOG -->
+    <section class="section" id="changelog">
+      <div class="wrap">
+        <div class="section-head section-head--center reveal">
+          <span class="tag">Mises à jour</span>
+          <h2>Changelog</h2>
+          <p>Les dernières nouveautés de Montevia.</p>
+        </div>
+        <div class="changelog-list" id="changelogList"></div>
       </div>
     </section>
 
@@ -582,6 +597,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="js/script.js"></script>
   <script src="js/gamestats.js?v=2" defer></script>
+  <script src="js/faq-search.js" defer></script>
+  <script src="js/changelog.js" defer></script>
   <script src="js/gallery.js" defer></script>
   <script src="js/tickets.js" defer></script>
   <script src="js/settings.js" defer></script>

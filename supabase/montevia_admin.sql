@@ -458,6 +458,56 @@ create index if not exists montevia_ticket_messages_ticket_idx
   on public.montevia_ticket_messages (ticket_id, created_at);
 
 -- ============================================================
+-- Changelog / Patch notes
+-- ============================================================
+create table if not exists public.montevia_changelog (
+  id uuid primary key default gen_random_uuid(),
+  version text not null check (char_length(trim(version)) between 1 and 20),
+  title text not null check (char_length(trim(title)) between 1 and 120),
+  content text not null check (char_length(trim(content)) between 1 and 2000),
+  published boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.montevia_changelog enable row level security;
+
+drop policy if exists "public read published changelog" on public.montevia_changelog;
+create policy "public read published changelog"
+on public.montevia_changelog
+for select
+to anon, authenticated
+using (published = true);
+
+drop policy if exists "admins all changelog" on public.montevia_changelog;
+create policy "admins all changelog"
+on public.montevia_changelog
+for all
+to authenticated
+using (public.montevia_is_admin())
+with check (public.montevia_is_admin());
+
+grant select on table public.montevia_changelog to anon, authenticated;
+grant insert, update, delete on table public.montevia_changelog to authenticated;
+
+create or replace function public.montevia_touch_changelog()
+returns trigger
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists montevia_changelog_touch on public.montevia_changelog;
+create trigger montevia_changelog_touch
+before update on public.montevia_changelog
+for each row execute function public.montevia_touch_changelog();
+
+-- ============================================================
 -- Évolution tickets : catégories, priorité, notes internes
 -- ============================================================
 alter table public.montevia_tickets

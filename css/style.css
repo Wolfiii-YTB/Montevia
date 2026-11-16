@@ -2715,6 +2715,54 @@ h1, h2, h3, h4 {
   text-align: center;
 }
 
+/* --- changelog --- */
+.changelog-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.changelog-entry {
+  background: linear-gradient(160deg, var(--surface-2), var(--surface));
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  transition: border-color .2s ease, transform .2s var(--ease);
+}
+.changelog-entry:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-2px);
+}
+.changelog-entry__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.changelog-entry__version {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--accent-line);
+}
+.changelog-entry__date {
+  font-size: 12px;
+  color: var(--text-3);
+}
+.changelog-entry__title {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+.changelog-entry__content {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+
 /* --- principes --- */
 
 .principles {
