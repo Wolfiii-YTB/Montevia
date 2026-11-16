@@ -28,6 +28,14 @@
 
     var { data: { session } } = await sb.auth.getSession();
     currentUser = session ? session.user : null;
+
+    // Marquer l'utilisateur comme venant de Montevia (pour éviter les notifs DevReports)
+    if (currentUser && (!currentUser.user_metadata || currentUser.user_metadata.site !== 'montevia')) {
+      try {
+        await sb.auth.updateUser({ data: { site: 'montevia' } });
+      } catch (e) { /* ignore */ }
+    }
+
     render();
   }
 
