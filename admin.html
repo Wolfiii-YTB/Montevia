@@ -8,13 +8,13 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#07080a">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://bylwvlxxvgumvqgpwgod.supabase.co wss://bylwvlxxvgumvqgpwgod.supabase.co; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self' https://bylwvlxxvgumvqgpwgod.supabase.co wss://bylwvlxxvgumvqgpwgod.supabase.co; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'">
   <link rel="icon" type="image/png" href="img/mark.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=10">
   <link rel="stylesheet" href="css/admin.css">
 </head>
 <body class="admin-body">
@@ -559,7 +559,10 @@
         <span class="tag">Ticket</span>
         <h2 id="ticketDialogTitle">Conversation</h2>
       </div>
-      <button class="admin-icon-btn" type="button" data-close-dialog aria-label="Fermer la fenêtre">×</button>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <a class="btn btn--ghost btn--sm" id="ticketOpenPage" href="ticket.html" target="_blank" rel="noopener">Ouvrir la page</a>
+        <button class="admin-icon-btn" type="button" data-close-dialog aria-label="Fermer la fenêtre">×</button>
+      </div>
     </div>
     <div class="admin-dialog__body" id="ticketConvBody" style="max-height:400px;overflow-y:auto;"></div>
     <form id="ticketReplyForm" class="admin-form" style="padding:0 24px 24px;">
@@ -568,6 +571,10 @@
           <textarea id="ticketReplyMsg" rows="3" maxlength="2000" placeholder="Votre réponse…" required></textarea>
         </label>
       </div>
+      <label class="ticket-internal-toggle" style="margin-top:10px;">
+        <input type="checkbox" id="ticketReplyInternal">
+        <span>Note interne (visible uniquement par le staff)</span>
+      </label>
       <div class="admin-dialog__actions" style="padding:12px 0 0;">
         <button class="btn btn--secondary" type="button" data-close-dialog>Annuler</button>
         <button class="btn btn--primary" type="submit">Envoyer</button>
@@ -611,8 +618,8 @@
 
   <div class="admin-toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="js/supabase-config.js" defer></script>
-  <script src="js/admin.js" defer></script>
+  <script src="js/vendor/supabase.js?v=10" defer></script>
+  <script src="js/supabase-config.js?v=10" defer></script>
+  <script src="js/admin.js?v=10" defer></script>
 </body>
 </html>

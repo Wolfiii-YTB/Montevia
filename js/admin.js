@@ -73,6 +73,8 @@
   var ticketConvBody = document.getElementById('ticketConvBody');
   var ticketReplyForm = document.getElementById('ticketReplyForm');
   var ticketReplyMsg = document.getElementById('ticketReplyMsg');
+  var ticketReplyInternal = document.getElementById('ticketReplyInternal');
+  var ticketOpenPage = document.getElementById('ticketOpenPage');
 
   var currentTicketId = null;
 
@@ -178,6 +180,23 @@
     return code === 'PGRST205' || code === '42P01' ||
       /could not find the table|relation .* does not exist|schema cache/i.test(message);
   }
+
+  function isHttpsUrl(value) {
+    try {
+      return new URL(String(value || '')).protocol === 'https:';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  var ALLOWED_IMAGE_TYPES = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+    'image/gif': 'gif',
+    'image/avif': 'avif'
+  };
+  var MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
   function initials(name) {
     var words = String(name || '').trim().split(/\s+/).filter(Boolean);
@@ -400,6 +419,16 @@
       window.sessionStorage.removeItem('montevia-admin-auth');
       showAuth("Ce compte n'a pas les droits d'administration. Utilise un compte administrateur actif de DevReports.");
       return false;
+    }
+
+    if (!profile) {
+      profile = {
+        id: user.id,
+        display_name: user.email || 'Administrateur',
+        nickname: '',
+        role: isDevReportsAdmin ? 'admin' : 'staff',
+        status: 'active'
+      };
     }
 
     currentProfile = profile;
@@ -807,15 +836,26 @@
     try {
       var result = await db.from('montevia_site_settings').select('*');
       if (result.error) {
-        if (isMissingTable(result.error)) return;
-        throw result.error;
+        if (!isMissingTable(result.error)) throw result.error;
+      } else {
+        var rows = Array.isArray(result.data) ? result.data : [];
+        rows.forEach(function (row) {
+          if (row.key === 'roblox_url' && settingRoblox) settingRoblox.value = row.value || '';
+          if (row.key === 'discord_url' && settingDiscord) settingDiscord.value = row.value || '';
+        });
       }
-      var rows = Array.isArray(result.data) ? result.data : [];
-      rows.forEach(function (row) {
-        if (row.key === 'roblox_url' && settingRoblox) settingRoblox.value = row.value || '';
-        if (row.key === 'discord_url' && settingDiscord) settingDiscord.value = row.value || '';
-        if (row.key === 'discord_webhook' && settingWebhook) settingWebhook.value = row.value || '';
-      });
+
+      // Le webhook est un secret : il vit dans une table lisible uniquement par le staff.
+      if (settingWebhook) {
+        var privateResult = await db
+          .from('montevia_private_settings')
+          .select('value')
+          .eq('key', 'discord_webhook')
+          .maybeSingle();
+        if (!privateResult.error && privateResult.data) {
+          settingWebhook.value = privateResult.data.value || '';
+        }
+      }
     } catch (error) {
       console.warn('loadSettings failed', error);
     }
@@ -827,10 +867,36 @@
     var discord = settingDiscord.value.trim();
     var webhook = settingWebhook ? settingWebhook.value.trim() : '';
 
+    if (webhook && !/^https:\/\/(discord|discordapp)\.com\/api\/webhooks\/\d+\/[\w-]+$/i.test(webhook)) {
+      showToast('Le webhook Discord est invalide. Il doit ressembler à https://discord.com/api/webhooks/…', 'error');
+      return;
+    }
+    if (!isHttpsUrl(roblox)) {
+      showToast('Le lien Roblox doit être une URL https valide.', 'error');
+      return;
+    }
+    if (!isHttpsUrl(discord)) {
+      showToast('Le lien Discord doit être une URL https valide.', 'error');
+      return;
+    }
+
     try {
-      await db.from('montevia_site_settings').upsert({ key: 'roblox_url', value: roblox, updated_at: new Date().toISOString() });
-      await db.from('montevia_site_settings').upsert({ key: 'discord_url', value: discord, updated_at: new Date().toISOString() });
-      await db.from('montevia_site_settings').upsert({ key: 'discord_webhook', value: webhook, updated_at: new Date().toISOString() });
+      var linksResult = await db.from('montevia_site_settings').upsert([
+        { key: 'roblox_url', value: roblox, updated_at: new Date().toISOString() },
+        { key: 'discord_url', value: discord, updated_at: new Date().toISOString() }
+      ]);
+      if (linksResult.error) throw linksResult.error;
+
+      if (settingWebhook) {
+        var webhookResult = await db
+          .from('montevia_private_settings')
+          .upsert({ key: 'discord_webhook', value: webhook, updated_at: new Date().toISOString() });
+        if (webhookResult.error) throw webhookResult.error;
+      }
+
+      // Au cas où l'ancienne valeur serait encore dans la table publique.
+      await db.from('montevia_site_settings').delete().eq('key', 'discord_webhook');
+
       showToast('Paramètres enregistrés.');
     } catch (error) {
       showToast(errorMessage(error) || 'Enregistrement impossible.', 'error');
@@ -933,7 +999,13 @@
 
   async function uploadImageFile(file) {
     var bucket = 'montevia-gallery';
-    var ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    var ext = ALLOWED_IMAGE_TYPES[file.type];
+    if (!ext) {
+      throw new Error('Format d’image non supporté. Utilise une image JPG, PNG, WebP, GIF ou AVIF.');
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      throw new Error('Image trop lourde (5 Mo maximum).');
+    }
     var path = 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2) + '.' + ext;
 
     var result = await db.storage.from(bucket).upload(path, file, {
@@ -956,6 +1028,15 @@
     var order = parseInt(imageOrder.value, 10);
     if (isNaN(order)) order = 100;
     order = Math.min(9999, Math.max(0, order));
+
+    if (url && url.length > 2048) {
+      showToast('L’URL de l’image est trop longue (2048 caractères maximum).', 'error');
+      return;
+    }
+    if (url && !isHttpsUrl(url)) {
+      showToast('L’URL de l’image doit commencer par https://', 'error');
+      return;
+    }
 
     setBusy(saveImageBtn, true, 'Enregistrement…');
     try {
@@ -987,9 +1068,29 @@
 
   async function handleDeleteImage(id) {
     if (!id) return;
+    if (!window.confirm('Supprimer cette image de la galerie ?')) return;
+
+    var image = galleryList.filter(function (item) { return item.id === id; })[0];
     try {
       var result = await db.from('montevia_gallery').delete().eq('id', id);
       if (result.error) throw result.error;
+
+      // Nettoyer le fichier envoyé dans le bucket (les images externes ne sont pas concernées).
+      if (image && image.image_url) {
+        var marker = '/storage/v1/object/public/montevia-gallery/';
+        var index = image.image_url.indexOf(marker);
+        if (index !== -1) {
+          var storagePath = decodeURIComponent(image.image_url.slice(index + marker.length).split('?')[0]);
+          if (storagePath) {
+            try {
+              await db.storage.from('montevia-gallery').remove([storagePath]);
+            } catch (storageError) {
+              // Le fichier peut déjà avoir été supprimé : on ne bloque pas la suppression de la fiche.
+            }
+          }
+        }
+      }
+
       showToast('Image supprimée.');
       await loadGallery();
     } catch (error) {
@@ -1023,7 +1124,13 @@
           profResult.data.forEach(function (p) { profMap[p.id] = p; });
           ticketsList.forEach(function (t) {
             var p = profMap[t.user_id];
-            t._openerName = p ? (p.display_name || p.nickname || t.user_id) : t.user_id;
+            if (t.opener_name && t.opener_name !== 'Membre') {
+              t._openerName = t.opener_name;
+            } else if (p && p.display_name && p.display_name !== 'Membre') {
+              t._openerName = p.display_name;
+            } else {
+              t._openerName = t.discord_username || (p && p.nickname) || t.user_id || 'Anonyme';
+            }
           });
         }
       }
@@ -1054,7 +1161,10 @@
 
       var subjectCell = node('div', 'admin-row__member');
       subjectCell.append(node('span', 'admin-row__text', t.subject));
-      subjectCell.append(node('small', '', t._openerName || t.user_id || 'Anonyme'));
+      var metaParts = [t._openerName || t.user_id || 'Anonyme'];
+      if (t.category) metaParts.push(t.category);
+      if (t.priority) metaParts.push('priorité ' + t.priority);
+      subjectCell.append(node('small', '', metaParts.join(' · ')));
 
       var userCell = node('span', 'admin-row__role', (t.discord_username || '—') + ' · ' + (t.user_id || '—'));
 
@@ -1085,7 +1195,7 @@
         claimBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6l-8-4z"/></svg>';
         actions.append(claimBtn);
       } else if (t.claimed_by) {
-        var claimedLabel = node('span', '', '✅ ' + (t.claimed_by === currentProfile.id ? 'Vous' : 'Pris'));
+        var claimedLabel = node('span', '', t.claimed_by === currentProfile.id ? 'Pris par vous' : 'Pris en charge');
         claimedLabel.style.fontSize = '11px';
         claimedLabel.style.color = 'var(--accent)';
         actions.append(claimedLabel);
@@ -1108,6 +1218,14 @@
         closeBtn.setAttribute('aria-label', 'Fermer ce ticket');
         closeBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
         actions.append(closeBtn);
+      } else {
+        var reopenBtn = node('button', 'admin-icon-btn');
+        reopenBtn.type = 'button';
+        reopenBtn.dataset.action = 'reopen-ticket';
+        reopenBtn.dataset.id = t.id;
+        reopenBtn.setAttribute('aria-label', 'Rouvrir ce ticket');
+        reopenBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>';
+        actions.append(reopenBtn);
       }
 
       var delBtn = node('button', 'admin-icon-btn admin-icon-btn--danger');
@@ -1142,8 +1260,21 @@
     }
   }
 
+  async function handleReopenTicket(id) {
+    if (!id) return;
+    try {
+      var result = await db.from('montevia_tickets').update({ status: 'open', closed_at: null }).eq('id', id);
+      if (result.error) throw result.error;
+      showToast('Ticket rouvert.');
+      await loadTickets();
+    } catch (error) {
+      showToast(errorMessage(error) || 'Action impossible.', 'error');
+    }
+  }
+
   async function handleDeleteTicket(id) {
     if (!id) return;
+    if (!window.confirm('Supprimer définitivement ce ticket et toute sa conversation ?')) return;
     try {
       var result = await db.from('montevia_tickets').delete().eq('id', id);
       if (result.error) throw result.error;
@@ -1161,6 +1292,9 @@
 
     ticketDialogTitle.textContent = ticket.subject;
     ticketConvBody.innerHTML = '<p style="color:var(--text-3);">Chargement…</p>';
+    if (ticketOpenPage) ticketOpenPage.href = 'ticket.html?id=' + encodeURIComponent(id);
+    if (ticketReplyMsg) ticketReplyMsg.value = '';
+    if (ticketReplyInternal) ticketReplyInternal.checked = false;
     openDialog(ticketDialog);
 
     try {
@@ -1184,15 +1318,24 @@
       // Message initial
       var initMsg = document.createElement('div');
       initMsg.style.cssText = 'margin-bottom:12px;padding:12px 16px;background:var(--surface-3);border:1px solid var(--line);border-radius:12px;';
-      initMsg.innerHTML = '<div style="font-size:12px;color:var(--text-3);margin-bottom:4px;">' + escapeHtml(ticket.discord_username || 'Utilisateur') + ' · ' + new Date(ticket.created_at).toLocaleString('fr-FR') + '</div>' +
+      initMsg.innerHTML = '<div style="font-size:12px;color:var(--text-3);margin-bottom:4px;">' + escapeHtml(ticket._openerName || ticket.discord_username || 'Utilisateur') + ' · ' + new Date(ticket.created_at).toLocaleString('fr-FR') + '</div>' +
         '<div style="color:var(--text);">' + escapeHtml(ticket.message) + '</div>';
       ticketConvBody.append(initMsg);
 
       messages.forEach(function (m) {
         var msg = document.createElement('div');
-        msg.style.cssText = 'margin-bottom:12px;padding:12px 16px;border-radius:12px;' + (m.sender_type === 'admin' ? 'background:var(--accent-soft);border:1px solid var(--accent-line);margin-left:24px;' : 'background:var(--surface-3);border:1px solid var(--line);margin-right:24px;');
-        msg.innerHTML = '<div style="font-size:12px;color:var(--text-3);margin-bottom:4px;">' + (m.sender_type === 'admin' ? 'Admin' : escapeHtml(ticket.discord_username || 'Utilisateur')) + ' · ' + new Date(m.created_at).toLocaleString('fr-FR') + '</div>' +
-          '<div style="color:var(--text);">' + escapeHtml(m.message) + '</div>';
+        var internal = !!m.is_internal;
+        msg.style.cssText = 'margin-bottom:12px;padding:12px 16px;border-radius:12px;' +
+          (internal
+            ? 'background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);margin-left:24px;'
+            : (m.sender_type === 'admin'
+              ? 'background:var(--accent-soft);border:1px solid var(--accent-line);margin-left:24px;'
+              : 'background:var(--surface-3);border:1px solid var(--line);margin-right:24px;'));
+        var author = m.sender_type === 'admin'
+          ? (internal ? 'Note interne' : 'Staff')
+          : escapeHtml(ticket._openerName || ticket.discord_username || 'Utilisateur');
+        msg.innerHTML = '<div style="font-size:12px;color:var(--text-3);margin-bottom:4px;">' + author + ' · ' + new Date(m.created_at).toLocaleString('fr-FR') + '</div>' +
+          '<div style="color:var(--text);white-space:pre-wrap;overflow-wrap:anywhere;">' + escapeHtml(m.message) + '</div>';
         ticketConvBody.append(msg);
       });
 
@@ -1217,10 +1360,12 @@
         ticket_id: currentTicketId,
         sender_id: currentProfile.id,
         sender_type: 'admin',
-        message: msg
+        message: msg,
+        is_internal: !!(ticketReplyInternal && ticketReplyInternal.checked)
       });
       if (result.error) throw result.error;
       ticketReplyMsg.value = '';
+      if (ticketReplyInternal) ticketReplyInternal.checked = false;
       showToast('Réponse envoyée.');
       openTicketConversation(currentTicketId);
     } catch (error) {
@@ -1662,10 +1807,11 @@
       ticketsRows.addEventListener('click', function (event) {
         var button = event.target.closest('button[data-action]');
         if (!button) return;
-        if (button.dataset.action === 'view-ticket') window.open('ticket.html?id=' + button.dataset.id, '_blank');
+        if (button.dataset.action === 'view-ticket') openTicketConversation(button.dataset.id);
         if (button.dataset.action === 'claim-ticket') handleClaimTicket(button.dataset.id);
         if (button.dataset.action === 'add-participant') handleAddParticipant(button.dataset.id);
         if (button.dataset.action === 'close-ticket') handleCloseTicket(button.dataset.id);
+        if (button.dataset.action === 'reopen-ticket') handleReopenTicket(button.dataset.id);
         if (button.dataset.action === 'delete-ticket') handleDeleteTicket(button.dataset.id);
       });
     }

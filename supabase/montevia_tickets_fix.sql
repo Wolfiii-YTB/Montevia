@@ -1,0 +1,689 @@
+-- ============================================================
+-- MONTEVIA — Correctif complet du système de tickets
+-- Projet Supabase : bylwvlxxvgumvqgpwgod
+-- À exécuter dans Supabase > SQL Editor.
+--
+-- Ce script est idempotent : il peut être relancé sans risque.
+-- Il corrige :
+--   1. la récursion infinie RLS sur montevia_admin_access (erreur 42P17 / 500) ;
+--   2. les droits de lecture/écriture des tickets pour le staff,
+--      l'ouvreur et les participants ;
+--   3. les notes internes (visibles uniquement par le staff) ;
+--   4. le claim, la fermeture/réouverture et le nom de l'ouvreur ;
+--   5. la fuite du webhook Discord (déplacé dans une table privée).
+-- ============================================================
+
+-- ------------------------------------------------------------
+-- 1. Accès administrateur Montevia
+-- ------------------------------------------------------------
+create table if not exists public.montevia_admin_access (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  granted_by uuid references auth.users(id),
+  created_at timestamptz not null default now()
+);
+
+alter table public.montevia_admin_access enable row level security;
+
+-- Fonction SECURITY DEFINER : elle contourne la RLS, donc pas de récursion.
+create or replace function public.montevia_is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    exists (
+      select 1
+      from public.profiles
+      where id = auth.uid()
+        and role = 'admin'
+        and status = 'active'
+    )
+    or exists (
+      select 1
+      from public.montevia_admin_access
+      where user_id = auth.uid()
+    );
+$$;
+
+revoke all on function public.montevia_is_admin() from public;
+grant execute on function public.montevia_is_admin() to anon, authenticated;
+
+-- Supprimer les anciennes policies récursives.
+drop policy if exists "admins read montevia admin access" on public.montevia_admin_access;
+drop policy if exists "admins write montevia admin access" on public.montevia_admin_access;
+drop policy if exists "montevia admins read access" on public.montevia_admin_access;
+drop policy if exists "montevia admins manage access" on public.montevia_admin_access;
+
+-- Un admin (DevReports ou Montevia) peut lire et gérer les accès.
+-- La fonction est SECURITY DEFINER : aucune récursion possible.
+create policy "montevia admins read access"
+on public.montevia_admin_access
+for select
+to authenticated
+using (public.montevia_is_admin());
+
+create policy "montevia admins manage access"
+on public.montevia_admin_access
+for all
+to authenticated
+using (public.montevia_is_admin())
+with check (public.montevia_is_admin());
+
+revoke all on table public.montevia_admin_access from anon;
+grant select, insert, update, delete on table public.montevia_admin_access to authenticated;
+
+-- ------------------------------------------------------------
+-- 2. Colonnes tickets (mise à niveau des anciennes installations)
+-- ------------------------------------------------------------
+alter table public.montevia_tickets
+  add column if not exists category text not null default 'general',
+  add column if not exists priority text not null default 'normal',
+  add column if not exists claimed_by uuid references auth.users(id) on delete set null,
+  add column if not exists claimed_at timestamptz,
+  add column if not exists closed_at timestamptz,
+  add column if not exists updated_at timestamptz not null default now(),
+  add column if not exists opener_name text not null default '';
+
+-- Contraintes (ajoutées seulement si elles manquent).
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.montevia_tickets'::regclass
+      and conname = 'montevia_tickets_category_check'
+  ) then
+    alter table public.montevia_tickets
+      add constraint montevia_tickets_category_check
+      check (category in ('general', 'bug', 'question', 'suggestion', 'autre'));
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.montevia_tickets'::regclass
+      and conname = 'montevia_tickets_priority_check'
+  ) then
+    alter table public.montevia_tickets
+      add constraint montevia_tickets_priority_check
+      check (priority in ('low', 'normal', 'high'));
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.montevia_tickets'::regclass
+      and conname = 'montevia_tickets_status_check'
+  ) then
+    alter table public.montevia_tickets
+      add constraint montevia_tickets_status_check
+      check (status in ('open', 'in_progress', 'closed'));
+  end if;
+end
+$$;
+
+-- ------------------------------------------------------------
+-- 3. Table des messages (si installation incomplète)
+-- ------------------------------------------------------------
+create table if not exists public.montevia_ticket_messages (
+  id uuid primary key default gen_random_uuid(),
+  ticket_id uuid not null references public.montevia_tickets(id) on delete cascade,
+  sender_id uuid references auth.users(id) on delete set null,
+  sender_type text not null check (sender_type in ('user', 'admin')),
+  message text not null check (char_length(trim(message)) between 1 and 2000),
+  is_internal boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+alter table public.montevia_ticket_messages enable row level security;
+
+alter table public.montevia_ticket_messages
+  add column if not exists is_internal boolean not null default false;
+
+create index if not exists montevia_ticket_messages_ticket_idx
+  on public.montevia_ticket_messages (ticket_id, created_at);
+
+-- ------------------------------------------------------------
+-- 4. Trigger updated_at / closed_at
+-- ------------------------------------------------------------
+create or replace function public.montevia_touch_ticket()
+returns trigger
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+begin
+  new.updated_at = now();
+
+  if new.status = 'closed' and coalesce(old.status, '') <> 'closed' then
+    new.closed_at = now();
+  elsif new.status <> 'closed' then
+    new.closed_at = null;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists montevia_tickets_touch on public.montevia_tickets;
+create trigger montevia_tickets_touch
+before update on public.montevia_tickets
+for each row execute function public.montevia_touch_ticket();
+
+-- Mettre à jour l'activité du ticket quand un message est ajouté.
+create or replace function public.montevia_touch_ticket_on_message()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  update public.montevia_tickets
+  set updated_at = now()
+  where id = new.ticket_id;
+  return new;
+end;
+$$;
+
+drop trigger if exists montevia_ticket_message_touch on public.montevia_ticket_messages;
+create trigger montevia_ticket_message_touch
+after insert on public.montevia_ticket_messages
+for each row execute function public.montevia_touch_ticket_on_message();
+
+-- ------------------------------------------------------------
+-- 5. Participants (table + contrainte + index)
+-- ------------------------------------------------------------
+create table if not exists public.montevia_ticket_participants (
+  id uuid primary key default gen_random_uuid(),
+  ticket_id uuid not null references public.montevia_tickets(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  added_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  unique (ticket_id, user_id)
+);
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.montevia_ticket_participants'::regclass
+      and conname = 'montevia_ticket_participants_ticket_id_user_id_key'
+  ) then
+    alter table public.montevia_ticket_participants
+      add constraint montevia_ticket_participants_ticket_id_user_id_key
+      unique (ticket_id, user_id);
+  end if;
+end
+$$;
+
+create index if not exists montevia_ticket_participants_user_idx
+  on public.montevia_ticket_participants (user_id, ticket_id);
+
+create index if not exists montevia_tickets_user_idx
+  on public.montevia_tickets (user_id, created_at desc);
+
+create index if not exists montevia_tickets_activity_idx
+  on public.montevia_tickets (status, updated_at desc);
+
+-- ------------------------------------------------------------
+-- 6. Fonction d'accès à un ticket
+--    Ouvreur, participant ou admin. SECURITY DEFINER => pas de récursion.
+-- ------------------------------------------------------------
+create or replace function public.montevia_can_access_ticket(p_ticket_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1
+    from public.montevia_tickets t
+    where t.id = p_ticket_id
+      and (
+        t.user_id = auth.uid()
+        or exists (
+          select 1
+          from public.montevia_ticket_participants p
+          where p.ticket_id = t.id
+            and p.user_id = auth.uid()
+        )
+        or public.montevia_is_admin()
+      )
+  );
+$$;
+
+revoke all on function public.montevia_can_access_ticket(uuid) from public;
+grant execute on function public.montevia_can_access_ticket(uuid) to authenticated;
+
+-- Permet à l'ouvreur de fermer son propre ticket, et au staff de changer
+-- le statut (fermer / rouvrir / remettre en cours).
+create or replace function public.montevia_set_ticket_status(p_ticket_id uuid, p_status text)
+returns public.montevia_tickets
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  result public.montevia_tickets;
+  is_staff boolean := public.montevia_is_admin();
+begin
+  if p_status not in ('open', 'in_progress', 'closed') then
+    raise exception 'Statut invalide.';
+  end if;
+
+  select *
+  into result
+  from public.montevia_tickets
+  where id = p_ticket_id;
+
+  if not found then
+    raise exception 'Ticket introuvable.';
+  end if;
+
+  if not (
+    is_staff
+    or (result.user_id = auth.uid() and p_status = 'closed' and result.status <> 'closed')
+  ) then
+    raise exception 'Action non autorisée.';
+  end if;
+
+  update public.montevia_tickets
+  set status = p_status
+  where id = p_ticket_id
+  returning * into result;
+
+  return result;
+end;
+$$;
+
+revoke all on function public.montevia_set_ticket_status(uuid, text) from public;
+grant execute on function public.montevia_set_ticket_status(uuid, text) to authenticated;
+
+-- ------------------------------------------------------------
+-- 7. Policies tickets
+-- ------------------------------------------------------------
+drop policy if exists "users read own tickets" on public.montevia_tickets;
+drop policy if exists "users insert tickets" on public.montevia_tickets;
+drop policy if exists "admins update tickets" on public.montevia_tickets;
+drop policy if exists "admins delete tickets" on public.montevia_tickets;
+drop policy if exists "montevia tickets select" on public.montevia_tickets;
+drop policy if exists "montevia tickets insert" on public.montevia_tickets;
+drop policy if exists "montevia tickets update" on public.montevia_tickets;
+drop policy if exists "montevia tickets delete" on public.montevia_tickets;
+
+create policy "montevia tickets select"
+on public.montevia_tickets
+for select
+to authenticated
+using (public.montevia_can_access_ticket(id));
+
+create policy "montevia tickets insert"
+on public.montevia_tickets
+for insert
+to authenticated
+with check (user_id = auth.uid());
+
+create policy "montevia tickets update"
+on public.montevia_tickets
+for update
+to authenticated
+using (public.montevia_is_admin())
+with check (public.montevia_is_admin());
+
+create policy "montevia tickets delete"
+on public.montevia_tickets
+for delete
+to authenticated
+using (public.montevia_is_admin());
+
+revoke all on table public.montevia_tickets from anon;
+grant select, insert, update, delete on table public.montevia_tickets to authenticated;
+
+-- Backfill du nom de l'ouvreur pour les tickets existants.
+-- On préfère le pseudo Discord quand le profil n'a pas de vrai nom.
+update public.montevia_tickets t
+set opener_name = case
+  when coalesce(trim(p.display_name), '') not in ('', 'Membre') then trim(p.display_name)
+  when coalesce(trim(t.discord_username), '') <> '' then trim(t.discord_username)
+  when coalesce(trim(p.nickname), '') <> '' then trim(p.nickname)
+  else 'Utilisateur'
+end
+from public.profiles p
+where p.id = t.user_id
+  and coalesce(trim(t.opener_name), '') in ('', 'Membre');
+
+-- ------------------------------------------------------------
+-- 8. Policies messages (dont notes internes)
+-- ------------------------------------------------------------
+drop policy if exists "read ticket messages" on public.montevia_ticket_messages;
+drop policy if exists "insert ticket messages" on public.montevia_ticket_messages;
+drop policy if exists "delete ticket messages" on public.montevia_ticket_messages;
+drop policy if exists "montevia messages select" on public.montevia_ticket_messages;
+drop policy if exists "montevia messages insert" on public.montevia_ticket_messages;
+drop policy if exists "montevia messages delete" on public.montevia_ticket_messages;
+
+create policy "montevia messages select"
+on public.montevia_ticket_messages
+for select
+to authenticated
+using (
+  public.montevia_is_admin()
+  or (
+    is_internal = false
+    and public.montevia_can_access_ticket(ticket_id)
+  )
+);
+
+create policy "montevia messages insert"
+on public.montevia_ticket_messages
+for insert
+to authenticated
+with check (
+  sender_id = auth.uid()
+  and public.montevia_can_access_ticket(ticket_id)
+  and (
+    (
+      public.montevia_is_admin()
+      and sender_type = 'admin'
+    )
+    or (
+      not public.montevia_is_admin()
+      and sender_type = 'user'
+      and is_internal = false
+      and exists (
+        select 1
+        from public.montevia_tickets t
+        where t.id = ticket_id
+          and t.status <> 'closed'
+      )
+    )
+  )
+);
+
+create policy "montevia messages delete"
+on public.montevia_ticket_messages
+for delete
+to authenticated
+using (public.montevia_is_admin());
+
+revoke all on table public.montevia_ticket_messages from anon;
+grant select, insert, delete on table public.montevia_ticket_messages to authenticated;
+
+-- ------------------------------------------------------------
+-- 9. Policies participants
+-- ------------------------------------------------------------
+drop policy if exists "read ticket participants" on public.montevia_ticket_participants;
+drop policy if exists "admins manage ticket participants" on public.montevia_ticket_participants;
+drop policy if exists "montevia participants select" on public.montevia_ticket_participants;
+drop policy if exists "montevia participants manage" on public.montevia_ticket_participants;
+
+create policy "montevia participants select"
+on public.montevia_ticket_participants
+for select
+to authenticated
+using (public.montevia_can_access_ticket(ticket_id));
+
+create policy "montevia participants manage"
+on public.montevia_ticket_participants
+for all
+to authenticated
+using (public.montevia_is_admin())
+with check (public.montevia_is_admin());
+
+revoke all on table public.montevia_ticket_participants from anon;
+grant select, insert, update, delete on table public.montevia_ticket_participants to authenticated;
+
+-- ------------------------------------------------------------
+-- 10. Webhook Discord : table privée (plus jamais exposée au public)
+-- ------------------------------------------------------------
+create table if not exists public.montevia_private_settings (
+  key text primary key,
+  value text not null default '',
+  updated_at timestamptz not null default now()
+);
+
+alter table public.montevia_private_settings enable row level security;
+
+drop policy if exists "montevia admins manage private settings" on public.montevia_private_settings;
+create policy "montevia admins manage private settings"
+on public.montevia_private_settings
+for all
+to authenticated
+using (public.montevia_is_admin())
+with check (public.montevia_is_admin());
+
+revoke all on table public.montevia_private_settings from anon, authenticated;
+grant select, insert, update, delete on table public.montevia_private_settings to authenticated;
+grant select, insert, update, delete on table public.montevia_private_settings to service_role;
+
+-- Table publique des réglages (si installation incomplète).
+create table if not exists public.montevia_site_settings (
+  key text primary key,
+  value text not null default '',
+  updated_at timestamptz not null default now()
+);
+
+alter table public.montevia_site_settings enable row level security;
+
+-- Migrer l'ancien webhook public vers la table privée, puis le supprimer
+-- de la table publique lisible par tout le monde.
+insert into public.montevia_private_settings (key, value)
+select 'discord_webhook', value
+from public.montevia_site_settings
+where key = 'discord_webhook'
+  and coalesce(trim(value), '') <> ''
+on conflict (key) do nothing;
+
+delete from public.montevia_site_settings
+where key = 'discord_webhook';
+
+-- ------------------------------------------------------------
+-- 11. Liaison Roblox (manuelle, protégée par RLS)
+-- ------------------------------------------------------------
+create table if not exists public.montevia_account_links (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  roblox_username text not null default '' check (char_length(roblox_username) <= 40),
+  roblox_user_id text not null default '' check (char_length(roblox_user_id) <= 30),
+  roblox_url text not null default '' check (char_length(roblox_url) <= 300),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.montevia_account_links enable row level security;
+
+drop policy if exists "montevia account links select own" on public.montevia_account_links;
+create policy "montevia account links select own"
+on public.montevia_account_links
+for select
+to authenticated
+using (user_id = auth.uid() or public.montevia_is_admin());
+
+drop policy if exists "montevia account links insert own" on public.montevia_account_links;
+create policy "montevia account links insert own"
+on public.montevia_account_links
+for insert
+to authenticated
+with check (user_id = auth.uid());
+
+drop policy if exists "montevia account links update own" on public.montevia_account_links;
+create policy "montevia account links update own"
+on public.montevia_account_links
+for update
+to authenticated
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
+
+drop policy if exists "montevia account links delete own" on public.montevia_account_links;
+create policy "montevia account links delete own"
+on public.montevia_account_links
+for delete
+to authenticated
+using (user_id = auth.uid());
+
+revoke all on table public.montevia_account_links from anon, authenticated;
+grant select, insert, update, delete on table public.montevia_account_links to authenticated;
+
+-- Limites du bucket de la galerie (5 Mo, images uniquement).
+update storage.buckets
+set file_size_limit = 5242880,
+    allowed_mime_types = array['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif']
+where id = 'montevia-gallery';
+
+-- ------------------------------------------------------------
+-- 12. Notification Discord côté serveur (webhook jamais exposé)
+--     Nécessite l'extension pg_net (activée automatiquement si possible).
+-- ------------------------------------------------------------
+do $$
+begin
+  begin
+    execute 'create extension if not exists pg_net';
+  exception when others then
+    raise notice 'pg_net indisponible : %', sqlerrm;
+  end;
+end
+$$;
+
+create or replace function public.montevia_discord_notify(
+  p_ticket_id uuid,
+  p_kind text,
+  p_message text
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  hook text;
+  t record;
+  payload jsonb;
+  body_text text;
+begin
+  select value
+    into hook
+    from public.montevia_private_settings
+   where key = 'discord_webhook';
+
+  if coalesce(btrim(hook), '') = '' then
+    return;
+  end if;
+
+  if hook !~* '^https://(discord|discordapp)\.com/api/webhooks/[0-9]+/[A-Za-z0-9_-]+$' then
+    return;
+  end if;
+
+  select subject, opener_name, discord_username, category, priority, status
+    into t
+    from public.montevia_tickets
+   where id = p_ticket_id;
+
+  if not found then
+    return;
+  end if;
+
+  body_text := left(coalesce(p_message, ''), 900);
+
+  if p_kind = 'ticket' then
+    payload := jsonb_build_object(
+      'username', 'Montevia Support',
+      'embeds', jsonb_build_array(jsonb_build_object(
+        'title', '🎫 Nouveau ticket',
+        'description', '**' || coalesce(t.subject, 'Ticket') || '**' || E'\n' || body_text,
+        'color', 3527578,
+        'fields', jsonb_build_array(
+          jsonb_build_object('name', 'Ouvreur', 'value', coalesce(nullif(t.opener_name, ''), nullif(t.discord_username, ''), 'Utilisateur'), 'inline', true),
+          jsonb_build_object('name', 'Discord', 'value', coalesce(nullif(t.discord_username, ''), '—'), 'inline', true),
+          jsonb_build_object('name', 'Catégorie', 'value', coalesce(t.category, 'general'), 'inline', true),
+          jsonb_build_object('name', 'Priorité', 'value', coalesce(t.priority, 'normal'), 'inline', true)
+        ),
+        'url', 'https://wolfiii-ytb.github.io/Montevia/ticket.html?id=' || p_ticket_id::text,
+        'timestamp', to_jsonb(now())
+      ))
+    );
+  else
+    payload := jsonb_build_object(
+      'username', 'Montevia Support',
+      'embeds', jsonb_build_array(jsonb_build_object(
+        'title', '💬 Nouveau message',
+        'description', body_text,
+        'color', 3527578,
+        'fields', jsonb_build_array(
+          jsonb_build_object('name', 'Ticket', 'value', coalesce(nullif(t.subject, ''), 'Ticket'), 'inline', false)
+        ),
+        'url', 'https://wolfiii-ytb.github.io/Montevia/ticket.html?id=' || p_ticket_id::text,
+        'timestamp', to_jsonb(now())
+      ))
+    );
+  end if;
+
+  if to_regprocedure('net.http_post(text,jsonb,jsonb,jsonb,integer)') is null then
+    return;
+  end if;
+
+  perform net.http_post(
+    url := hook,
+    body := payload,
+    headers := jsonb_build_object('Content-Type', 'application/json')
+  );
+end;
+$$;
+
+revoke all on function public.montevia_discord_notify(uuid, text, text) from public;
+revoke all on function public.montevia_discord_notify(uuid, text, text) from anon, authenticated;
+
+create or replace function public.montevia_notify_ticket_insert()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  perform public.montevia_discord_notify(new.id, 'ticket', new.message);
+  return new;
+end;
+$$;
+
+revoke all on function public.montevia_notify_ticket_insert() from public;
+revoke all on function public.montevia_notify_ticket_insert() from anon, authenticated;
+
+drop trigger if exists montevia_ticket_notify_insert on public.montevia_tickets;
+create trigger montevia_ticket_notify_insert
+after insert on public.montevia_tickets
+for each row execute function public.montevia_notify_ticket_insert();
+
+create or replace function public.montevia_notify_message_insert()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if new.is_internal then
+    return new;
+  end if;
+
+  perform public.montevia_discord_notify(
+    new.ticket_id,
+    'message',
+    case when new.sender_type = 'admin' then '🛡️ Staff : ' else '' end || new.message
+  );
+  return new;
+end;
+$$;
+
+revoke all on function public.montevia_notify_message_insert() from public;
+revoke all on function public.montevia_notify_message_insert() from anon, authenticated;
+
+drop trigger if exists montevia_ticket_notify_message on public.montevia_ticket_messages;
+create trigger montevia_ticket_notify_message
+after insert on public.montevia_ticket_messages
+for each row execute function public.montevia_notify_message_insert();
+
+-- ------------------------------------------------------------
+-- 13. Recharger le cache de schéma PostgREST
+-- ------------------------------------------------------------
+notify pgrst, 'reload schema';
+
+-- Vérification rapide (à exécuter séparément si besoin) :
+-- select public.montevia_is_admin();
+-- select * from public.montevia_tickets order by created_at desc limit 5;

@@ -6,12 +6,23 @@
   var SUPABASE_URL = 'https://bylwvlxxvgumvqgpwgod.supabase.co';
   var SUPABASE_KEY = 'sb_publishable_T3XYbDWXV5VaC8WQj3CZOQ_LmB7CTwv';
 
+  function safeHttps(value) {
+    try {
+      var url = new URL(String(value || ''));
+      if (url.protocol !== 'https:') return '';
+      return url.href;
+    } catch (e) {
+      return '';
+    }
+  }
+
   function applySettings(settings) {
     var links = document.querySelectorAll('[data-setting]');
     links.forEach(function (el) {
       var key = el.getAttribute('data-setting');
-      if (settings[key]) {
-        el.setAttribute('href', settings[key]);
+      var value = safeHttps(settings[key]);
+      if (value) {
+        el.setAttribute('href', value);
       }
     });
   }
