@@ -50,6 +50,18 @@
 
   async function checkAdmin() {
     if (!currentUser) return false;
+
+    // Si session admin existe dans sessionStorage, c'est un admin
+    try {
+      var raw = sessionStorage.getItem('montevia-admin-auth');
+      if (raw) {
+        var sess = JSON.parse(raw);
+        if (sess && sess.access_token && sess.user && sess.user.id === currentUser.id) {
+          return true;
+        }
+      }
+    } catch (e) {}
+
     try {
       var { data } = await client.from('profiles').select('role,status').eq('id', currentUser.id).maybeSingle();
       if (data && data.role === 'admin' && data.status === 'active') return true;
@@ -204,8 +216,20 @@
 
     // Input bar
     var input = document.getElementById('ticketInput');
-    if (ticket.status === 'closed' || (!isAdmin && currentUser?.id !== ticket.user_id)) {
-      input.innerHTML = '<div class="ticket-input__closed">Ce ticket est fermé.</div>';
+    if (ticket.status === 'closed') {
+      if (isAdmin) {
+        input.innerHTML = '<div class="ticket-input__closed">Ce ticket est fermé. <button class="btn btn--ghost btn--sm" id="reopenFromInput">Rouvrir</button></div>';
+        var reopenBtn = document.getElementById('reopenFromInput');
+        if (reopenBtn) reopenBtn.addEventListener('click', async function () {
+          await client.from('montevia_tickets').update({ status: 'open' }).eq('id', ticket.id);
+          ticket.status = 'open';
+          render();
+        });
+      } else {
+        input.innerHTML = '<div class="ticket-input__closed">Ce ticket est fermé.</div>';
+      }
+    } else if (!isAdmin && currentUser?.id !== ticket.user_id) {
+      input.innerHTML = '<div class="ticket-input__closed">Vous ne pouvez pas répondre à ce ticket.</div>';
     } else {
       var internalCheckbox = isAdmin ? '<label class="ticket-internal-toggle"><input type="checkbox" id="internalNote"> Note interne</label>' : '';
       input.innerHTML = '<form id="replyForm" class="ticket-input__form">' + internalCheckbox + '<textarea id="replyMsg" placeholder="Envoyer un message…" rows="1"></textarea><button type="submit" class="ticket-input__send" title="Envoyer"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button></form>';
