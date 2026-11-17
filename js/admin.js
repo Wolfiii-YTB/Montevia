@@ -1499,7 +1499,6 @@
 
     ticketDialogTitle.textContent = ticket.subject;
     ticketConvBody.innerHTML = '<p style="color:var(--text-3);">Chargement…</p>';
-    if (ticketOpenPage) ticketOpenPage.href = 'ticket.html?id=' + encodeURIComponent(id);
     if (ticketReplyMsg) ticketReplyMsg.value = '';
     if (ticketReplyInternal) ticketReplyInternal.checked = false;
     openDialog(ticketDialog);
@@ -2021,6 +2020,16 @@
 
     if (ticketReplyForm) {
       ticketReplyForm.addEventListener('submit', handleTicketReply);
+    }
+
+    if (ticketOpenPage) {
+      ticketOpenPage.addEventListener('click', function () {
+        if (!currentTicketId) return;
+        var win = window.open('ticket.html?id=' + encodeURIComponent(currentTicketId), '_blank');
+        if (win) {
+          try { win.opener = null; } catch (e) { /* ignore */ }
+        }
+      });
     }
 
     if (ticketsRows) {
