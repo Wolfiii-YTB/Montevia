@@ -1023,3 +1023,220 @@
   .admin-dialog[open] { animation: none; }
   .admin-toast { transition: none; }
 }
+
+/* ---------- sécurité ---------- */
+
+.security-score {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 22px;
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: linear-gradient(160deg, var(--surface-2), var(--surface));
+}
+
+.security-score__ring {
+  width: 74px;
+  height: 74px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 3px solid var(--line);
+  color: var(--text-2);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  transition: color .3s ease, border-color .3s ease, background .3s ease;
+}
+
+.security-score__ring.is-good {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(53, 211, 154, 0.08);
+}
+
+.security-score__ring.is-warn {
+  border-color: #fbbf24;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.08);
+}
+
+.security-score__ring.is-bad {
+  border-color: #f87171;
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.08);
+}
+
+.security-score__text strong {
+  display: block;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.security-score__text p {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.security-checks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.security-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--surface-2);
+}
+
+.security-check__dot {
+  width: 9px;
+  height: 9px;
+  margin-top: 5px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--text-3);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.04);
+}
+
+.security-check.is-ok .security-check__dot {
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(53, 211, 154, 0.15);
+}
+
+.security-check.is-off .security-check__dot {
+  background: #f87171;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15);
+}
+
+.security-check strong {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.security-check span {
+  display: block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: var(--text-3);
+  line-height: 1.45;
+}
+
+.security-grid {
+  align-items: start;
+}
+
+.security-activity {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.security-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-3);
+}
+
+.security-stat strong {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--accent);
+}
+
+.security-stat span {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.security-events {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.security-event {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.9fr) minmax(0, 2fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface-3);
+  font-size: 11.5px;
+}
+
+.security-event__type {
+  font-weight: 600;
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
+
+.security-event__detail {
+  color: var(--text-2);
+  overflow-wrap: anywhere;
+}
+
+.security-event__time {
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+.security-note {
+  font-size: 12.5px;
+  color: var(--text-3);
+  line-height: 1.6;
+}
+
+.security-note code,
+.security-sql code {
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--surface-3);
+  color: var(--text-2);
+  font-size: 12px;
+}
+
+.security-card {
+  margin-top: 18px;
+}
+
+.security-sql {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 900px) {
+  .security-checks { grid-template-columns: 1fr; }
+  .security-event { grid-template-columns: 1fr; gap: 3px; }
+}
+
+@media (max-width: 560px) {
+  .security-score { flex-direction: column; text-align: center; }
+  .security-activity { grid-template-columns: 1fr 1fr; }
+}

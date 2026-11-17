@@ -6,13 +6,14 @@
   <title>Support — Montevia RP</title>
   <meta name="description" content="Ouvre un ticket pour contacter l'équipe Montevia. Support rapide et personnalisé.">
   <meta name="theme-color" content="#07080a">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self' https://bylwvlxxvgumvqgpwgod.supabase.co wss://bylwvlxxvgumvqgpwgod.supabase.co; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self' https://bylwvlxxvgumvqgpwgod.supabase.co wss://bylwvlxxvgumvqgpwgod.supabase.co; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
   <link rel="icon" type="image/png" href="img/mark.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=12">
+  <link rel="stylesheet" href="css/style.css?v=13">
 </head>
 <body id="top">
 
@@ -139,6 +140,8 @@
                   <textarea id="ticketMessage" rows="5" maxlength="2000" placeholder="Décris ton problème en détail…" required></textarea>
                 </div>
                 <button class="btn btn--primary" type="submit">Envoyer le ticket</button>
+                <p class="ticket-form__status" id="ticketFormStatus" role="status" hidden></p>
+                <p class="ticket-form__hint">3 tickets maximum par tranche de 10 minutes. Les messages sont vérifiés automatiquement.</p>
               </form>
             </div>
 
@@ -150,6 +153,23 @@
             <div class="support-panel__head">
               <h2>Mes tickets</h2>
               <p>Suis l'évolution de tes demandes.</p>
+            </div>
+            <div class="ticket-tools">
+              <div class="ticket-filters" role="tablist" aria-label="Filtrer les tickets">
+                <button class="ticket-filter is-active" type="button" data-filter="all" role="tab" aria-selected="true">
+                  Tous <span class="ticket-filter__count" data-count="all">0</span>
+                </button>
+                <button class="ticket-filter" type="button" data-filter="open" role="tab" aria-selected="false">
+                  Ouverts <span class="ticket-filter__count" data-count="open">0</span>
+                </button>
+                <button class="ticket-filter" type="button" data-filter="in_progress" role="tab" aria-selected="false">
+                  En cours <span class="ticket-filter__count" data-count="in_progress">0</span>
+                </button>
+                <button class="ticket-filter" type="button" data-filter="closed" role="tab" aria-selected="false">
+                  Fermés <span class="ticket-filter__count" data-count="closed">0</span>
+                </button>
+              </div>
+              <input type="search" id="ticketSearch" class="ticket-search" placeholder="Rechercher un ticket…" aria-label="Rechercher un ticket" autocomplete="off">
             </div>
             <div id="ticketList" class="ticket-list"></div>
           </div>
@@ -204,10 +224,11 @@
     </div>
   </footer>
 
-  <script src="js/vendor/supabase.js?v=12" defer></script>
-  <script src="js/supabase-config.js?v=12" defer></script>
-  <script src="js/script.js?v=12" defer></script>
-  <script src="js/tickets.js?v=12" defer></script>
-  <script src="js/settings.js?v=12" defer></script>
+  <script src="js/vendor/supabase.js?v=13" defer></script>
+  <script src="js/supabase-config.js?v=13" defer></script>
+  <script src="js/security.js?v=13" defer></script>
+  <script src="js/script.js?v=13" defer></script>
+  <script src="js/tickets.js?v=13" defer></script>
+  <script src="js/settings.js?v=13" defer></script>
 </body>
 </html>

@@ -12,6 +12,8 @@
   var ADMIN_STORAGE_KEY = 'montevia-admin-auth';
   var MAX_MESSAGE = 2000;
   var POLL_INTERVAL = 4000;
+  var security = window.MonteviaSecurity || null;
+  var REALTIME_ENABLED = true;
 
   var STATUS_LABELS = { open: 'Ouvert', in_progress: 'En cours', closed: 'Fermé' };
   var CATEGORY_LABELS = {
@@ -57,6 +59,9 @@
   var composerKey = '';
   var toastTimer = null;
   var fatalShown = false;
+  var realtimeChannel = null;
+  var unreadCount = 0;
+  var baseTitle = '';
 
   var el = {};
 
@@ -513,10 +518,12 @@
 
     renderAll();
     startPolling();
+    startRealtime();
   }
 
   function renderAll() {
     document.title = (ticket.subject || 'Ticket') + ' — Montevia';
+    baseTitle = document.title;
     renderHeader();
     renderChat(true);
     renderInfo();
@@ -775,6 +782,12 @@
     el.info.append(infoRow('Dernière activité', formatDate(ticket.updated_at || ticket.created_at)));
     if (ticket.claimed_by) {
       el.info.append(infoRow('Pris en charge par', nameForId(ticket.claimed_by)));
+      if (ticket.claimed_at) {
+        el.info.append(infoRow('Pris en charge le', formatDate(ticket.claimed_at)));
+      }
+    }
+    if (status === 'closed' && ticket.closed_at) {
+      el.info.append(infoRow('Fermé le', formatDate(ticket.closed_at)));
     }
   }
 
@@ -960,15 +973,38 @@
 
     var textarea = byId('replyMsg');
     var sendButton = byId('replySend');
-    var text = textarea ? textarea.value.trim() : '';
-    if (!text) {
-      toast('Écrivez un message avant d’envoyer.', 'error');
+    var raw = textarea ? textarea.value : '';
+
+    var check = security
+      ? security.validateSubmission(raw, {
+        min: 1,
+        max: MAX_MESSAGE,
+        maxLinks: 3,
+        minMessage: 'Écrivez un message avant d’envoyer.',
+        maxMessage: 'Le message est trop long (2000 caractères maximum).'
+      })
+      : { ok: String(raw || '').trim().length > 0, text: String(raw || '').trim(), message: 'Écrivez un message avant d’envoyer.' };
+
+    if (!check.ok) {
+      toast(check.message || 'Message invalide.', 'error');
       return;
     }
-    if (text.length > MAX_MESSAGE) {
-      toast('Le message est trop long (2000 caractères maximum).', 'error');
-      return;
+
+    if (security) {
+      var cooldown = security.cooldownLeft('ticket-message-last', 2500);
+      if (cooldown > 0) {
+        toast('Patiente encore ' + security.humanDuration(cooldown) + ' avant d’envoyer un autre message.', 'error');
+        return;
+      }
+      var rate = security.checkRate('ticket-message', 20, 2 * 60 * 1000);
+      if (!rate.allowed) {
+        toast('Limite atteinte : 20 messages par 2 minutes. Réessayez dans ' +
+          security.humanDuration(rate.retryAfterMs) + '.', 'error');
+        return;
+      }
     }
+
+    var text = security ? security.sanitizeText(check.text, MAX_MESSAGE) : String(check.text).trim();
 
     var internalBox = byId('internalNote');
     var isInternal = !!(isAdmin && internalBox && internalBox.checked);
@@ -1001,6 +1037,11 @@
 
     messages.push(result.data);
     ticket.updated_at = result.data.created_at || new Date().toISOString();
+
+    if (security) {
+      security.recordAction('ticket-message', 2 * 60 * 1000);
+      security.recordAction('ticket-message-last', 5000);
+    }
 
     if (textarea) {
       textarea.value = '';
@@ -1296,6 +1337,11 @@
     toast('Participant retiré.', 'success');
   }
 
+  function updateTitleWithUnread() {
+    var title = baseTitle || document.title;
+    document.title = unreadCount > 0 ? '(' + unreadCount + ') ' + title : title;
+  }
+
   async function refresh() {
     if (pollBusy || !sb || !ticket || document.hidden) return;
     pollBusy = true;
@@ -1321,10 +1367,21 @@
       }
 
       if (!messageResult.error && Array.isArray(messageResult.data)) {
+        var previousCount = messages.length;
         var oldIds = messages.map(function (message) { return String(message.id); }).join(',');
         var newIds = messageResult.data.map(function (message) { return String(message.id); }).join(',');
         if (oldIds !== newIds) {
           messages = messageResult.data;
+
+          if (messages.length > previousCount) {
+            var chat = el.chat;
+            var nearBottom = chat ? chat.scrollHeight - chat.scrollTop - chat.clientHeight < 150 : false;
+            if (document.hidden || !nearBottom) {
+              unreadCount += messages.length - previousCount;
+              updateTitleWithUnread();
+            }
+          }
+
           await loadNames(messages.map(function (message) { return message.sender_id; }));
           renderChat();
         }
@@ -1353,9 +1410,56 @@
     }
   }
 
-  window.addEventListener('beforeunload', stopPolling);
+  /* Temps réel Supabase : les nouveaux messages arrivent instantanément.
+     Le polling reste actif comme filet de sécurité si Realtime est indisponible. */
+  function startRealtime() {
+    stopRealtime();
+    if (!REALTIME_ENABLED || !sb || typeof sb.channel !== 'function') return;
+
+    try {
+      realtimeChannel = sb.channel('montevia-ticket-' + ticketId);
+
+      realtimeChannel.on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'montevia_ticket_messages', filter: 'ticket_id=eq.' + ticketId },
+        function () { refresh(); }
+      );
+
+      realtimeChannel.on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'montevia_tickets', filter: 'id=eq.' + ticketId },
+        function () { refresh(); }
+      );
+
+      realtimeChannel.subscribe(function (status) {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          REALTIME_ENABLED = false;
+          stopRealtime();
+        }
+      });
+    } catch (e) {
+      REALTIME_ENABLED = false;
+      stopRealtime();
+    }
+  }
+
+  function stopRealtime() {
+    if (realtimeChannel && sb) {
+      try { sb.removeChannel(realtimeChannel); } catch (e) { /* ignore */ }
+    }
+    realtimeChannel = null;
+  }
+
+  window.addEventListener('beforeunload', function () {
+    stopPolling();
+    stopRealtime();
+  });
   document.addEventListener('visibilitychange', function () {
-    if (!document.hidden) refresh();
+    if (!document.hidden) {
+      unreadCount = 0;
+      updateTitleWithUnread();
+      refresh();
+    }
   });
 
   if (document.readyState === 'loading') {

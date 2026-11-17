@@ -8,14 +8,14 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#07080a">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self' https://bylwvlxxvgumvqgpwgod.supabase.co wss://bylwvlxxvgumvqgpwgod.supabase.co; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self' https://bylwvlxxvgumvqgpwgod.supabase.co wss://bylwvlxxvgumvqgpwgod.supabase.co; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
   <link rel="icon" type="image/png" href="img/mark.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=12">
-  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/style.css?v=13">
+  <link rel="stylesheet" href="css/admin.css?v=13">
 </head>
 <body class="admin-body">
 
@@ -106,6 +106,10 @@
         <button class="admin-nav__item" type="button" data-view="changelog">
           <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
           Changelog
+        </button>
+        <button class="admin-nav__item" type="button" data-view="security">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6l-8-4z"/><path d="m9 12 2 2 4-4"/></svg>
+          Sécurité
         </button>
       </nav>
 
@@ -429,6 +433,71 @@
             <button class="btn btn--primary" type="button" data-add-changelog>Ajouter une entrée</button>
           </div>
         </section>
+
+        <section id="securityView" hidden>
+          <div class="admin-view-head">
+            <div>
+              <h2>Sécurité</h2>
+              <p>État des protections, activité récente et journal d'audit.</p>
+            </div>
+            <button class="btn btn--secondary" id="securityRefreshBtn" type="button">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+              Actualiser
+            </button>
+          </div>
+
+          <div class="security-score" id="securityScore">
+            <div class="security-score__ring" id="securityScoreRing">—</div>
+            <div class="security-score__text">
+              <strong id="securityScoreTitle">Analyse des protections…</strong>
+              <p id="securityScoreText">Vérification du navigateur et de la configuration.</p>
+            </div>
+          </div>
+
+          <div class="security-checks" id="securityChecks"></div>
+
+          <div class="admin-grid security-grid">
+            <div class="admin-card">
+              <div class="admin-card__head">
+                <h2>Activité des dernières 24 h</h2>
+                <p>Compteurs calculés côté serveur.</p>
+              </div>
+              <div class="security-activity" id="securityActivity">
+                <p class="security-note">Chargement…</p>
+              </div>
+            </div>
+
+            <div class="admin-card">
+              <div class="admin-card__head">
+                <h2>Journal d'audit serveur</h2>
+                <p>Derniers événements enregistrés dans Supabase.</p>
+              </div>
+              <div class="security-events" id="securityEvents">
+                <p class="security-note">Chargement…</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-card security-card">
+            <div class="admin-card__head">
+              <h2>Journal local du navigateur</h2>
+              <p>Événements de sécurité détectés sur cet appareil (80 maximum).</p>
+            </div>
+            <div class="security-events" id="securityLocalEvents"></div>
+            <button class="btn btn--ghost btn--sm" id="securityClearLocal" type="button">Effacer le journal local</button>
+          </div>
+
+          <div class="admin-card security-card">
+            <div class="admin-card__head">
+              <h2>Base de données</h2>
+              <p>La limitation de débit serveur et le journal d'audit nécessitent le script SQL de sécurité.</p>
+            </div>
+            <div class="security-sql">
+              <code>supabase/montevia_security.sql</code>
+              <a class="btn btn--secondary btn--sm" href="supabase/montevia_security.sql" download>Télécharger le script</a>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   </div>
@@ -618,8 +687,9 @@
 
   <div class="admin-toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="js/vendor/supabase.js?v=12" defer></script>
-  <script src="js/supabase-config.js?v=12" defer></script>
-  <script src="js/admin.js?v=12" defer></script>
+  <script src="js/vendor/supabase.js?v=13" defer></script>
+  <script src="js/supabase-config.js?v=13" defer></script>
+  <script src="js/security.js?v=13" defer></script>
+  <script src="js/admin.js?v=13" defer></script>
 </body>
 </html>

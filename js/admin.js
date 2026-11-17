@@ -94,6 +94,17 @@
   var changelogPublished = document.getElementById('changelogPublished');
   var saveChangelogBtn = document.getElementById('saveChangelogBtn');
 
+  var securityView = document.getElementById('securityView');
+  var securityScoreRing = document.getElementById('securityScoreRing');
+  var securityScoreTitle = document.getElementById('securityScoreTitle');
+  var securityScoreText = document.getElementById('securityScoreText');
+  var securityChecks = document.getElementById('securityChecks');
+  var securityActivity = document.getElementById('securityActivity');
+  var securityEvents = document.getElementById('securityEvents');
+  var securityLocalEvents = document.getElementById('securityLocalEvents');
+  var securityRefreshBtn = document.getElementById('securityRefreshBtn');
+  var securityClearLocal = document.getElementById('securityClearLocal');
+
   var memberDialog = document.getElementById('memberDialog');
   var memberForm = document.getElementById('memberForm');
   var memberDialogTitle = document.getElementById('memberDialogTitle');
@@ -135,7 +146,8 @@
     settings: { el: settingsView, title: 'Liens' },
     gallery: { el: galleryView, title: 'Galerie' },
     tickets: { el: ticketsView, title: 'Tickets' },
-    changelog: { el: changelogView, title: 'Changelog' }
+    changelog: { el: changelogView, title: 'Changelog' },
+    security: { el: securityView, title: 'Sécurité' }
   };
 
   var db = null;
@@ -338,6 +350,186 @@
     });
 
     viewTitle.textContent = VIEWS[view].title;
+
+    if (view === 'security') loadSecurityView();
+  }
+
+  /* ---------- sécurité ---------- */
+
+  function securityApi() {
+    return window.MonteviaSecurity || null;
+  }
+
+  function renderSecuritySelfTest() {
+    var api = securityApi();
+    var checks = api ? api.selfTest() : [];
+    var okCount = checks.filter(function (check) { return check.ok; }).length;
+    var score = checks.length ? Math.round((okCount / checks.length) * 100) : 0;
+
+    if (securityScoreRing) {
+      securityScoreRing.textContent = score + '%';
+      securityScoreRing.className = 'security-score__ring ' +
+        (score >= 90 ? 'is-good' : score >= 60 ? 'is-warn' : 'is-bad');
+    }
+    if (securityScoreTitle) {
+      securityScoreTitle.textContent = score >= 90
+        ? 'Protections solides'
+        : score >= 60
+          ? 'Protections partielles'
+          : 'Protections à renforcer';
+    }
+    if (securityScoreText) {
+      securityScoreText.textContent = okCount + ' vérification(s) sur ' + checks.length + ' réussie(s).';
+    }
+
+    if (!securityChecks) return;
+    securityChecks.replaceChildren();
+
+    checks.forEach(function (check) {
+      var row = document.createElement('div');
+      row.className = 'security-check ' + (check.ok ? 'is-ok' : 'is-off');
+
+      var dot = document.createElement('span');
+      dot.className = 'security-check__dot';
+      dot.setAttribute('aria-hidden', 'true');
+
+      var body = document.createElement('div');
+      var label = document.createElement('strong');
+      label.textContent = check.label;
+      var detail = document.createElement('span');
+      detail.textContent = check.detail || '';
+      body.append(label, detail);
+
+      row.append(dot, body);
+      securityChecks.append(row);
+    });
+  }
+
+  function renderSecurityLocalLog() {
+    if (!securityLocalEvents) return;
+    var api = securityApi();
+    var entries = api ? api.getLog() : [];
+
+    securityLocalEvents.replaceChildren();
+
+    if (!entries.length) {
+      var empty = document.createElement('p');
+      empty.className = 'security-note';
+      empty.textContent = 'Aucun événement local enregistré.';
+      securityLocalEvents.append(empty);
+      return;
+    }
+
+    entries.slice(0, 30).forEach(function (entry) {
+      var row = document.createElement('div');
+      row.className = 'security-event';
+
+      var type = document.createElement('span');
+      type.className = 'security-event__type';
+      type.textContent = entry.type || 'event';
+
+      var detail = document.createElement('span');
+      detail.className = 'security-event__detail';
+      detail.textContent = entry.detail || '—';
+
+      var time = document.createElement('span');
+      time.className = 'security-event__time';
+      time.textContent = entry.at ? new Date(entry.at).toLocaleString('fr-FR') : '';
+
+      row.append(type, detail, time);
+      securityLocalEvents.append(row);
+    });
+  }
+
+  async function loadSecurityView() {
+    renderSecuritySelfTest();
+    renderSecurityLocalLog();
+
+    if (!db) return;
+
+    if (securityActivity) {
+      securityActivity.innerHTML = '<p class="security-note">Chargement…</p>';
+    }
+    if (securityEvents) {
+      securityEvents.innerHTML = '<p class="security-note">Chargement…</p>';
+    }
+
+    try {
+      var summary = await db.rpc('montevia_security_summary');
+      if (summary.error) throw summary.error;
+      var data = summary.data || {};
+
+      if (securityActivity) {
+        securityActivity.replaceChildren();
+        var items = [
+          ['Tickets créés', data.tickets_24h],
+          ['Messages', data.messages_24h],
+          ['Notes internes', data.internal_24h],
+          ['Tickets ouverts', data.open_tickets],
+          ['Tickets fermés', data.closed_24h],
+          ['Événements', data.events_24h]
+        ];
+        items.forEach(function (item) {
+          var row = document.createElement('div');
+          row.className = 'security-stat';
+          var value = document.createElement('strong');
+          value.textContent = String(item[1] == null ? 0 : item[1]);
+          var label = document.createElement('span');
+          label.textContent = item[0];
+          row.append(value, label);
+          securityActivity.append(row);
+        });
+      }
+    } catch (error) {
+      if (securityActivity) {
+        securityActivity.innerHTML = '<p class="security-note">Compteurs indisponibles. Exécute <code>supabase/montevia_security.sql</code> dans Supabase.</p>';
+      }
+    }
+
+    try {
+      var events = await db
+        .from('montevia_security_events')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(40);
+
+      if (events.error) throw events.error;
+
+      if (securityEvents) {
+        securityEvents.replaceChildren();
+        var rows = Array.isArray(events.data) ? events.data : [];
+        if (!rows.length) {
+          var empty = document.createElement('p');
+          empty.className = 'security-note';
+          empty.textContent = 'Aucun événement enregistré pour le moment.';
+          securityEvents.append(empty);
+        } else {
+          rows.forEach(function (entry) {
+            var row = document.createElement('div');
+            row.className = 'security-event';
+
+            var type = document.createElement('span');
+            type.className = 'security-event__type';
+            type.textContent = entry.event_type || 'event';
+
+            var detail = document.createElement('span');
+            detail.className = 'security-event__detail';
+            detail.textContent = entry.detail || '—';
+
+            var time = document.createElement('span');
+            time.className = 'security-event__time';
+            time.textContent = entry.created_at ? new Date(entry.created_at).toLocaleString('fr-FR') : '';
+
+            row.append(type, detail, time);
+            securityEvents.append(row);
+          });
+        }
+      }
+    } catch (error) {
+      if (securityEvents) {
+        securityEvents.innerHTML = '<p class="security-note">Journal serveur indisponible. Exécute <code>supabase/montevia_security.sql</code> dans Supabase.</p>';
+      }
+    }
   }
 
   /* ---------- connexion ---------- */
@@ -481,6 +673,16 @@
     event.preventDefault();
     setLoginError('');
 
+    var api = securityApi();
+    if (api) {
+      var rate = api.checkRate('admin-login', 5, 5 * 60 * 1000);
+      if (!rate.allowed) {
+        setLoginError('Trop de tentatives de connexion. Réessaie dans ' +
+          api.humanDuration(rate.retryAfterMs) + '.');
+        return;
+      }
+    }
+
     var identifier = loginId.value.trim();
     var password = loginPassword.value;
 
@@ -511,6 +713,9 @@
         await verifyAndEnter(setResult.data.user);
       }
     } catch (error) {
+      if (api && adminApp.hidden) {
+        api.recordAction('admin-login', 5 * 60 * 1000);
+      }
       if (!adminApp.hidden) {
         // La session est valide mais le chargement des données a échoué.
         showToast(authMessage(error), 'error');
@@ -1731,6 +1936,19 @@
     document.querySelectorAll('[data-view]').forEach(function (button) {
       button.addEventListener('click', function () { switchView(button.dataset.view); });
     });
+
+    if (securityRefreshBtn) {
+      securityRefreshBtn.addEventListener('click', loadSecurityView);
+    }
+
+    if (securityClearLocal) {
+      securityClearLocal.addEventListener('click', function () {
+        var api = securityApi();
+        if (api) api.clearLog();
+        renderSecurityLocalLog();
+        showToast('Journal local effacé.', 'success');
+      });
+    }
 
     document.querySelectorAll('[data-go-team]').forEach(function (button) {
       button.addEventListener('click', function () { switchView('team'); });
