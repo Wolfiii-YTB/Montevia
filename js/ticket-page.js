@@ -139,6 +139,18 @@
     if (code === '42501' || /row-level security|permission denied/i.test(message)) {
       return 'Action non autorisée pour ce compte.';
     }
+    if (/montevia_tickets_message_len_chk/.test(message)) {
+      return 'Le message du ticket ne respecte pas les limites autorisées (2000 caractères maximum).';
+    }
+    if (/montevia_tickets_subject_len_chk/.test(message)) {
+      return 'Le sujet du ticket ne respecte pas les limites autorisées (120 caractères maximum).';
+    }
+    if (/montevia_messages_len_chk/.test(message)) {
+      return 'Le message ne respecte pas les limites autorisées (2000 caractères maximum).';
+    }
+    if (code === '23514' || /violates check constraint/i.test(message)) {
+      return 'Les informations du ticket ne respectent pas les limites autorisées.';
+    }
     if (code === '23505') {
       return 'Ce participant est déjà ajouté au ticket.';
     }

@@ -2,45 +2,40 @@
 -- Montevia — sécurité renforcée (serveur)
 -- À exécuter dans Supabase > SQL Editor après montevia_tickets_fix.sql
 -- Idempotent : peut être relancé sans casser l'existant.
+-- Si la première version a déjà été exécutée, relancer ce fichier :
+-- il remplace les contraintes de longueur trop strictes qui
+-- bloquaient la mise à jour des anciens tickets.
 -- ============================================================
 
 -- ------------------------------------------------------------
--- 1. Contraintes de longueur (NOT VALID : ne bloque pas
---    l'historique, mais s'applique à toutes les nouvelles lignes)
+-- 1. Contraintes de longueur (plafond uniquement)
+--    Les minimums (sujet 3, message 10) sont validés dans le
+--    formulaire. On ne les applique pas en base : PostgreSQL
+--    réévalue toute la ligne lors d'un UPDATE, ce qui bloquerait
+--    les anciens tickets créés avec un message court. Le script
+--    remplace donc les contraintes existantes au lieu de les
+--    conserver telles quelles.
 -- ------------------------------------------------------------
-do $$
-begin
-  if not exists (
-    select 1 from pg_constraint
-    where conrelid = 'public.montevia_tickets'::regclass
-      and conname = 'montevia_tickets_subject_len_chk'
-  ) then
-    alter table public.montevia_tickets
-      add constraint montevia_tickets_subject_len_chk
-      check (char_length(trim(subject)) between 3 and 120) not valid;
-  end if;
+alter table public.montevia_tickets
+  drop constraint if exists montevia_tickets_subject_len_chk;
 
-  if not exists (
-    select 1 from pg_constraint
-    where conrelid = 'public.montevia_tickets'::regclass
-      and conname = 'montevia_tickets_message_len_chk'
-  ) then
-    alter table public.montevia_tickets
-      add constraint montevia_tickets_message_len_chk
-      check (char_length(trim(message)) between 10 and 2000) not valid;
-  end if;
+alter table public.montevia_tickets
+  add constraint montevia_tickets_subject_len_chk
+  check (char_length(btrim(coalesce(subject, ''))) <= 120) not valid;
 
-  if not exists (
-    select 1 from pg_constraint
-    where conrelid = 'public.montevia_ticket_messages'::regclass
-      and conname = 'montevia_messages_len_chk'
-  ) then
-    alter table public.montevia_ticket_messages
-      add constraint montevia_messages_len_chk
-      check (char_length(trim(message)) between 1 and 2000) not valid;
-  end if;
-end
-$$;
+alter table public.montevia_tickets
+  drop constraint if exists montevia_tickets_message_len_chk;
+
+alter table public.montevia_tickets
+  add constraint montevia_tickets_message_len_chk
+  check (char_length(coalesce(message, '')) <= 2000) not valid;
+
+alter table public.montevia_ticket_messages
+  drop constraint if exists montevia_messages_len_chk;
+
+alter table public.montevia_ticket_messages
+  add constraint montevia_messages_len_chk
+  check (char_length(coalesce(message, '')) <= 2000) not valid;
 
 -- ------------------------------------------------------------
 -- 2. Journal d'audit sécurité

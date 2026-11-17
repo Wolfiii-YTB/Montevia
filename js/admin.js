@@ -175,7 +175,21 @@
   }
 
   function errorMessage(error) {
-    return (error && (error.message || error.error_description)) || '';
+    var raw = (error && (error.message || error.error_description)) || '';
+    var code = (error && error.code) || '';
+    if (/montevia_tickets_message_len_chk/.test(raw)) {
+      return 'Le message du ticket ne respecte pas les limites autorisées (2000 caractères maximum).';
+    }
+    if (/montevia_tickets_subject_len_chk/.test(raw)) {
+      return 'Le sujet du ticket ne respecte pas les limites autorisées (120 caractères maximum).';
+    }
+    if (/montevia_messages_len_chk/.test(raw)) {
+      return 'Le message ne respecte pas les limites autorisées (2000 caractères maximum).';
+    }
+    if (code === '23514' || /violates check constraint/i.test(raw)) {
+      return 'Les données ne respectent pas les limites autorisées. Vérifie les champs puis réessaie.';
+    }
+    return raw;
   }
 
   function authMessage(error) {
