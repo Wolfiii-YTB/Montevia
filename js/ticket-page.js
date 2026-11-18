@@ -495,6 +495,13 @@
 
     isAdmin = await checkAdmin();
 
+    // Un ticket est privé : inutile d'interroger la base sans session,
+    // cela évite une erreur 401 et affiche directement la connexion.
+    if (!currentUser) {
+      fatal('Connectez-vous avec le compte qui a ouvert ce ticket pour voir la conversation.');
+      return;
+    }
+
     var result;
     try {
       result = await withTimeout(
@@ -512,11 +519,7 @@
     }
 
     if (!result.data) {
-      if (!currentUser) {
-        fatal('Connectez-vous avec le compte qui a ouvert ce ticket pour voir la conversation.');
-      } else {
-        fatal('Ticket introuvable ou accès refusé. Vérifiez que vous êtes connecté avec le bon compte (ouvreur, participant ou staff).');
-      }
+      fatal('Ticket introuvable ou accès refusé. Vérifiez que vous êtes connecté avec le bon compte (ouvreur, participant ou staff).');
       return;
     }
 

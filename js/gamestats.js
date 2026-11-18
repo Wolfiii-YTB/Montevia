@@ -6,6 +6,9 @@
   var UNIVERSE_ID = '10752535690';
   var GAMES_URL = 'https://games.roblox.com/v1/games?universeIds=' + UNIVERSE_ID;
   var CACHE_KEY = 'montevia-gamestats';
+  var REFRESH_MS = 10000;
+  var inFlight = false;
+  var timer = null;
 
   function formatNumber(n) {
     if (typeof n !== 'number' || isNaN(n)) return '—';
@@ -66,10 +69,28 @@
   }
 
   async function update() {
-    var json = await fetchJson();
-    if (json) {
-      saveCache(json);
-      applyData(json);
+    if (inFlight) return;
+    inFlight = true;
+    try {
+      var json = await fetchJson();
+      if (json) {
+        saveCache(json);
+        applyData(json);
+      }
+    } finally {
+      inFlight = false;
+    }
+  }
+
+  function startTimer() {
+    stopTimer();
+    timer = setInterval(update, REFRESH_MS);
+  }
+
+  function stopTimer() {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
     }
   }
 
@@ -78,7 +99,18 @@
     var cached = loadCache();
     if (cached) applyData(cached);
     update();
-    setInterval(update, 5000);
+    startTimer();
+
+    // Évite les requêtes inutiles en arrière-plan et rafraîchit au retour.
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') {
+        update();
+        startTimer();
+      } else {
+        stopTimer();
+      }
+    });
+    window.addEventListener('online', update);
   }
 
   if (document.readyState === 'loading') {

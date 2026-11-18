@@ -44,7 +44,17 @@
     });
 
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') setMenu(false);
+      if (e.key === 'Escape' && nav.classList.contains('is-open')) {
+        setMenu(false);
+        burger.focus();
+      }
+    });
+
+    // Ferme le menu quand on touche/clique en dehors.
+    document.addEventListener('click', function (e) {
+      if (!nav.classList.contains('is-open')) return;
+      if (nav.contains(e.target) || burger.contains(e.target)) return;
+      setMenu(false);
     });
 
     window.addEventListener('resize', function () {

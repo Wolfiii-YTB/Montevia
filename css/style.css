@@ -105,6 +105,18 @@ h1, h2, h3, h4 {
 }
 .skip:focus { left: 16px; top: 16px; }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .progress {
   position: fixed;
   z-index: 200;
@@ -238,6 +250,7 @@ h1, h2, h3, h4 {
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  min-height: 40px;
   flex: none;
 }
 
@@ -293,8 +306,8 @@ h1, h2, h3, h4 {
 .burger {
   display: none;
   position: relative;
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   padding: 0;
   border: 1px solid var(--line-strong);
   border-radius: 11px;
@@ -303,15 +316,15 @@ h1, h2, h3, h4 {
 }
 .burger span {
   position: absolute;
-  left: 10px;
-  width: 16px;
+  left: 12px;
+  width: 18px;
   height: 1.5px;
   border-radius: 2px;
   background: var(--text);
   transition: transform .2s ease;
 }
-.burger span:nth-child(1) { top: 15px; }
-.burger span:nth-child(2) { top: 21px; }
+.burger span:nth-child(1) { top: 17px; }
+.burger span:nth-child(2) { top: 23px; }
 .burger[aria-expanded="true"] span:nth-child(1) { transform: translateY(3px) rotate(45deg); }
 .burger[aria-expanded="true"] span:nth-child(2) { transform: translateY(-3px) rotate(-45deg); }
 
@@ -338,8 +351,8 @@ h1, h2, h3, h4 {
   color: var(--accent);
 }
 
-/* Hide sidebar on smaller screens */
-@media (max-width: 768px) {
+/* Masquée avant qu'elle ne chevauche le contenu (tablettes incluses) */
+@media (max-width: 900px) {
   .side-nav { display: none; }
 }
 
@@ -1170,8 +1183,10 @@ h1, h2, h3, h4 {
     padding: 14px 0 0;
     border-left: 0;
     border-top: 1px solid var(--line);
+    flex-direction: column;
+    align-items: stretch;
   }
-  .nav__actions .btn { flex: 1; height: 40px; font-size: 14px; }
+  .nav__actions .btn { flex: none; width: 100%; height: 44px; font-size: 14px; }
 }
 
 @media (max-width: 700px) {
@@ -1196,6 +1211,21 @@ h1, h2, h3, h4 {
 
 @media (max-width: 560px) {
   :root { --pad: 20px; }
+
+  /* Les CTA pleine largeur peuvent passer à la ligne sur les très petits écrans. */
+  .hero__actions .btn,
+  .page-actions .btn,
+  .cta__actions .btn,
+  .banner .btn {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    min-height: 46px;
+    padding: 11px 16px;
+    white-space: normal;
+    line-height: 1.3;
+    text-align: center;
+  }
 
   /* Compte */
   .account-card { padding: 20px; border-radius: 18px; }
@@ -1297,6 +1327,7 @@ h1, h2, h3, h4 {
   gap: clamp(32px, 5vw, 72px);
   margin-top: clamp(28px, 4vw, 46px);
 }
+.page-hero__grid > * { min-width: 0; }
 
 .page-hero h1 {
   margin: 14px 0 18px;
@@ -1318,6 +1349,7 @@ h1, h2, h3, h4 {
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 28px;
+  min-width: 0;
 }
 
 /* --- carte d'organisation --- */
@@ -1777,11 +1809,11 @@ h1, h2, h3, h4 {
   background: rgba(0,0,0,0.5);
   border: none;
   color: #fff;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1792,19 +1824,44 @@ h1, h2, h3, h4 {
 .carousel__dots {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  padding: 12px;
+  align-items: center;
+  gap: 0;
+  padding: 6px;
 }
 .carousel__dot {
-  width: 8px;
-  height: 8px;
+  position: relative;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: var(--text-3);
+  background: transparent;
   border: none;
   cursor: pointer;
   padding: 0;
 }
-.carousel__dot.is-active { background: var(--accent); }
+.carousel__dot::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-3);
+  transform: translate(-50%, -50%);
+  transition: background .2s ease, transform .2s ease;
+}
+.carousel__dot.is-active::after {
+  background: var(--accent);
+  transform: translate(-50%, -50%) scale(1.2);
+}
+.carousel__dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -4px;
+}
+@media (max-width: 380px) {
+  .carousel__dots { padding: 4px; }
+  .carousel__dot { width: 26px; height: 30px; }
+}
 .carousel__empty {
   padding: 40px;
   text-align: center;
@@ -2412,6 +2469,9 @@ dialog[open] {
   flex-wrap: wrap;
 }
 .ticket-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
   padding: 6px 12px;
   border: 1px solid var(--line);
   border-radius: 6px;
@@ -2614,12 +2674,18 @@ dialog[open] {
   padding: 4px 0;
 }
 .ticket-input__send {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex: none;
   background: transparent;
   border: none;
-  color: var(--text-3);
+  color: var(--text-2);
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
+  padding: 0;
+  border-radius: 8px;
   transition: color .15s ease, background .15s ease;
 }
 .ticket-input__send:hover {
@@ -2677,8 +2743,8 @@ dialog[open] {
   display: none;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 42px;
+  height: 42px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface-2);
@@ -2706,8 +2772,8 @@ dialog[open] {
   display: none;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 42px;
+  height: 42px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: transparent;
@@ -3158,6 +3224,37 @@ dialog[open] {
   color: #f87171;
 }
 
+@media (max-width: 960px) {
+  .ticket-header {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 16px;
+  }
+  .ticket-header__left {
+    width: 100%;
+  }
+  .ticket-header__title {
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+  }
+  .ticket-header__right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .ticket-header__actions {
+    flex: 1;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 0;
+  }
+  .ticket-btn {
+    flex-shrink: 0;
+    min-height: 40px;
+    padding: 8px 12px;
+  }
+}
+
 @media (max-width: 900px) {
   .ticket-sidebar {
     position: fixed;
@@ -3182,12 +3279,6 @@ dialog[open] {
   .ticket-sidebar__close {
     display: inline-flex;
   }
-  .ticket-header {
-    padding: 12px 16px;
-  }
-  .ticket-header__title {
-    max-width: 40vw;
-  }
 }
 
 @media (max-width: 640px) {
@@ -3198,35 +3289,18 @@ dialog[open] {
     height: 100dvh;
   }
   .ticket-header {
-    flex-wrap: wrap;
-    gap: 8px;
     padding: 10px 12px;
-  }
-  .ticket-header__left {
-    width: 100%;
-  }
-  .ticket-header__title {
-    flex: 1;
-    max-width: none;
-  }
-  .ticket-header__right {
-    width: 100%;
-    justify-content: flex-end;
   }
   .ticket-header__actions {
     flex: 1;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 2px;
-    scrollbar-width: none;
-  }
-  .ticket-header__actions::-webkit-scrollbar {
-    display: none;
+    flex-wrap: wrap;
+    gap: 6px;
   }
   .ticket-btn {
     flex-shrink: 0;
-    padding: 5px 9px;
-    font-size: 12px;
+    min-height: 40px;
+    padding: 8px 10px;
+    font-size: 12.5px;
   }
   .ticket-chat {
     padding: 16px 12px;
@@ -3414,7 +3488,8 @@ dialog[open] {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 11px;
+  min-height: 40px;
+  padding: 9px 12px;
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--surface-3);
@@ -3856,4 +3931,17 @@ dialog[open] {
   .org-card__arrow { transition: none; }
   .org-card__list.is-swapping li.org-card__member-item { opacity: 1; transform: none; }
   .org-card__member:hover .org-card__arrow { transform: none; }
+}
+
+/* Zones tactiles confortables sur écrans tactiles. */
+@media (pointer: coarse) {
+  .btn { min-height: 44px; }
+  .btn--sm { height: auto; min-height: 40px; padding-top: 8px; padding-bottom: 8px; }
+  .brand { min-height: 44px; }
+  .ticket-btn { min-height: 44px; }
+  .ticket-filter { min-height: 44px; }
+  .ticket-sidebar-toggle,
+  .ticket-sidebar__close,
+  .ticket-input__send { width: 44px; height: 44px; }
+  .ticket-msg__delete { min-width: 36px; min-height: 36px; }
 }
